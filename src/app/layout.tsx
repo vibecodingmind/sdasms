@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SMSPro - Bulk SMS & Multi-Channel Messaging Platform",
-  description: "Professional multi-channel messaging platform for SMS, WhatsApp, Viber campaigns with DLT compliance, analytics, and more.",
+  title: "SMSPro Admin - Bulk SMS Platform Administration",
+  description: "Admin panel for managing the SMSPro bulk SMS and multi-channel messaging platform",
   icons: {
     icon: "/logo.png",
   },
@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
         <Toaster />

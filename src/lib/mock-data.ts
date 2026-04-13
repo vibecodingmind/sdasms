@@ -1,203 +1,313 @@
-// Mock data for demo/prototype when database is not connected
-// All API routes try Prisma first, fall back to mock data
+// ============================================================
+// Mock Data for SMS Admin Panel
+// ============================================================
 
-export const mockUser = {
+export const mockAdmin = {
   id: 1,
-  uid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-  parentId: null,
-  firstName: 'Admin',
-  lastName: 'User',
-  email: 'admin@admin.com',
-  status: 'active',
-  smsUnit: 52480,
-  isAdmin: true,
-  isCustomer: true,
-  locale: 'en',
-  timezone: 'UTC',
+  uid: "admin-001",
+  first_name: "Super",
+  last_name: "Admin",
+  email: "admin@admin.com",
+  is_admin: true,
   avatar: null,
-  dltEntityId: 'DLT_ENTITY_001',
-  dltTelemarketerId: 'TM_001',
-  createdAt: new Date('2024-01-15'),
-  updatedAt: new Date('2024-12-01'),
+  status: "active",
 };
 
-export const mockDashboard = {
-  totalContacts: 24583,
-  smsSentToday: 12450,
-  smsSentMonth: 347820,
-  smsBalance: 52480,
-  activeCampaigns: 7,
-  deliveryRate: 94.5,
-  contactsGrowth: 12.3,
-  smsGrowth: 8.7,
-  balanceGrowth: -3.2,
-  campaignGrowth: 16.7,
-  weeklyStats: [
-    { day: 'Mon', sent: 45200, delivered: 42800, failed: 2400 },
-    { day: 'Tue', sent: 52100, delivered: 49500, failed: 2600 },
-    { day: 'Wed', sent: 48900, delivered: 46200, failed: 2700 },
-    { day: 'Thu', sent: 61300, delivered: 58700, failed: 2600 },
-    { day: 'Fri', sent: 54700, delivered: 52100, failed: 2600 },
-    { day: 'Sat', sent: 38200, delivered: 36300, failed: 1900 },
-    { day: 'Sun', sent: 29420, delivered: 27900, failed: 1520 },
-  ],
-  deliveryStatus: [
-    { name: 'Delivered', value: 61400, color: '#22c55e' },
-    { name: 'Failed', value: 4320, color: '#ef4444' },
-    { name: 'Pending', value: 2890, color: '#f59e0b' },
-    { name: 'Rejected', value: 870, color: '#8b5cf6' },
-    { name: 'Bounced', value: 450, color: '#6b7280' },
-  ],
-  recentCampaigns: [
-    { id: 1, uid: 'c1', campaignName: 'Flash Sale Weekend', status: 'done', contactCount: 15420, delivered: 14850, failed: 570, createdAt: '2024-12-01T10:30:00' },
-    { id: 2, uid: 'c2', campaignName: 'Order Confirmation', status: 'sending', contactCount: 3250, delivered: 2100, failed: 85, createdAt: '2024-12-01T14:15:00' },
-    { id: 3, uid: 'c3', campaignName: 'Appointment Reminder', status: 'scheduled', contactCount: 890, delivered: 0, failed: 0, createdAt: '2024-12-02T09:00:00' },
-    { id: 4, uid: 'c4', campaignName: 'WhatsApp Promo Dec', status: 'done', contactCount: 5200, delivered: 4980, failed: 220, createdAt: '2024-11-30T16:45:00' },
-    { id: 5, uid: 'c5', campaignName: 'OTP Verification', status: 'sending', contactCount: 1250, delivered: 890, failed: 30, createdAt: '2024-12-01T11:00:00' },
-  ],
-  recentActivity: [
-    { id: 1, type: 'campaign', message: 'Campaign "Flash Sale Weekend" completed with 96.3% delivery rate', time: '2 hours ago' },
-    { id: 2, type: 'payment', message: 'Top-up of ₹5,000 processed successfully', time: '4 hours ago' },
-    { id: 3, type: 'contact', message: '1,250 new contacts imported from CSV', time: '6 hours ago' },
-    { id: 4, type: 'alert', message: 'SMS balance running low (below 55,000)', time: '1 day ago' },
-    { id: 5, type: 'campaign', message: 'Campaign "WhatsApp Promo Dec" completed', time: '1 day ago' },
-    { id: 6, type: 'server', message: 'Sending server "Twilio India" reconnected', time: '2 days ago' },
-  ],
-};
-
-export const mockCampaigns = [
-  { id: 1, uid: 'c1', userId: 1, campaignName: 'Flash Sale Weekend', message: '🔥 MEGA SALE! Up to 70% OFF on all products. Use code FLASH70 at checkout. Offer valid this weekend only! Shop now: https://shop.example.com', mediaUrl: null, scheduleTime: '2024-12-01T10:30:00', scheduleType: 'onetime', status: 'done', dltTemplateId: '1107163284567890123', createdAt: '2024-12-01T10:30:00', contactCount: 15420, delivered: 14850, failed: 570, type: 'sms' },
-  { id: 2, uid: 'c2', userId: 1, campaignName: 'Order Confirmation', message: 'Your order #ORD-2024-12345 has been confirmed! Expected delivery: Dec 5-7. Track here: https://shop.example.com/track/12345', mediaUrl: null, scheduleTime: null, scheduleType: 'onetime', status: 'sending', dltTemplateId: '1107163284567890124', createdAt: '2024-12-01T14:15:00', contactCount: 3250, delivered: 2100, failed: 85, type: 'sms' },
-  { id: 3, uid: 'c3', userId: 1, campaignName: 'Appointment Reminder', message: 'Reminder: You have an appointment with Dr. Sharma on Dec 2 at 3:00 PM. Reply CANCEL to reschedule.', mediaUrl: null, scheduleTime: '2024-12-02T08:30:00', scheduleType: 'onetime', status: 'scheduled', dltTemplateId: '1107163284567890125', createdAt: '2024-12-01T20:00:00', contactCount: 890, delivered: 0, failed: 0, type: 'sms' },
-  { id: 4, uid: 'c4', userId: 1, campaignName: 'WhatsApp Promo Dec', message: '🎉 December Special! Get 30% off on premium plans. Limited time offer. Tap to learn more!', mediaUrl: null, scheduleTime: null, scheduleType: 'onetime', status: 'done', dltTemplateId: null, createdAt: '2024-11-30T16:45:00', contactCount: 5200, delivered: 4980, failed: 220, type: 'whatsapp' },
-  { id: 5, uid: 'c5', userId: 1, campaignName: 'OTP Verification', message: 'Your OTP for verification is {{otp}}. Valid for 5 minutes. Do not share this code.', mediaUrl: null, scheduleTime: null, scheduleType: 'onetime', status: 'sending', dltTemplateId: null, createdAt: '2024-12-01T11:00:00', contactCount: 1250, delivered: 890, failed: 30, type: 'otp' },
-  { id: 6, uid: 'c6', userId: 1, campaignName: 'Viber Holiday Greetings', message: '✨ Wishing you a Happy Holiday Season! Enjoy exclusive deals at our store this December.', mediaUrl: null, scheduleTime: '2024-12-25T10:00:00', scheduleType: 'onetime', status: 'scheduled', dltTemplateId: null, createdAt: '2024-11-28T09:00:00', contactCount: 8000, delivered: 0, failed: 0, type: 'viber' },
-  { id: 7, uid: 'c7', userId: 1, campaignName: 'Monthly Newsletter', message: '📰 Monthly Update: New features added, system maintenance scheduled, and tips for better delivery rates.', mediaUrl: null, scheduleTime: null, scheduleType: 'onetime', status: 'done', dltTemplateId: null, createdAt: '2024-11-25T08:00:00', contactCount: 24500, delivered: 23100, failed: 1400, type: 'sms' },
-  { id: 8, uid: 'c8', userId: 1, campaignName: 'Payment Reminder', message: 'Friendly reminder: Your subscription expires in 3 days. Renew now to avoid service interruption.', mediaUrl: null, scheduleTime: null, scheduleType: 'onetime', status: 'failed', dltTemplateId: '1107163284567890126', createdAt: '2024-12-01T07:00:00', contactCount: 450, delivered: 120, failed: 330, type: 'sms' },
-  { id: 9, uid: 'c9', userId: 1, campaignName: 'New Product Launch', message: '🚀 Introducing our newest product! Be the first to experience innovation. Pre-order now at https://shop.example.com/new', mediaUrl: null, scheduleTime: '2024-12-05T09:00:00', scheduleType: 'onetime', status: 'pending', dltTemplateId: null, createdAt: '2024-12-01T18:00:00', contactCount: 18000, delivered: 0, failed: 0, type: 'whatsapp' },
-  { id: 10, uid: 'c10', userId: 1, campaignName: 'Delivery Update', message: 'Your package has been dispatched! Tracking ID: TK987654321. Expected delivery by Dec 3.', mediaUrl: null, scheduleTime: null, scheduleType: 'onetime', status: 'cancelled', dltTemplateId: null, createdAt: '2024-11-29T14:30:00', contactCount: 600, delivered: 0, failed: 0, type: 'sms' },
+export const mockCustomers = [
+  { id: 1, uid: "c-001", first_name: "John", last_name: "Smith", email: "john@acmecorp.com", phone: "+1 555-0101", plan: "Enterprise", sms_balance: 45000, status: "active", joined: "2024-01-15", revenue: 12500 },
+  { id: 2, uid: "c-002", first_name: "Sarah", last_name: "Johnson", email: "sarah@globaltech.com", phone: "+1 555-0102", plan: "Business", sms_balance: 22000, status: "active", joined: "2024-02-20", revenue: 8900 },
+  { id: 3, uid: "c-003", first_name: "Michael", last_name: "Chen", email: "michael@asiainc.com", phone: "+86 138-0001", plan: "Starter", sms_balance: 5600, status: "active", joined: "2024-03-10", revenue: 3200 },
+  { id: 4, uid: "c-004", first_name: "Emma", last_name: "Williams", email: "emma@euromail.com", phone: "+44 7700-0401", plan: "Enterprise", sms_balance: 67000, status: "active", joined: "2024-01-05", revenue: 15600 },
+  { id: 5, uid: "c-005", first_name: "David", last_name: "Brown", email: "david@startup.io", phone: "+1 555-0105", plan: "Business", sms_balance: 12000, status: "inactive", joined: "2024-04-18", revenue: 5400 },
+  { id: 6, uid: "c-006", first_name: "Lisa", last_name: "Martinez", email: "lisa@latamco.com", phone: "+52 55-0106", plan: "Starter", sms_balance: 800, status: "active", joined: "2024-05-22", revenue: 1500 },
+  { id: 7, uid: "c-007", first_name: "James", last_name: "Wilson", email: "james@techfirm.com", phone: "+1 555-0107", plan: "Enterprise", sms_balance: 91000, status: "active", joined: "2023-11-30", revenue: 22000 },
+  { id: 8, uid: "c-008", first_name: "Aisha", last_name: "Patel", email: "aisha@indiatech.in", phone: "+91 9876-0801", plan: "Business", sms_balance: 18500, status: "active", joined: "2024-06-01", revenue: 7200 },
+  { id: 9, uid: "c-009", first_name: "Robert", last_name: "Taylor", email: "robert@mktgpro.com", phone: "+1 555-0109", plan: "Starter", sms_balance: 3200, status: "inactive", joined: "2024-07-15", revenue: 2800 },
+  { id: 10, uid: "c-010", first_name: "Maria", last_name: "Garcia", email: "maria@bizlat.com", phone: "+34 600-1010", plan: "Business", sms_balance: 15000, status: "active", joined: "2024-03-25", revenue: 6100 },
+  { id: 11, uid: "c-011", first_name: "Tom", last_name: "Anderson", email: "tom@nordic.se", phone: "+46 70-1011", plan: "Enterprise", sms_balance: 55000, status: "active", joined: "2024-02-14", revenue: 18200 },
+  { id: 12, uid: "c-012", first_name: "Nina", last_name: "Kowalski", email: "nina@polandtel.pl", phone: "+48 500-1012", plan: "Starter", sms_balance: 1000, status: "active", joined: "2024-08-01", revenue: 950 },
 ];
 
-export const mockContacts = [
-  { id: 1, uid: 'ct1', userId: 1, groupId: 1, phone: '+919876543210', firstName: 'Rajesh', lastName: 'Kumar', email: 'rajesh@example.com', status: 'subscribed', createdAt: '2024-01-15' },
-  { id: 2, uid: 'ct2', userId: 1, groupId: 1, phone: '+919876543211', firstName: 'Priya', lastName: 'Sharma', email: 'priya@example.com', status: 'subscribed', createdAt: '2024-01-16' },
-  { id: 3, uid: 'ct3', userId: 1, groupId: 2, phone: '+919876543212', firstName: 'Amit', lastName: 'Patel', email: 'amit@example.com', status: 'subscribed', createdAt: '2024-01-17' },
-  { id: 4, uid: 'ct4', userId: 1, groupId: 2, phone: '+919876543213', firstName: 'Sneha', lastName: 'Verma', email: 'sneha@example.com', status: 'unsubscribed', createdAt: '2024-02-01' },
-  { id: 5, uid: 'ct5', userId: 1, groupId: 1, phone: '+919876543214', firstName: 'Vikram', lastName: 'Singh', email: 'vikram@example.com', status: 'subscribed', createdAt: '2024-02-05' },
-  { id: 6, uid: 'ct6', userId: 1, groupId: 3, phone: '+919876543215', firstName: 'Neha', lastName: 'Gupta', email: 'neha@example.com', status: 'subscribed', createdAt: '2024-02-10' },
-  { id: 7, uid: 'ct7', userId: 1, groupId: 3, phone: '+919876543216', firstName: 'Arjun', lastName: 'Reddy', email: 'arjun@example.com', status: 'blacklisted', createdAt: '2024-02-15' },
-  { id: 8, uid: 'ct8', userId: 1, groupId: 2, phone: '+919876543217', firstName: 'Kavita', lastName: 'Joshi', email: 'kavita@example.com', status: 'subscribed', createdAt: '2024-02-20' },
-  { id: 9, uid: 'ct9', userId: 1, groupId: 1, phone: '+919876543218', firstName: 'Deepak', lastName: 'Mehta', email: 'deepak@example.com', status: 'subscribed', createdAt: '2024-03-01' },
-  { id: 10, uid: 'ct10', userId: 1, groupId: 3, phone: '+919876543219', firstName: 'Anita', lastName: 'Das', email: 'anita@example.com', status: 'subscribed', createdAt: '2024-03-05' },
-  { id: 11, uid: 'ct11', userId: 1, groupId: 2, phone: '+919876543220', firstName: 'Rahul', lastName: 'Nair', email: 'rahul@example.com', status: 'subscribed', createdAt: '2024-03-10' },
-  { id: 12, uid: 'ct12', userId: 1, groupId: 1, phone: '+919876543221', firstName: 'Pooja', lastName: 'Iyer', email: 'pooja@example.com', status: 'unsubscribed', createdAt: '2024-03-15' },
-  { id: 13, uid: 'ct13', userId: 1, groupId: 3, phone: '+919876543222', firstName: 'Sanjay', lastName: 'Mishra', email: 'sanjay@example.com', status: 'subscribed', createdAt: '2024-03-20' },
-  { id: 14, uid: 'ct14', userId: 1, groupId: 2, phone: '+919876543223', firstName: 'Meera', lastName: 'Pillai', email: 'meera@example.com', status: 'subscribed', createdAt: '2024-04-01' },
-  { id: 15, uid: 'ct15', userId: 1, groupId: 1, phone: '+919876543224', firstName: 'Suresh', lastName: 'Rao', email: 'suresh@example.com', status: 'subscribed', createdAt: '2024-04-05' },
+export const mockSubscriptions = [
+  { id: 1, uid: "sub-001", customer: "John Smith", plan: "Enterprise", start_date: "2024-01-15", end_date: "2025-01-15", status: "active", amount: 499.99 },
+  { id: 2, uid: "sub-002", customer: "Sarah Johnson", plan: "Business", start_date: "2024-02-20", end_date: "2025-02-20", status: "active", amount: 199.99 },
+  { id: 3, uid: "sub-003", customer: "Michael Chen", plan: "Starter", start_date: "2024-03-10", end_date: "2024-06-10", status: "expired", amount: 49.99 },
+  { id: 4, uid: "sub-004", customer: "Emma Williams", plan: "Enterprise", start_date: "2024-01-05", end_date: "2025-01-05", status: "active", amount: 499.99 },
+  { id: 5, uid: "sub-005", customer: "David Brown", plan: "Business", start_date: "2024-04-18", end_date: "2024-10-18", status: "expired", amount: 199.99 },
+  { id: 6, uid: "sub-006", customer: "Lisa Martinez", plan: "Starter", start_date: "2024-05-22", end_date: "2025-05-22", status: "active", amount: 49.99 },
+  { id: 7, uid: "sub-007", customer: "James Wilson", plan: "Enterprise", start_date: "2023-11-30", end_date: "2024-11-30", status: "active", amount: 499.99 },
+  { id: 8, uid: "sub-008", customer: "Aisha Patel", plan: "Business", start_date: "2024-06-01", end_date: "2025-06-01", status: "active", amount: 199.99 },
+  { id: 9, uid: "sub-009", customer: "Robert Taylor", plan: "Starter", start_date: "2024-07-15", end_date: "2024-07-15", status: "cancelled", amount: 49.99 },
+  { id: 10, uid: "sub-010", customer: "Tom Anderson", plan: "Enterprise", start_date: "2024-02-14", end_date: "2025-02-14", status: "active", amount: 499.99 },
 ];
 
-export const mockGroups = [
-  { id: 1, uid: 'g1', userId: 1, name: 'Premium Customers', description: 'High-value customers with premium tier subscription', status: 'active', contactCount: 5240, createdAt: '2024-01-15' },
-  { id: 2, uid: 'g2', userId: 1, name: 'New Users', description: 'Customers registered in the last 30 days', status: 'active', contactCount: 8320, createdAt: '2024-02-01' },
-  { id: 3, uid: 'g3', userId: 1, name: 'Inactive Users', description: 'Users who have not logged in for 60+ days', status: 'active', contactCount: 3420, createdAt: '2024-02-15' },
-  { id: 4, uid: 'g4', userId: 1, name: 'VIP Partners', description: 'Business partners and enterprise clients', status: 'active', contactCount: 450, createdAt: '2024-03-01' },
-  { id: 5, uid: 'g5', userId: 1, name: 'Newsletter Subscribers', description: 'Opted in for monthly newsletter', status: 'active', contactCount: 12500, createdAt: '2024-03-15' },
-  { id: 6, uid: 'g6', userId: 1, name: 'Trial Users', description: 'Users on free trial period', status: 'active', contactCount: 2150, createdAt: '2024-04-01' },
-];
-
-export const mockTemplates = [
-  { id: 1, uid: 't1', userId: 1, name: 'OTP Verification', message: 'Your OTP for {{service}} is {{otp}}. Valid for 5 minutes. Do not share this code with anyone.', status: 'active', dltTemplateId: '1107163284567890123', createdAt: '2024-01-15' },
-  { id: 2, uid: 't2', userId: 1, name: 'Order Confirmation', message: 'Hi {{name}}, your order #{{order_id}} has been confirmed! Expected delivery: {{delivery_date}}. Track: {{tracking_url}}', status: 'active', dltTemplateId: '1107163284567890124', createdAt: '2024-01-20' },
-  { id: 3, uid: 't3', userId: 1, name: 'Appointment Reminder', message: 'Reminder: You have an appointment with {{doctor}} on {{date}} at {{time}}. Reply CANCEL to reschedule.', status: 'active', dltTemplateId: '1107163284567890125', createdAt: '2024-02-01' },
-  { id: 4, uid: 't4', userId: 1, name: 'Payment Reminder', message: 'Hi {{name}}, your payment of ₹{{amount}} is due on {{due_date}}. Please pay now to avoid late fees.', status: 'active', dltTemplateId: '1107163284567890126', createdAt: '2024-02-15' },
-  { id: 5, uid: 't5', userId: 1, name: 'Welcome Message', message: 'Welcome to {{company}}, {{name}}! We are excited to have you. Use code WELCOME10 for 10% off your first purchase.', status: 'active', dltTemplateId: '1107163284567890127', createdAt: '2024-03-01' },
-  { id: 6, uid: 't6', userId: 1, name: 'Delivery Update', message: 'Your package is on its way! Tracking ID: {{tracking_id}}. Expected delivery: {{delivery_date}}.', status: 'inactive', dltTemplateId: null, createdAt: '2024-03-15' },
-  { id: 7, uid: 't7', userId: 1, name: 'Flash Sale', message: '🔥 FLASH SALE! Up to {{discount}}% OFF on all products. Use code {{code}} at checkout. Valid {{validity}} only!', status: 'active', dltTemplateId: '1107163284567890128', createdAt: '2024-04-01' },
-  { id: 8, uid: 't8', userId: 1, name: 'Account Verification', message: 'Verify your {{company}} account: {{verification_link}}. This link expires in 24 hours.', status: 'active', dltTemplateId: null, createdAt: '2024-04-10' },
-];
-
-export const mockSendingServers = [
-  { id: 1, uid: 'ss1', userId: 1, name: 'Twilio India', type: 'http', status: 'active', quotaValue: 100, smsPerRequest: 100, settings: { url: 'https://api.twilio.com/2010-04-01', method: 'POST' }, createdAt: '2024-01-15' },
-  { id: 2, uid: 'ss2', userId: 1, name: 'SMPP Gateway', type: 'smpp', status: 'active', quotaValue: 500, smsPerRequest: 200, settings: { host: 'smpp.example.com', port: 2775, systemId: 'smspro', systemType: 'SMPP' }, createdAt: '2024-02-01' },
-  { id: 3, uid: 'ss3', userId: 1, name: 'WhatsApp Business API', type: 'whatsapp', status: 'active', quotaValue: 50, smsPerRequest: 50, settings: { phoneId: '123456789', accessToken: 'whatsapp_token' }, createdAt: '2024-02-15' },
-  { id: 4, uid: 'ss4', userId: 1, name: 'Viber Business', type: 'viber', status: 'inactive', quotaValue: 30, smsPerRequest: 30, settings: { webhookUrl: 'https://smspro.example.com/webhook/viber' }, createdAt: '2024-03-01' },
-  { id: 5, uid: 'ss5', userId: 1, name: 'MSG91 OTP', type: 'otp', status: 'active', quotaValue: 200, smsPerRequest: 100, settings: { authKey: 'msg91_auth_key', templateId: 'msg91_template' }, createdAt: '2024-03-15' },
-  { id: 6, uid: 'ss6', userId: 1, name: 'AWS SNS', type: 'http', status: 'active', quotaValue: 1000, smsPerRequest: 500, settings: { region: 'ap-south-1', accessKey: 'AKIAIOSFODNN7' }, createdAt: '2024-04-01' },
-];
-
-export const mockSmsRoutes = [
-  { id: 1, userId: 1, name: 'India Default Route', sendingServerId: 1, sendingServerName: 'Twilio India', connectType: 'http', countryIds: ['IN'], status: 'active', createdAt: '2024-01-15' },
-  { id: 2, userId: 1, name: 'International Route', sendingServerId: 6, sendingServerName: 'AWS SNS', connectType: 'http', countryIds: ['US', 'UK', 'AE'], status: 'active', createdAt: '2024-02-01' },
-  { id: 3, userId: 1, name: 'WhatsApp Route', sendingServerId: 3, sendingServerName: 'WhatsApp Business API', connectType: 'whatsapp', countryIds: ['IN', 'US', 'UK'], status: 'active', createdAt: '2024-02-15' },
-  { id: 4, userId: 1, name: 'OTP Route India', sendingServerId: 5, sendingServerName: 'MSG91 OTP', connectType: 'otp', countryIds: ['IN'], status: 'active', createdAt: '2024-03-15' },
-  { id: 5, userId: 1, name: 'High Volume Route', sendingServerId: 2, sendingServerName: 'SMPP Gateway', connectType: 'smpp', countryIds: ['IN'], status: 'inactive', createdAt: '2024-04-01' },
-];
-
-export const mockSenderIds = [
-  { id: 1, uid: 'si1', userId: 1, senderId: 'SMSPro', status: 'active', supportingCountries: ['IN'], createdAt: '2024-01-15' },
-  { id: 2, uid: 'si2', userId: 1, senderId: 'SHOPNOW', status: 'active', supportingCountries: ['IN'], createdAt: '2024-02-01' },
-  { id: 3, uid: 'si3', userId: 1, senderId: 'MYAPP', status: 'pending', supportingCountries: ['IN', 'US'], createdAt: '2024-03-01' },
-  { id: 4, uid: 'si4', userId: 1, senderId: 'ALERTS', status: 'active', supportingCountries: ['IN'], createdAt: '2024-03-15' },
-  { id: 5, uid: 'si5', userId: 1, senderId: 'INFORM', status: 'inactive', supportingCountries: ['IN'], createdAt: '2024-04-01' },
-  { id: 6, uid: 'si6', userId: 1, senderId: 'UPDATE', status: 'pending', supportingCountries: ['US', 'UK'], createdAt: '2024-04-10' },
-];
-
-export const mockReports = [
-  { id: 1, userId: 1, campaignId: 1, from: 'SMSPro', to: '+919876543210', message: 'Flash Sale message...', status: 'delivered', cost: 0.50, smsCount: 1, direction: 'outbound', sendBy: 'Twilio India', createdAt: '2024-12-01T10:30:15' },
-  { id: 2, userId: 1, campaignId: 1, from: 'SMSPro', to: '+919876543211', message: 'Flash Sale message...', status: 'delivered', cost: 0.50, smsCount: 1, direction: 'outbound', sendBy: 'Twilio India', createdAt: '2024-12-01T10:30:16' },
-  { id: 3, userId: 1, campaignId: 1, from: 'SMSPro', to: '+919876543212', message: 'Flash Sale message...', status: 'failed', cost: 0, smsCount: 1, direction: 'outbound', sendBy: 'Twilio India', createdAt: '2024-12-01T10:30:17' },
-  { id: 4, userId: 1, campaignId: 2, from: 'SHOPNOW', to: '+919876543213', message: 'Order confirmation...', status: 'delivered', cost: 0.50, smsCount: 1, direction: 'outbound', sendBy: 'Twilio India', createdAt: '2024-12-01T14:15:10' },
-  { id: 5, userId: 1, campaignId: 2, from: 'SHOPNOW', to: '+919876543214', message: 'Order confirmation...', status: 'pending', cost: 0.50, smsCount: 1, direction: 'outbound', sendBy: 'Twilio India', createdAt: '2024-12-01T14:15:11' },
-  { id: 6, userId: 1, campaignId: 4, from: '919876543200', to: '+919876543215', message: 'WhatsApp promo...', status: 'delivered', cost: 0.75, smsCount: 1, direction: 'outbound', sendBy: 'WhatsApp Business', createdAt: '2024-11-30T16:45:20' },
-  { id: 7, userId: 1, campaignId: 4, from: '919876543200', to: '+919876543216', message: 'WhatsApp promo...', status: 'read', cost: 0.75, smsCount: 1, direction: 'outbound', sendBy: 'WhatsApp Business', createdAt: '2024-11-30T16:45:21' },
-  { id: 8, userId: 1, campaignId: 5, from: 'SMSPro', to: '+919876543217', message: 'OTP: 485923', status: 'delivered', cost: 0.30, smsCount: 1, direction: 'outbound', sendBy: 'MSG91', createdAt: '2024-12-01T11:00:05' },
-  { id: 9, userId: 1, campaignId: 7, from: 'SMSPro', to: '+919876543218', message: 'Monthly newsletter...', status: 'delivered', cost: 0.50, smsCount: 2, direction: 'outbound', sendBy: 'Twilio India', createdAt: '2024-11-25T08:00:30' },
-  { id: 10, userId: 1, campaignId: 8, from: 'ALERTS', to: '+919876543219', message: 'Payment reminder...', status: 'failed', cost: 0, smsCount: 1, direction: 'outbound', sendBy: 'Twilio India', createdAt: '2024-12-01T07:00:10' },
-  { id: 11, userId: 1, campaignId: 8, from: 'ALERTS', to: '+919876543220', message: 'Payment reminder...', status: 'rejected', cost: 0, smsCount: 1, direction: 'outbound', sendBy: 'Twilio India', createdAt: '2024-12-01T07:00:11' },
-  { id: 12, userId: 1, campaignId: 7, from: 'SMSPro', to: '+919876543221', message: 'Monthly newsletter...', status: 'bounced', cost: 0.50, smsCount: 2, direction: 'outbound', sendBy: 'Twilio India', createdAt: '2024-11-25T08:00:35' },
+export const mockAnnouncements = [
+  { id: 1, uid: "ann-001", title: "System Maintenance Scheduled", message: "We will be performing scheduled maintenance on Jan 15, 2025 from 2:00 AM to 4:00 AM UTC. Services may be temporarily unavailable.", status: "active", created: "2024-12-20" },
+  { id: 2, uid: "ann-002", title: "New WhatsApp Channel Launch", message: "We're excited to announce the launch of our new WhatsApp Business API integration. All Enterprise and Business plan users can now send messages via WhatsApp.", status: "active", created: "2024-11-15" },
+  { id: 3, uid: "ann-003", title: "Holiday Hours", message: "Our support team will have reduced hours during the holiday season. Emergency support will remain available 24/7.", status: "inactive", created: "2024-12-01" },
+  { id: 4, uid: "ann-004", title: "Pricing Update for 2025", message: "Starting February 2025, there will be a small adjustment to our pricing plans. Current subscribers are locked in at their existing rates.", status: "active", created: "2025-01-05" },
 ];
 
 export const mockPlans = [
-  { id: 1, uid: 'p1', name: 'Starter', price: 999, billingCycle: 'monthly', status: 'active', isDlt: false, features: ['5,000 SMS/month', '1 Sending Server', 'Basic Reports', 'Email Support'], coverage: ['IN'], creditPrice: 0.20 },
-  { id: 2, uid: 'p2', name: 'Business', price: 2999, billingCycle: 'monthly', status: 'active', isDlt: true, features: ['25,000 SMS/month', '5 Sending Servers', 'Advanced Reports', 'DLT Templates', 'Priority Support'], coverage: ['IN', 'US', 'UK', 'AE'], creditPrice: 0.12 },
-  { id: 3, uid: 'p3', name: 'Professional', price: 7999, billingCycle: 'monthly', status: 'active', isDlt: true, features: ['100,000 SMS/month', 'Unlimited Servers', 'Analytics Dashboard', 'WhatsApp/Viber', 'API Access', '24/7 Support'], coverage: ['IN', 'US', 'UK', 'AE', 'SG', 'AU'], creditPrice: 0.08 },
-  { id: 4, uid: 'p4', name: 'Enterprise', price: 19999, billingCycle: 'monthly', status: 'active', isDlt: true, features: ['500,000 SMS/month', 'Unlimited Everything', 'Custom Integration', 'Dedicated Account Manager', 'SLA Guarantee', 'White Label Option'], coverage: ['Global'], creditPrice: 0.04 },
-  { id: 5, uid: 'p5', name: 'Starter Annual', price: 9999, billingCycle: 'yearly', status: 'active', isDlt: false, features: ['5,000 SMS/month', '1 Sending Server', 'Basic Reports', 'Email Support', 'Save 17%'], coverage: ['IN'], creditPrice: 0.17 },
-  { id: 6, uid: 'p6', name: 'Business Annual', price: 29990, billingCycle: 'yearly', status: 'active', isDlt: true, features: ['25,000 SMS/month', '5 Sending Servers', 'Advanced Reports', 'DLT Templates', 'Priority Support', 'Save 17%'], coverage: ['IN', 'US', 'UK', 'AE'], creditPrice: 0.10 },
+  { id: 1, uid: "plan-001", name: "Starter", price: 49.99, billing_cycle: "monthly", features: { sms: "5,000", contacts: "1,000", groups: "5", sender_ids: "1", templates: "10" }, status: "active", credit_price: 0.01 },
+  { id: 2, uid: "plan-002", name: "Business", price: 199.99, billing_cycle: "monthly", features: { sms: "50,000", contacts: "25,000", groups: "25", sender_ids: "5", templates: "50", api_access: true }, status: "active", credit_price: 0.008 },
+  { id: 3, uid: "plan-003", name: "Enterprise", price: 499.99, billing_cycle: "monthly", features: { sms: "Unlimited", contacts: "Unlimited", groups: "Unlimited", sender_ids: "25", templates: "Unlimited", api_access: true, priority_support: true, dedicated_server: true }, status: "active", credit_price: 0.005 },
+  { id: 4, uid: "plan-004", name: "Starter Annual", price: 499.00, billing_cycle: "yearly", features: { sms: "5,000/mo", contacts: "1,000", groups: "5", sender_ids: "1", templates: "10" }, status: "active", credit_price: 0.009 },
+  { id: 5, uid: "plan-005", name: "Business Annual", price: 1999.00, billing_cycle: "yearly", features: { sms: "50,000/mo", contacts: "25,000", groups: "25", sender_ids: "5", templates: "50", api_access: true }, status: "active", credit_price: 0.007 },
 ];
 
-export const mockSubscription = {
-  id: 1,
-  uid: 'sub1',
-  userId: 1,
-  planId: 3,
-  planName: 'Professional',
-  status: 'active',
-  currentPeriodEndsAt: '2025-01-15',
-  smsUsed: 78250,
-  smsLimit: 100000,
-  price: 7999,
-  billingCycle: 'monthly',
-  createdAt: '2024-07-15',
-};
+export const mockCurrencies = [
+  { id: 1, name: "US Dollar", code: "USD", symbol: "$", rate: 1.000, status: "active" },
+  { id: 2, name: "Euro", code: "EUR", symbol: "€", rate: 0.92, status: "active" },
+  { id: 3, name: "British Pound", code: "GBP", symbol: "£", rate: 0.79, status: "active" },
+  { id: 4, name: "Indian Rupee", code: "INR", symbol: "₹", rate: 83.12, status: "active" },
+  { id: 5, name: "Japanese Yen", code: "JPY", symbol: "¥", rate: 149.50, status: "inactive" },
+  { id: 6, name: "Australian Dollar", code: "AUD", symbol: "A$", rate: 1.53, status: "inactive" },
+];
 
-export const mockTopups = [
-  { id: 1, uid: 'tp1', userId: 1, paymentMethod: 'Razorpay', amount: 5000, currency: 'INR', status: 'completed', transactionId: 'TXN_001_2024', createdAt: '2024-12-01' },
-  { id: 2, uid: 'tp2', userId: 1, paymentMethod: 'Razorpay', amount: 10000, currency: 'INR', status: 'completed', transactionId: 'TXN_002_2024', createdAt: '2024-11-15' },
-  { id: 3, uid: 'tp3', userId: 1, paymentMethod: 'Stripe', amount: 5000, currency: 'INR', status: 'completed', transactionId: 'TXN_003_2024', createdAt: '2024-10-20' },
-  { id: 4, uid: 'tp4', userId: 1, paymentMethod: 'Razorpay', amount: 25000, currency: 'INR', status: 'completed', transactionId: 'TXN_004_2024', createdAt: '2024-09-10' },
-  { id: 5, uid: 'tp5', userId: 1, paymentMethod: 'Stripe', amount: 15000, currency: 'INR', status: 'failed', transactionId: 'TXN_005_2024', createdAt: '2024-08-25' },
+export const mockSendingServers = [
+  { id: 1, uid: "srv-001", name: "Twilio HTTP Gateway", type: "http", quota_value: 100000, status: "active", settings: { url: "https://api.twilio.com", api_key: "****" } },
+  { id: 2, uid: "srv-002", name: "Nexmo SMPP Server", type: "smpp", quota_value: 500000, status: "active", settings: { host: "smpp.nexmo.com", port: 2775 } },
+  { id: 3, uid: "srv-003", name: "WhatsApp Business API", type: "whatsapp", quota_value: 50000, status: "active", settings: { phone_id: "+1234567890", token: "****" } },
+  { id: 4, uid: "srv-004", name: "Viber Business Channel", type: "viber", quota_value: 25000, status: "inactive", settings: { webhook: "https://..." } },
+  { id: 5, uid: "srv-005", name: "MSG91 OTP Server", type: "otp", quota_value: 200000, status: "active", settings: { auth_key: "****" } },
+  { id: 6, uid: "srv-006", name: "Plivo HTTP API", type: "http", quota_value: 75000, status: "active", settings: { auth_id: "****", auth_token: "****" } },
+  { id: 7, uid: "srv-007", name: "Route Mobile SMPP", type: "smpp", quota_value: 300000, status: "inactive", settings: { host: "smpp.routemobile.com", port: 2776 } },
+];
+
+export const mockSenderIds = [
+  { id: 1, uid: "sid-001", sender_id: "ACMECORP", customer: "John Smith", status: "active", countries: ["US", "CA", "UK"] },
+  { id: 2, uid: "sid-002", sender_id: "GLOBALTECH", customer: "Sarah Johnson", status: "active", countries: ["US", "UK"] },
+  { id: 3, uid: "sid-003", sender_id: "ASIATICK", customer: "Michael Chen", status: "pending", countries: ["IN", "SG"] },
+  { id: 4, uid: "sid-004", sender_id: "EUROMAIL", customer: "Emma Williams", status: "active", countries: ["DE", "FR", "ES", "IT"] },
+  { id: 5, uid: "sid-005", sender_id: "STARTUP1", customer: "David Brown", status: "inactive", countries: ["US"] },
+  { id: 6, uid: "sid-006", sender_id: "LATAMCO", customer: "Lisa Martinez", status: "pending", countries: ["MX", "CO", "AR"] },
+  { id: 7, uid: "sid-007", sender_id: "TECHFRM", customer: "James Wilson", status: "active", countries: ["US", "CA", "UK", "AU"] },
+  { id: 8, uid: "sid-008", sender_id: "MKTGPRO", customer: "Robert Taylor", status: "active", countries: ["US"] },
+];
+
+export const mockBlacklists = [
+  { id: 1, uid: "bl-001", number: "+1 555-999-0001", customer: "John Smith", reason: "Spam complaints received", date: "2024-08-15" },
+  { id: 2, uid: "bl-002", number: "+1 555-999-0002", customer: "System", reason: "Invalid number - undeliverable", date: "2024-09-01" },
+  { id: 3, uid: "bl-003", number: "+44 7700-999-003", customer: "Emma Williams", reason: "Opt-out request", date: "2024-10-05" },
+  { id: 4, uid: "bl-004", number: "+91 9876-999-004", customer: "System", reason: "Regulatory block - DND", date: "2024-07-20" },
+  { id: 5, uid: "bl-005", number: "+1 555-999-0005", customer: "Sarah Johnson", reason: "Abusive messages", date: "2024-11-12" },
+];
+
+export const mockSpamWords = [
+  { id: 1, word: "FREE", category: "financial" },
+  { id: 2, word: "WINNER", category: "scam" },
+  { id: 3, word: "CONGRATULATIONS", category: "scam" },
+  { id: 4, word: "CLICK HERE", category: "phishing" },
+  { id: 5, word: "URGENT", category: "spam" },
+  { id: 6, word: "100% FREE", category: "financial" },
+  { id: 7, word: "NO COST", category: "financial" },
+  { id: 8, word: "ACT NOW", category: "spam" },
+  { id: 9, word: "LIMITED TIME", category: "spam" },
+  { id: 10, word: "CASH BONUS", category: "financial" },
+  { id: 11, word: "EARN MONEY", category: "financial" },
+  { id: 12, word: "MILLION DOLLAR", category: "scam" },
+  { id: 13, word: "NIGERIAN", category: "scam" },
+  { id: 14, word: "LOTTERY", category: "scam" },
+  { id: 15, word: "PRIZE CLAIM", category: "scam" },
+];
+
+export const mockBlockedSenderIds = [
+  { id: 1, sender_id: "SPAMMER01", reason: "Sending unsolicited promotional messages", blocked_date: "2024-06-15" },
+  { id: 2, sender_id: "FAKEALRT", reason: "Impersonation - phishing attempt", blocked_date: "2024-07-22" },
+  { id: 3, sender_id: "TELEMKT1", reason: "Excessive spam complaints from recipients", blocked_date: "2024-08-30" },
+  { id: 4, sender_id: "BULKMSG9", reason: "Violation of messaging policy", blocked_date: "2024-09-14" },
+];
+
+export const mockAdministrators = [
+  { id: 1, first_name: "Super", last_name: "Admin", email: "admin@admin.com", role: "Super Admin", status: "active", last_login: "2025-01-10 14:30" },
+  { id: 2, first_name: "Support", last_name: "Manager", email: "support@admin.com", role: "Support Admin", status: "active", last_login: "2025-01-10 09:15" },
+  { id: 3, first_name: "Billing", last_name: "Admin", email: "billing@admin.com", role: "Billing Admin", status: "active", last_login: "2025-01-09 16:45" },
+  { id: 4, first_name: "Tech", last_name: "Lead", email: "tech@admin.com", role: "Technical Admin", status: "inactive", last_login: "2024-12-28 11:00" },
+];
+
+export const mockRoles = [
+  { id: 1, name: "Super Admin", users_count: 1, permissions: ["all"] },
+  { id: 2, name: "Support Admin", users_count: 1, permissions: ["customers.view", "customers.edit", "reports.view", "announcements.manage"] },
+  { id: 3, name: "Billing Admin", users_count: 1, permissions: ["invoices.view", "invoices.manage", "plans.manage", "customers.view"] },
+  { id: 4, name: "Technical Admin", users_count: 1, permissions: ["servers.manage", "settings.manage", "reports.view"] },
+  { id: 5, name: "Viewer", users_count: 0, permissions: ["customers.view", "reports.view", "dashboard.view"] },
+];
+
+export const mockCountries = [
+  { id: 1, name: "United States", code: "US", phone_code: "+1", status: "active" },
+  { id: 2, name: "United Kingdom", code: "GB", phone_code: "+44", status: "active" },
+  { id: 3, name: "India", code: "IN", phone_code: "+91", status: "active" },
+  { id: 4, name: "Germany", code: "DE", phone_code: "+49", status: "active" },
+  { id: 5, name: "France", code: "FR", phone_code: "+33", status: "active" },
+  { id: 6, name: "Canada", code: "CA", phone_code: "+1", status: "active" },
+  { id: 7, name: "Australia", code: "AU", phone_code: "+61", status: "active" },
+  { id: 8, name: "Japan", code: "JP", phone_code: "+81", status: "inactive" },
+  { id: 9, name: "Brazil", code: "BR", phone_code: "+55", status: "inactive" },
+  { id: 10, name: "Mexico", code: "MX", phone_code: "+52", status: "active" },
+  { id: 11, name: "Spain", code: "ES", phone_code: "+34", status: "active" },
+  { id: 12, name: "Italy", code: "IT", phone_code: "+39", status: "active" },
+];
+
+export const mockLanguages = [
+  { id: 1, name: "English", code: "en", direction: "LTR", status: "active", is_default: true },
+  { id: 2, name: "Spanish", code: "es", direction: "LTR", status: "active", is_default: false },
+  { id: 3, name: "French", code: "fr", direction: "LTR", status: "active", is_default: false },
+  { id: 4, name: "German", code: "de", direction: "LTR", status: "active", is_default: false },
+  { id: 5, name: "Hindi", code: "hi", direction: "LTR", status: "inactive", is_default: false },
+  { id: 6, name: "Arabic", code: "ar", direction: "RTL", status: "inactive", is_default: false },
+  { id: 7, name: "Portuguese", code: "pt", direction: "LTR", status: "active", is_default: false },
+  { id: 8, name: "Japanese", code: "ja", direction: "LTR", status: "inactive", is_default: false },
+];
+
+export const mockEmailTemplates = [
+  { id: 1, name: "Welcome Email", subject: "Welcome to SMSPro!", type: "customer", body: "Dear {{name}},\n\nWelcome to SMSPro! Your account has been created successfully..." },
+  { id: 2, name: "Password Reset", subject: "Reset Your Password", type: "auth", body: "Hello {{name}},\n\nYou requested a password reset. Click the link below..." },
+  { id: 3, name: "Invoice Created", subject: "Invoice #{{invoice_id}} Created", type: "billing", body: "Dear {{name}},\n\nA new invoice has been generated for your subscription..." },
+  { id: 4, name: "Subscription Expiring", subject: "Your Subscription is Expiring Soon", type: "billing", body: "Dear {{name}},\n\nYour subscription will expire on {{expiry_date}}..." },
+  { id: 5, name: "SMS Balance Low", subject: "Low SMS Balance Alert", type: "notification", body: "Dear {{name}},\n\nYour SMS balance has fallen below the threshold..." },
+  { id: 6, name: "Campaign Completed", subject: "Campaign Completed: {{campaign_name}}", type: "notification", body: "Dear {{name}},\n\nYour campaign '{{campaign_name}}' has completed..." },
+];
+
+export const mockPaymentGateways = [
+  { id: 1, name: "Stripe", status: "active", type: "credit_card", fields: { api_key: "****", webhook_secret: "****" } },
+  { id: 2, name: "PayPal", status: "active", type: "paypal", fields: { client_id: "****", client_secret: "****" } },
+  { id: 3, name: "Razorpay", status: "inactive", type: "indian", fields: { key_id: "****", key_secret: "****" } },
+  { id: 4, name: "Paystack", status: "inactive", type: "african", fields: { public_key: "****", secret_key: "****" } },
+  { id: 5, name: "Mollie", status: "active", type: "european", fields: { api_key: "****" } },
 ];
 
 export const mockInvoices = [
-  { id: 1, uid: 'inv1', userId: 1, amount: 7999, currency: 'INR', status: 'paid', type: 'subscription', transactionId: 'INV_SUB_001', createdAt: '2024-12-01' },
-  { id: 2, uid: 'inv2', userId: 1, amount: 7999, currency: 'INR', status: 'paid', type: 'subscription', transactionId: 'INV_SUB_002', createdAt: '2024-11-01' },
-  { id: 3, uid: 'inv3', userId: 1, amount: 5000, currency: 'INR', status: 'paid', type: 'topup', transactionId: 'INV_TOP_001', createdAt: '2024-11-15' },
-  { id: 4, uid: 'inv4', userId: 1, amount: 7999, currency: 'INR', status: 'paid', type: 'subscription', transactionId: 'INV_SUB_003', createdAt: '2024-10-01' },
-  { id: 5, uid: 'inv5', userId: 1, amount: 10000, currency: 'INR', status: 'paid', type: 'topup', transactionId: 'INV_TOP_002', createdAt: '2024-10-20' },
+  { id: 1, uid: "inv-001", invoice_no: "INV-2024-001", customer: "John Smith", amount: 499.99, status: "paid", date: "2024-01-15", type: "subscription" },
+  { id: 2, uid: "inv-002", invoice_no: "INV-2024-002", customer: "Sarah Johnson", amount: 199.99, status: "paid", date: "2024-02-20", type: "subscription" },
+  { id: 3, uid: "inv-003", invoice_no: "INV-2024-003", customer: "Michael Chen", amount: 49.99, status: "paid", date: "2024-03-10", type: "subscription" },
+  { id: 4, uid: "inv-004", invoice_no: "INV-2024-004", customer: "Emma Williams", amount: 499.99, status: "paid", date: "2024-04-05", type: "subscription" },
+  { id: 5, uid: "inv-005", invoice_no: "INV-2024-005", customer: "David Brown", amount: 25.00, status: "unpaid", date: "2024-10-18", type: "topup" },
+  { id: 6, uid: "inv-006", invoice_no: "INV-2024-006", customer: "Lisa Martinez", amount: 49.99, status: "paid", date: "2024-05-22", type: "subscription" },
+  { id: 7, uid: "inv-007", invoice_no: "INV-2024-007", customer: "James Wilson", amount: 499.99, status: "paid", date: "2024-06-30", type: "subscription" },
+  { id: 8, uid: "inv-008", invoice_no: "INV-2024-008", customer: "Aisha Patel", amount: 199.99, status: "unpaid", date: "2024-12-01", type: "subscription" },
+  { id: 9, uid: "inv-009", invoice_no: "INV-2024-009", customer: "Robert Taylor", amount: 15.00, status: "paid", date: "2024-07-15", type: "topup" },
+  { id: 10, uid: "inv-010", invoice_no: "INV-2025-001", customer: "Tom Anderson", amount: 499.99, status: "unpaid", date: "2025-01-14", type: "subscription" },
+  { id: 11, uid: "inv-011", invoice_no: "INV-2024-011", customer: "Maria Garcia", amount: 199.99, status: "paid", date: "2024-08-25", type: "subscription" },
+  { id: 12, uid: "inv-012", invoice_no: "INV-2024-012", customer: "John Smith", amount: 50.00, status: "paid", date: "2024-09-10", type: "topup" },
 ];
 
-export const mockWebhooks = [
-  { id: 1, uid: 'wh1', userId: 1, url: 'https://myapp.example.com/webhooks/delivery', events: ['delivery_report', 'campaign_completed'], status: 'active', createdAt: '2024-03-15' },
-  { id: 2, uid: 'wh2', userId: 1, url: 'https://crm.example.com/api/sms-events', events: ['contact_unsubscribed', 'contact_bounced'], status: 'active', createdAt: '2024-04-01' },
+export const mockSmsHistory = [
+  { id: 1, from: "ACMECORP", to: "+1 555-0101", message: "Your order #12345 has been shipped! Track at example.com/track", status: "delivered", cost: 0.012, date: "2025-01-10 14:30:00" },
+  { id: 2, from: "GLOBALTECH", to: "+44 7700-0401", message: "Meeting reminder: Team standup at 10 AM tomorrow", status: "delivered", cost: 0.015, date: "2025-01-10 13:45:00" },
+  { id: 3, from: "ACMECORP", to: "+1 555-0201", message: "Flash Sale! 50% off all items. Use code FLASH50 at checkout", status: "sent", cost: 0.012, date: "2025-01-10 12:00:00" },
+  { id: 4, from: "TECHFRM", to: "+1 555-0107", message: "Your subscription will renew on Feb 1. Current plan: Enterprise", status: "delivered", cost: 0.012, date: "2025-01-10 11:30:00" },
+  { id: 5, from: "EUROMAIL", to: "+49 151-0801", message: "Willkommen! Ihr Konto wurde erfolgreich erstellt.", status: "delivered", cost: 0.018, date: "2025-01-10 10:15:00" },
+  { id: 6, from: "ASIATICK", to: "+86 138-0001", message: "您的验证码是 456789，5分钟内有效", status: "failed", cost: 0.020, date: "2025-01-10 09:00:00" },
+  { id: 7, from: "ACMECORP", to: "+1 555-0301", message: "Appointment confirmed for Jan 15 at 2:00 PM", status: "delivered", cost: 0.012, date: "2025-01-10 08:30:00" },
+  { id: 8, from: "LATAMCO", to: "+52 55-0106", message: "Recordatorio: Su cita es manana a las 10:00 AM", status: "pending", cost: 0.016, date: "2025-01-10 07:45:00" },
+  { id: 9, from: "MKTGPRO", to: "+1 555-0401", message: "Don't miss our webinar on SMS marketing best practices!", status: "delivered", cost: 0.012, date: "2025-01-09 16:00:00" },
+  { id: 10, from: "NORDICTECH", to: "+46 70-1011", message: "Din beställning har skickats. Spårningsnummer: SE123456789", status: "delivered", cost: 0.022, date: "2025-01-09 15:00:00" },
+  { id: 11, from: "ACMECORP", to: "+1 555-0501", message: "Happy Birthday! Enjoy 20% off your next purchase", status: "delivered", cost: 0.012, date: "2025-01-09 14:00:00" },
+  { id: 12, from: "GLOBALTECH", to: "+1 555-0601", message: "Your OTP for account verification is 839201", status: "failed", cost: 0.012, date: "2025-01-09 13:00:00" },
 ];
+
+export const mockCampaigns = [
+  { id: 1, uid: "camp-001", name: "January Promo", customer: "John Smith", type: "SMS", status: "completed", contacts: 5000, delivered: 4850, failed: 150, date: "2025-01-05" },
+  { id: 2, uid: "camp-002", name: "Flash Sale Alert", customer: "Sarah Johnson", type: "SMS", status: "completed", contacts: 12000, delivered: 11750, failed: 250, date: "2025-01-03" },
+  { id: 3, uid: "camp-003", name: "Welcome Series", customer: "Emma Williams", type: "WhatsApp", status: "active", contacts: 3500, delivered: 2100, failed: 50, date: "2025-01-10" },
+  { id: 4, uid: "camp-004", name: "Payment Reminder", customer: "James Wilson", type: "SMS", status: "completed", contacts: 850, delivered: 820, failed: 30, date: "2025-01-08" },
+  { id: 5, uid: "camp-005", name: "New Year Greetings", customer: "Lisa Martinez", type: "SMS", status: "completed", contacts: 2000, delivered: 1950, failed: 50, date: "2024-12-31" },
+  { id: 6, uid: "camp-006", name: "OTP Verification", customer: "System", type: "OTP", status: "completed", contacts: 45000, delivered: 44200, failed: 800, date: "2025-01-09" },
+  { id: 7, uid: "camp-007", name: "Weekly Newsletter", customer: "Tom Anderson", type: "SMS", status: "scheduled", contacts: 18000, delivered: 0, failed: 0, date: "2025-01-15" },
+  { id: 8, uid: "camp-008", name: "Abandoned Cart", customer: "Maria Garcia", type: "WhatsApp", status: "active", contacts: 500, delivered: 320, failed: 10, date: "2025-01-10" },
+];
+
+export const mockDashboardStats = {
+  totalCustomers: 1247,
+  customersGrowth: 12.5,
+  smsSentToday: 34567,
+  smsGrowth: 8.2,
+  revenue: 45230.50,
+  revenueGrowth: 15.3,
+  activeSubscriptions: 892,
+  subscriptionsGrowth: 5.7,
+};
+
+export const mockRevenueData = [
+  { month: "Jul", revenue: 28500 },
+  { month: "Aug", revenue: 32100 },
+  { month: "Sep", revenue: 29800 },
+  { month: "Oct", revenue: 35600 },
+  { month: "Nov", revenue: 38200 },
+  { month: "Dec", revenue: 42100 },
+  { month: "Jan", revenue: 45230 },
+];
+
+export const mockRecentOrders = [
+  { id: 1, customer: "John Smith", plan: "Enterprise", amount: "$499.99", date: "Jan 15, 2025", status: "completed" },
+  { id: 2, customer: "Sarah Johnson", plan: "Business", amount: "$199.99", date: "Jan 14, 2025", status: "completed" },
+  { id: 3, customer: "Tom Anderson", plan: "Enterprise", amount: "$499.99", date: "Jan 14, 2025", status: "pending" },
+  { id: 4, customer: "Lisa Martinez", plan: "Starter", amount: "$49.99", date: "Jan 13, 2025", status: "completed" },
+  { id: 5, customer: "Aisha Patel", plan: "Business", amount: "$199.99", date: "Jan 12, 2025", status: "failed" },
+];
+
+export const mockTopCustomers = [
+  { name: "James Wilson", email: "james@techfirm.com", sent: 156000, revenue: "$22,000" },
+  { name: "Emma Williams", email: "emma@euromail.com", sent: 128500, revenue: "$15,600" },
+  { name: "Tom Anderson", email: "tom@nordic.se", sent: 98200, revenue: "$18,200" },
+  { name: "John Smith", email: "john@acmecorp.com", sent: 87000, revenue: "$12,500" },
+  { name: "Sarah Johnson", email: "sarah@globaltech.com", sent: 62400, revenue: "$8,900" },
+];
+
+export const mockSystemOverview = {
+  totalUsers: 1247,
+  messagesQueued: 1250,
+  serverStatus: "Operational",
+  uptime: "99.97%",
+  dbSize: "2.4 GB",
+  lastBackup: "2 hours ago",
+};
+
+export const mockReportStats = {
+  totalSent: 523450,
+  delivered: 510820,
+  failed: 8630,
+  pending: 4000,
+};
+
+export const mockSmsTrend = [
+  { date: "Jan 1", sent: 28000 },
+  { date: "Jan 2", sent: 32000 },
+  { date: "Jan 3", sent: 45000 },
+  { date: "Jan 4", sent: 38000 },
+  { date: "Jan 5", sent: 52000 },
+  { date: "Jan 6", sent: 22000 },
+  { date: "Jan 7", sent: 18000 },
+  { date: "Jan 8", sent: 35000 },
+  { date: "Jan 9", sent: 42000 },
+  { date: "Jan 10", sent: 34567 },
+];
+
+export const mockDeliveryBreakdown = [
+  { name: "Delivered", value: 510820, color: "#10B981" },
+  { name: "Failed", value: 8630, color: "#EF4444" },
+  { name: "Pending", value: 4000, color: "#F59E0B" },
+  { name: "Rejected", value: 150, color: "#6B7280" },
+];
+
+export const mockSettings = {
+  app_name: "SMSPro",
+  logo_url: "/logo.png",
+  default_country: "US",
+  default_timezone: "UTC",
+  sms_unit_cost: "0.012",
+  sender_id_verification: true,
+  dlt_enabled: false,
+  maintenance_mode: false,
+  maintenance_message: "We are performing scheduled maintenance. Please try again later.",
+  ai_enabled: false,
+  ai_api_key: "",
+  ai_model: "gpt-3.5-turbo",
+  terms_of_use: "# Terms of Use\n\n## 1. Acceptance of Terms\n\nBy accessing and using SMSPro, you agree to be bound by these Terms of Use...\n\n## 2. Service Description\n\nSMSPro provides bulk SMS and multi-channel messaging services...\n\n## 3. User Responsibilities\n\nUsers are responsible for maintaining the confidentiality of their account...",
+  privacy_policy: "# Privacy Policy\n\n## 1. Information Collection\n\nWe collect information you provide directly to us, including name, email, phone number...\n\n## 2. Use of Information\n\nWe use the information we collect to provide, maintain, and improve our services...\n\n## 3. Data Security\n\nWe implement appropriate technical and organizational security measures...",
+  current_version: "v3.2.1",
+  php_version: "8.2.15",
+  db_version: "MySQL 8.0.35",
+  node_version: "20.11.0",
+};

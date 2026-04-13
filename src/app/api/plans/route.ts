@@ -1,16 +1,20 @@
-import { NextResponse } from 'next/server';
-import { mockPlans, mockSubscription } from '@/lib/mock-data';
+import { NextRequest, NextResponse } from 'next/server';
+import { mockPlans } from '@/lib/mock-data';
 
 export async function GET() {
+  return NextResponse.json({ success: true, data: mockPlans });
+}
+
+export async function POST(request: NextRequest) {
   try {
-    try {
-      const { db } = await import('@/lib/db');
-      const plans = await db.plan.findMany({ where: { status: 'active' } });
-      return NextResponse.json(plans);
-    } catch {
-      return NextResponse.json(mockPlans);
-    }
+    const body = await request.json();
+    const newPlan = {
+      id: mockPlans.length + 1,
+      uid: `plan-${String(mockPlans.length + 1).padStart(3, '0')}`,
+      ...body,
+    };
+    return NextResponse.json({ success: true, data: newPlan });
   } catch {
-    return NextResponse.json(mockPlans);
+    return NextResponse.json({ success: false, message: 'Invalid request' }, { status: 400 });
   }
 }
