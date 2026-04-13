@@ -1,0 +1,441 @@
+========================================
+DATABASE: sdasms_sdasms
+========================================
+
+TABLE 1: cg_announcements
+- id (bigint PK auto_increment)
+- uid (char36)
+- user_id (bigint MUL) FK->cg_users
+- title (varchar191)
+- description (text)
+- type (enum: email, sms)
+- created_at, updated_at
+
+TABLE 2: cg_announcements_user
+- id (bigint PK auto_increment)
+- announcements_id (bigint MUL) FK->cg_announcements
+- user_id (bigint MUL) FK->cg_users
+- read_at, created_at, updated_at
+
+TABLE 3: cg_app_config
+- id (bigint PK auto_increment)
+- setting (text)
+- value (text)
+- created_at, updated_at
+
+TABLE 4: cg_automations
+- id (bigint PK auto_increment)
+- uid (char36)
+- name (varchar191)
+- user_id (bigint MUL)
+- contact_list_id (bigint MUL)
+- sending_server_id (bigint MUL)
+- timezone, sender_id, message, media_url
+- language, gender, sms_type
+- status, reason, cache, data
+- running_pid, dlt_template_id
+- created_at, updated_at, last_error
+
+TABLE 5: cg_blacklists
+- id (bigint PK auto_increment)
+- uid (char36)
+- user_id (bigint MUL)
+- number (varchar191)
+- reason (text)
+- created_at, updated_at
+
+TABLE 6: cg_block_sender_id
+- id (bigint PK auto_increment)
+- uid (char36)
+- sender_id (varchar191)
+- reason (text)
+- created_at, updated_at
+
+TABLE 7: cg_campaigns
+- id (bigint PK auto_increment)
+- uid (char36)
+- user_id (bigint MUL)
+- sending_server_id (bigint MUL)
+- campaign_name, message, media_url
+- language, gender, sms_type
+- upload_type (default: normal)
+- status, reason, api_key, cache, timezone
+- schedule_time, schedule_type (enum: onetime, recurring)
+- frequency_cycle, frequency_amount, frequency_unit
+- recurring_end, recurring_created, run_at, delivery_at
+- batch_id, running_pid, dlt_template_id
+- skip_failed_message
+- created_at, updated_at, last_error
+
+TABLE 8: cg_campaigns_lists
+- id (bigint PK auto_increment)
+- campaign_id (bigint MUL) FK->cg_campaigns
+- contact_list_id (bigint MUL)
+- created_at, updated_at
+
+TABLE 9: cg_campaigns_senderids
+- id (bigint PK auto_increment)
+- campaign_id (bigint MUL) FK->cg_campaigns
+- sender_id (varchar191)
+- originator (varchar191)
+- created_at, updated_at
+
+TABLE 10: cg_chat_boxes
+- id (bigint PK auto_increment)
+- uid (char36)
+- user_id (bigint MUL)
+- from (varchar191)
+- to (varchar20)
+- notification (int)
+- sending_server_id (bigint MUL)
+- reply_by_customer (tinyint default:0)
+- pinned (tinyint default:0)
+- created_at, updated_at
+
+TABLE 11: cg_chat_box_messages
+- id (bigint PK auto_increment)
+- box_id (bigint MUL) FK->cg_chat_boxes
+- message (longtext)
+- media_url (longtext)
+- sms_type (varchar15 default: sms)
+- send_by (enum: from, to)
+- direction (enum: outgoing, incoming)
+- sending_server_id (bigint MUL)
+- created_at, updated_at
+
+TABLE 12: cg_contacts
+- id (bigint PK auto_increment)
+- uid (char36)
+- customer_id (bigint MUL)
+- group_id (bigint MUL)
+- phone (varchar191)
+- status (varchar191)
+- created_at, updated_at
+
+TABLE 13: cg_contacts_custom_field
+- id (bigint PK auto_increment)
+- uid (char36)
+- contact_id (bigint MUL) FK->cg_contacts
+- field_id (bigint MUL)
+- value (varchar191)
+- created_at, updated_at
+
+TABLE 14: cg_contact_groups
+- id (bigint PK auto_increment)
+- uid (char36)
+- customer_id (bigint MUL) FK->cg_customers
+- name (varchar191)
+- sender_id (varchar191)
+- send_welcome_sms (tinyint default:1)
+- unsubscribe_notification (tinyint default:1)
+- send_keyword_message (tinyint default:1)
+- status (tinyint default:1)
+- signup_sms, welcome_sms, unsubscribe_sms (text)
+- cache, batch_id
+- sending_server (bigint)
+- created_at, updated_at
+
+TABLE 15: cg_contact_groups_optin_keywords
+- id (bigint PK auto_increment)
+- uid (char36)
+- contact_group (bigint MUL) FK->cg_contact_groups
+- keyword (varchar191)
+- created_at, updated_at
+
+TABLE 16: cg_contact_groups_optout_keywords
+- id (bigint PK auto_increment)
+- uid (char36)
+- contact_group (bigint MUL) FK->cg_contact_groups
+- keyword (varchar191)
+- created_at, updated_at
+
+TABLE 17: cg_contact_group_fields
+- id (bigint PK auto_increment)
+- uid (char36)
+- contact_group_id (bigint MUL) FK->cg_contact_groups
+- label, type, tag (varchar191)
+- default_value (varchar191)
+- visible (tinyint default:1)
+- required (tinyint default:0)
+- is_phone (tinyint default:0)
+- created_at, updated_at
+
+TABLE 18: cg_contact_group_field_options
+- id (bigint PK auto_increment)
+- uid (char36)
+- field_id (bigint MUL) FK->cg_contact_group_fields
+- label, value (varchar191)
+- created_at, updated_at
+
+TABLE 19: cg_countries
+- id (bigint PK auto_increment)
+- uid (char36)
+- name (varchar50)
+- iso_code (varchar20)
+- country_code (varchar5)
+- status (tinyint default:1)
+- created_at, updated_at
+
+TABLE 20: cg_csv_data
+- id (bigint PK auto_increment)
+- user_id (bigint)
+- ref_id, ref_type (varchar191)
+- csv_filename (varchar191)
+- csv_header (tinyint default:0)
+- csv_data (longtext)
+- created_at, updated_at
+
+TABLE 21: cg_currencies
+- id (bigint PK auto_increment)
+- uid (char36)
+- user_id (bigint MUL)
+- name, code, format (varchar191)
+- status (tinyint default:1)
+- created_at, updated_at
+
+TABLE 22: cg_customers
+- id (bigint PK auto_increment)
+- uid (char36)
+- user_id (bigint MUL)
+- contact_id (bigint MUL)
+- company, website (text)
+- address, city, postcode (varchar191)
+- financial_address, financial_city, financial_postcode (varchar191)
+- tax_number, state, country (varchar191)
+- phone (varchar30)
+- notifications, permissions (text)
+- created_at, updated_at
+
+TABLE 23: cg_customer_based_pricing_plans
+- id (bigint PK auto_increment)
+- uid (char36)
+- user_id (bigint MUL)
+- country_id (bigint MUL)
+- plan_id (bigint MUL)
+- sending_server, voice_sending_server, mms_sending_server
+- whatsapp_sending_server, viber_sending_server, otp_sending_server (all bigint)
+- status (tinyint default:1)
+- options (text)
+- created_at, updated_at
+
+TABLE 24: cg_customer_based_sending_servers
+- id (bigint PK auto_increment)
+- uid (char36)
+- user_id (bigint MUL)
+- sending_server (bigint MUL)
+- status (tinyint default:1)
+- created_at, updated_at
+
+TABLE 25: cg_custom_sending_servers
+- id (bigint PK auto_increment)
+- uid (char36)
+- server_id (bigint MUL)
+- http_request_method (enum: get, post)
+- json_encoded_post (tinyint)
+- content_type, content_type_accept, character_encoding (varchar191)
+- ssl_certificate_verification (tinyint)
+- authorization, multi_sms_delimiter (varchar191)
+- username_param, username_value, password_param, password_value, password_status
+- action_param, action_value, action_status
+- source_param, source_value, source_status
+- destination_param, message_param
+- unicode_param, unicode_value, unicode_status
+- route_param, route_value, route_status
+- language_param, language_value, language_status
+- custom_one_param/value/status, custom_two_param/value/status, custom_three_param/value/status
+- created_at, updated_at
+
+TABLE 26: cg_email_templates
+- id (bigint PK auto_increment)
+- uid (char36)
+- name, slug (varchar191)
+- subject (text)
+- content (longtext)
+- status (tinyint default:1)
+- created_at, updated_at
+
+TABLE 27: cg_failed_jobs
+- id (bigint PK auto_increment)
+- uuid (varchar191 UNIQUE)
+- connection, queue (text)
+- payload, exception (longtext)
+- failed_at (timestamp)
+
+TABLE 28: cg_file_campaign_data
+- id (bigint PK auto_increment)
+- user_id (bigint MUL)
+- sending_server_id (bigint MUL)
+- campaign_id (bigint MUL)
+- phone, sender_id, sms_type (varchar)
+- sms_count (int), cost (varchar15)
+- message (text)
+- created_at, updated_at
+
+TABLE 29: cg_import_job_histories
+- id (bigint PK auto_increment)
+- name (varchar191)
+- import_id, type (varchar191)
+- status (varchar50 default: processing)
+- options, batch_id
+- created_at, updated_at
+
+TABLE 30: cg_invoices
+- id (bigint PK auto_increment)
+- uid (char36)
+- user_id (bigint MUL)
+- currency_id (bigint MUL)
+- payment_method (bigint MUL)
+- amount, tax, total_amount (varchar191)
+- type (varchar191)
+- description (text)
+- transaction_id (varchar191)
+- status (varchar191)
+- created_at, updated_at
+
+TABLE 31: cg_jobs
+- id (bigint PK auto_increment)
+- queue (varchar191 MUL)
+- payload (longtext)
+- attempts (tinyint)
+- reserved_at, available_at, created_at (int unsigned)
+
+TABLE 32: cg_job_batches
+- id (varchar191 PK)
+- name (varchar191)
+- total_jobs, pending_jobs, failed_jobs (int)
+- failed_job_ids (text)
+- options (mediumtext)
+- cancelled_at, created_at, finished_at (int)
+
+TABLE 33: cg_job_monitors
+- id (bigint PK auto_increment)
+- uid (char36)
+- subject_name, status (varchar191)
+- subject_id, job_id (bigint)
+- batch_id, job_type (varchar191)
+- error, data (mediumtext)
+- created_at, updated_at
+
+TABLE 34: cg_keywords
+- id (bigint PK auto_increment)
+- uid (char36)
+- user_id (bigint MUL)
+- currency_id (bigint MUL)
+- title, keyword_name (text)
+- sender_id, reply_text, reply_voice, reply_mms (text)
+- status (enum: available, assigned, expired)
+- price (varchar50)
+- billing_cycle, frequency_unit (varchar)
+- frequency_amount (int)
+- validity_date, transaction_id (varchar191)
+- created_at, updated_at
+
+TABLE 35: cg_languages
+- id (bigint PK auto_increment)
+- name (varchar191)
+- code, iso_code (varchar3)
+- status (tinyint default:1)
+- created_at, updated_at
+
+TABLE 36: cg_maintenance_notifications
+- id (bigint PK auto_increment)
+- email (varchar191 UNIQUE)
+- created_at, updated_at
+
+TABLE 37: cg_migrations
+- id (int PK auto_increment)
+- migration (varchar191)
+- batch (int)
+
+TABLE 38: cg_notifications
+- id (bigint PK auto_increment)
+- uid (char36)
+- user_id (bigint MUL default:1)
+- notification_for (varchar191 default: admin)
+- notification_type (varchar191)
+- message (text)
+- mark_read (tinyint default:0)
+- created_at, updated_at
+
+TABLE 39: cg_password_resets
+- email (varchar191 MUL)
+- token (varchar191)
+- created_at
+
+TABLE 40: cg_payment_methods
+- id (bigint PK auto_increment)
+- uid (char36)
+- name, type (varchar191)
+- options (text)
+- status (tinyint default:1)
+- created_at, updated_at
+
+TABLE 41: cg_permissions
+- id (bigint PK auto_increment)
+- uid (char36)
+- role_id (bigint MUL)
+- name (varchar191)
+- created_at, updated_at
+
+TABLE 42: cg_personal_access_tokens
+- id (bigint PK auto_increment)
+- tokenable_type (varchar191 MUL)
+- tokenable_id (bigint)
+- name (varchar191)
+- token (varchar64 UNIQUE)
+- abilities (text)
+- last_used_at, expires_at (timestamp)
+- created_at, updated_at
+
+TABLE 43: cg_phone_numbers
+- id (bigint PK auto_increment)
+- uid (char36)
+- user_id (bigint MUL)
+- currency_id (bigint MUL)
+- number (varchar191)
+- status (enum: available, assigned, expired)
+- capabilities (varchar191)
+- price (varchar50)
+- billing_cycle (varchar50)
+- frequency_amount (int), frequency_unit (varchar5)
+- validity_date, transaction_id (varchar191)
+- created_at, updated_at
+
+TABLE 44: cg_plans
+- id (bigint PK auto_increment)
+- uid (char36)
+- user_id (bigint MUL)
+- currency_id (bigint MUL)
+- name (varchar191)
+- description (text)
+- price (decimal16,2)
+- billing_cycle (varchar50)
+- frequency_amount (int), frequency_unit (varchar5)
+- options (text)
+- status (tinyint default:1)
+- custom_order (int)
+- is_default, is_popular, tax_billing_required (tinyint)
+- show_in_customer (tinyint default:1)
+- is_dlt (tinyint)
+- created_at, updated_at
+
+TABLE 45: cg_plans_coverage_countries
+- id (bigint PK auto_increment)
+- uid (char36)
+- country_id (bigint MUL)
+- plan_id (bigint MUL)
+- status (tinyint default:1)
+- options (text)
+- sending_server, voice_sending_server, mms_sending_server
+- whatsapp_sending_server, viber_sending_server, otp_sending_server (all bigint)
+- created_at, updated_at
+
+TABLE 46: cg_plan_sending_credit_prices
+- id (bigint PK auto_increment)
+- uid (char36)
+- plan_id (bigint MUL)
+- unit_from, unit_to (int)
+- per_credit_cost (varchar20 default: 1.00)
+- created_at, updated_at
+
+TABLE 47: cg_plugins (CUT OFF - columns unknown)
