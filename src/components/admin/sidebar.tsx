@@ -48,9 +48,9 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { label: 'DASHBOARD', icon: <LayoutDashboard className="h-4 w-4" />, view: 'dashboard' },
+  { label: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4" />, view: 'dashboard' },
   {
-    label: 'CUSTOMER',
+    label: 'Customer',
     icon: <Users className="h-4 w-4" />,
     children: [
       { label: 'Customers', view: 'customers', icon: <Users className="h-3.5 w-3.5" /> },
@@ -59,7 +59,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    label: 'PLAN',
+    label: 'Plan',
     icon: <Package className="h-4 w-4" />,
     children: [
       { label: 'Plans', view: 'plans', icon: <Package className="h-3.5 w-3.5" /> },
@@ -68,7 +68,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    label: 'SENDING',
+    label: 'Sending',
     icon: <Send className="h-4 w-4" />,
     children: [
       { label: 'Sending Servers', view: 'sending-servers', icon: <Server className="h-3.5 w-3.5" /> },
@@ -76,7 +76,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    label: 'SECURITY',
+    label: 'Security',
     icon: <Shield className="h-4 w-4" />,
     children: [
       { label: 'Blacklist', view: 'blacklist', icon: <Ban className="h-3.5 w-3.5" /> },
@@ -85,7 +85,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    label: 'ADMINISTRATOR',
+    label: 'Administrator',
     icon: <UserCog className="h-4 w-4" />,
     children: [
       { label: 'Administrators', view: 'administrators', icon: <ShieldCheck className="h-3.5 w-3.5" /> },
@@ -93,7 +93,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    label: 'SETTING',
+    label: 'Setting',
     icon: <Settings className="h-4 w-4" />,
     children: [
       { label: 'All Settings', view: 'all-settings', icon: <Settings className="h-3.5 w-3.5" /> },
@@ -109,7 +109,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    label: 'REPORT',
+    label: 'Report',
     icon: <BarChart3 className="h-4 w-4" />,
     children: [
       { label: 'Dashboard', view: 'report-dashboard', icon: <BarChart3 className="h-3.5 w-3.5" /> },
@@ -117,8 +117,8 @@ const menuItems: MenuItem[] = [
       { label: 'Campaigns', view: 'campaigns-report', icon: <Megaphone className="h-3.5 w-3.5" /> },
     ],
   },
-  { label: 'INVOICES', icon: <Receipt className="h-4 w-4" />, view: 'invoices' },
-  { label: 'THEME CUSTOMIZER', icon: <Palette className="h-4 w-4" />, view: 'theme-customizer' },
+  { label: 'Invoices', icon: <Receipt className="h-4 w-4" />, view: 'invoices' },
+  { label: 'Theme Customizer', icon: <Palette className="h-4 w-4" />, view: 'theme-customizer' },
 ];
 
 export function Sidebar() {
@@ -200,32 +200,37 @@ export function Sidebar() {
                     <button
                       onClick={() => {
                         toggleMenu(item.label);
-                        if (sidebarOpen && !expanded) {
-                          // just expand
-                        } else if (!sidebarOpen) {
+                        if (!sidebarOpen) {
                           toggleSidebar();
                         }
                       }}
                       className={cn(
                         'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors cursor-pointer',
-                        parentActive
+                        parentActive && !expanded
                           ? 'text-[#6366F1]'
-                          : 'text-gray-700 hover:bg-gray-200/70',
+                          : expanded
+                            ? 'text-gray-800'
+                            : 'text-gray-700 hover:bg-gray-200/70',
                         !sidebarOpen && 'lg:justify-center lg:px-0'
                       )}
                       title={!sidebarOpen ? item.label : undefined}
                     >
-                      <span className={cn(parentActive ? 'text-[#6366F1]' : 'text-gray-500', 'shrink-0')}>
+                      <span className={cn(
+                        parentActive || expanded ? 'text-[#6366F1]' : 'text-gray-500',
+                        'shrink-0'
+                      )}>
                         {item.icon}
                       </span>
                       {sidebarOpen && (
                         <>
                           <span className="flex-1 text-left truncate">{item.label}</span>
-                          {expanded ? (
-                            <ChevronDown className="h-3.5 w-3.5 shrink-0" />
-                          ) : (
-                            <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-                          )}
+                          <span className="shrink-0 text-gray-400">
+                            {expanded ? (
+                              <ChevronDown className="h-3.5 w-3.5" />
+                            ) : (
+                              <ChevronRight className="h-3.5 w-3.5" />
+                            )}
+                          </span>
                         </>
                       )}
                     </button>
@@ -240,7 +245,7 @@ export function Sidebar() {
                               className={cn(
                                 'w-full flex items-center gap-2.5 pl-3 pr-2 py-1.5 rounded-md text-[12px] font-medium transition-colors cursor-pointer',
                                 childActive
-                                  ? 'bg-[#6366F1] text-white border-l-2 border-[#6366F1]'
+                                  ? 'bg-[#6366F1] text-white'
                                   : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
                               )}
                             >
@@ -276,7 +281,6 @@ export function Sidebar() {
               </div>
               <button
                 onClick={() => {
-                  // logout
                   window.location.reload();
                 }}
                 className="p-1.5 rounded hover:bg-gray-200 text-gray-400 hover:text-gray-600"

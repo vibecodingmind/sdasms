@@ -66,7 +66,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [currentView, setCurrentView] = useState<ViewId>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [expandedMenus, setExpandedMenus] = useState<string[]>(['CUSTOMER']);
+  const [expandedMenus, setExpandedMenus] = useState<string[]>(['Customer']);
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     // Instant mock auth — no network delay
@@ -99,7 +99,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const toggleMenu = useCallback((menu: string) => {
     setExpandedMenus((prev) =>
-      prev.includes(menu) ? prev.filter((m) => m !== menu) : [...prev, menu]
+      prev.includes(menu) ? [] : [menu]
     );
   }, []);
 
