@@ -1,40 +1,49 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { useApp } from './app-context';
 import { Sidebar } from './sidebar';
 import { Header } from './header';
 import { LoginPage } from './login-page';
-import { DashboardView } from './views/dashboard-view';
-import { CustomersView } from './views/customers-view';
-import { SubscriptionView } from './views/subscription-view';
-import { AnnouncementsView } from './views/announcements-view';
-import { PlansView } from './views/plans-view';
-import { CurrenciesView } from './views/currencies-view';
-import { TaxSettingView } from './views/tax-setting-view';
-import { SendingServersView } from './views/sending-servers-view';
-import { SenderIdView } from './views/sender-id-view';
-import { BlacklistView } from './views/blacklist-view';
-import { SpamWordsView } from './views/spam-words-view';
-import { BlockedSenderIdView } from './views/blocked-sender-id-view';
-import { AdministratorsView } from './views/administrators-view';
-import { AdminRolesView } from './views/admin-roles-view';
-import { AllSettingsView } from './views/all-settings-view';
-import { CountriesView } from './views/countries-view';
-import { AiSettingView } from './views/ai-setting-view';
-import { LanguageView } from './views/language-view';
-import { PaymentGatewaysView } from './views/payment-gateways-view';
-import { EmailTemplatesView } from './views/email-templates-view';
-import { TermsOfUseView } from './views/terms-of-use-view';
-import { PrivacyPolicyView } from './views/privacy-policy-view';
-import { MaintenanceModeView } from './views/maintenance-mode-view';
-import { UpdateAppView } from './views/update-app-view';
-import { ReportDashboardView } from './views/report-dashboard-view';
-import { SmsHistoryView } from './views/sms-history-view';
-import { CampaignsReportView } from './views/campaigns-report-view';
-import { InvoicesView } from './views/invoices-view';
-import { ThemeCustomizerView } from './views/theme-customizer-view';
 import { Loader2 } from 'lucide-react';
+
+// Lazy load ALL views — only the active one gets bundled and loaded
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center py-20">
+    <Loader2 className="h-6 w-6 animate-spin text-[#6366F1]" />
+  </div>
+);
+
+const DashboardView = dynamic(() => import('./views/dashboard-view').then(m => ({ default: m.DashboardView })), { loading: LoadingFallback });
+const CustomersView = dynamic(() => import('./views/customers-view').then(m => ({ default: m.CustomersView })), { loading: LoadingFallback });
+const SubscriptionView = dynamic(() => import('./views/subscription-view').then(m => ({ default: m.SubscriptionView })), { loading: LoadingFallback });
+const AnnouncementsView = dynamic(() => import('./views/announcements-view').then(m => ({ default: m.AnnouncementsView })), { loading: LoadingFallback });
+const PlansView = dynamic(() => import('./views/plans-view').then(m => ({ default: m.PlansView })), { loading: LoadingFallback });
+const CurrenciesView = dynamic(() => import('./views/currencies-view').then(m => ({ default: m.CurrenciesView })), { loading: LoadingFallback });
+const TaxSettingView = dynamic(() => import('./views/tax-setting-view').then(m => ({ default: m.TaxSettingView })), { loading: LoadingFallback });
+const SendingServersView = dynamic(() => import('./views/sending-servers-view').then(m => ({ default: m.SendingServersView })), { loading: LoadingFallback });
+const SenderIdView = dynamic(() => import('./views/sender-id-view').then(m => ({ default: m.SenderIdView })), { loading: LoadingFallback });
+const BlacklistView = dynamic(() => import('./views/blacklist-view').then(m => ({ default: m.BlacklistView })), { loading: LoadingFallback });
+const SpamWordsView = dynamic(() => import('./views/spam-words-view').then(m => ({ default: m.SpamWordsView })), { loading: LoadingFallback });
+const BlockedSenderIdView = dynamic(() => import('./views/blocked-sender-id-view').then(m => ({ default: m.BlockedSenderIdView })), { loading: LoadingFallback });
+const AdministratorsView = dynamic(() => import('./views/administrators-view').then(m => ({ default: m.AdministratorsView })), { loading: LoadingFallback });
+const AdminRolesView = dynamic(() => import('./views/admin-roles-view').then(m => ({ default: m.AdminRolesView })), { loading: LoadingFallback });
+const AllSettingsView = dynamic(() => import('./views/all-settings-view').then(m => ({ default: m.AllSettingsView })), { loading: LoadingFallback });
+const CountriesView = dynamic(() => import('./views/countries-view').then(m => ({ default: m.CountriesView })), { loading: LoadingFallback });
+const AiSettingView = dynamic(() => import('./views/ai-setting-view').then(m => ({ default: m.AiSettingView })), { loading: LoadingFallback });
+const LanguageView = dynamic(() => import('./views/language-view').then(m => ({ default: m.LanguageView })), { loading: LoadingFallback });
+const PaymentGatewaysView = dynamic(() => import('./views/payment-gateways-view').then(m => ({ default: m.PaymentGatewaysView })), { loading: LoadingFallback });
+const EmailTemplatesView = dynamic(() => import('./views/email-templates-view').then(m => ({ default: m.EmailTemplatesView })), { loading: LoadingFallback });
+const TermsOfUseView = dynamic(() => import('./views/terms-of-use-view').then(m => ({ default: m.TermsOfUseView })), { loading: LoadingFallback });
+const PrivacyPolicyView = dynamic(() => import('./views/privacy-policy-view').then(m => ({ default: m.PrivacyPolicyView })), { loading: LoadingFallback });
+const MaintenanceModeView = dynamic(() => import('./views/maintenance-mode-view').then(m => ({ default: m.MaintenanceModeView })), { loading: LoadingFallback });
+const UpdateAppView = dynamic(() => import('./views/update-app-view').then(m => ({ default: m.UpdateAppView })), { loading: LoadingFallback });
+const ReportDashboardView = dynamic(() => import('./views/report-dashboard-view').then(m => ({ default: m.ReportDashboardView })), { loading: LoadingFallback });
+const SmsHistoryView = dynamic(() => import('./views/sms-history-view').then(m => ({ default: m.SmsHistoryView })), { loading: LoadingFallback });
+const CampaignsReportView = dynamic(() => import('./views/campaigns-report-view').then(m => ({ default: m.CampaignsReportView })), { loading: LoadingFallback });
+const InvoicesView = dynamic(() => import('./views/invoices-view').then(m => ({ default: m.InvoicesView })), { loading: LoadingFallback });
+const ThemeCustomizerView = dynamic(() => import('./views/theme-customizer-view').then(m => ({ default: m.ThemeCustomizerView })), { loading: LoadingFallback });
 
 function ViewRouter() {
   const { currentView } = useApp();

@@ -62,32 +62,29 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState<AdminUser | null>(null);
   const [currentView, setCurrentView] = useState<ViewId>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['CUSTOMER']);
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+    // Instant mock auth — no network delay
+    if (email === 'admin@admin.com' && password === 'password123') {
+      setUser({
+        id: 1,
+        uid: 'admin-001',
+        first_name: 'Godlisten',
+        last_name: 'Admin',
+        email: 'admin@admin.com',
+        is_admin: true,
+        avatar: null,
+        status: 'active',
       });
-      const data = await res.json();
-      if (data.success) {
-        setUser(data.user);
-        setIsAuthenticated(true);
-        return true;
-      }
-      return false;
-    } catch {
-      return false;
-    } finally {
-      setIsLoading(false);
+      setIsAuthenticated(true);
+      return true;
     }
+    return false;
   }, []);
 
   const logout = useCallback(() => {
