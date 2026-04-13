@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { size: 794px 1123px; margin: 0; }
+  html, body { width: 794px; height: 1123px; margin: 0; padding: 0; background: #f3f4f4; }
+  .cover { position: relative; width: 794px; height: 1123px; background: #ffffff; overflow: hidden; }
+  
+  /* Layer 1: Background */
+  .bg-layer { position: absolute; inset: 0; overflow: hidden; z-index: 1; }
+  .grid-line { position: absolute; background: #405057; opacity: 0.03; }
+  .grid-h { width: 100%; height: 1px; }
+  .grid-v { width: 1px; height: 100%; }
+  
+  /* Layer 2: Structure */
+  .structure-layer { position: absolute; inset: 0; z-index: 2; }
+  .anchor-line { position: absolute; left: 95px; top: 112px; bottom: 112px; width: 6pt; background: #405057; }
+  .meta-line { position: absolute; left: 130px; top: 750px; width: 320px; height: 1px; background: #405057; opacity: 0.4; }
+  
+  /* Layer 3: Content */
+  .content-layer { position: absolute; inset: 0; z-index: 3; padding: 0; }
+  .kicker { position: absolute; left: 130px; top: 170px; font-family: 'Inter', sans-serif; font-size: 13pt; font-weight: 400; letter-spacing: 4pt; text-transform: uppercase; color: #405057; opacity: 0.6; }
+  .hero-title { position: absolute; left: 130px; top: 300px; font-family: 'Inter', sans-serif; font-size: 52pt; font-weight: 900; line-height: 1.15; color: #1a1c1d; max-width: 580px; }
+  .hero-title .accent { color: #a5273c; }
+  .summary { position: absolute; left: 130px; top: 520px; font-family: 'Inter', sans-serif; font-size: 15pt; font-weight: 300; line-height: 1.7; color: #6f7578; max-width: 500px; opacity: 0.85; }
+  .meta { position: absolute; left: 130px; top: 770px; font-family: 'Inter', sans-serif; font-size: 14pt; font-weight: 400; color: #1a1c1d; }
+  .meta span { color: #6f7578; }
+  .footer { position: absolute; left: 130px; bottom: 50px; font-family: 'Inter', sans-serif; font-size: 11pt; font-weight: 400; letter-spacing: 2pt; text-transform: uppercase; color: #405057; opacity: 0.5; }
+  
+  /* Decorative block */
+  .deco-block { position: absolute; right: 0; bottom: 0; width: 200px; height: 280px; background: #405057; opacity: 0.06; }
+</style>
+</head>
+<body>
+<div class="cover">
+  <!-- Layer 1: Background Grid -->
+  <div class="bg-layer">
+    <div class="grid-line grid-h" style="top:56px"></div>
+    <div class="grid-line grid-h" style="top:112px"></div>
+    <div class="grid-line grid-h" style="top:168px"></div>
+    <div class="grid-line grid-h" style="top:224px"></div>
+    <div class="grid-line grid-h" style="top:280px"></div>
+    <div class="grid-line grid-h" style="top:336px"></div>
+    <div class="grid-line grid-h" style="top:392px"></div>
+    <div class="grid-line grid-h" style="top:448px"></div>
+    <div class="grid-line grid-h" style="top:504px"></div>
+    <div class="grid-line grid-h" style="top:560px"></div>
+    <div class="grid-line grid-h" style="top:616px"></div>
+    <div class="grid-line grid-h" style="top:672px"></div>
+    <div class="grid-line grid-h" style="top:728px"></div>
+    <div class="grid-line grid-h" style="top:784px"></div>
+    <div class="grid-line grid-h" style="top:840px"></div>
+    <div class="grid-line grid-h" style="top:896px"></div>
+    <div class="grid-line grid-h" style="top:952px"></div>
+    <div class="grid-line grid-h" style="top:1008px"></div>
+    <div class="grid-line grid-v" style="left:56px"></div>
+    <div class="grid-line grid-v" style="left:112px"></div>
+    <div class="grid-line grid-v" style="left:168px"></div>
+    <div class="grid-line grid-v" style="left:224px"></div>
+    <div class="grid-line grid-v" style="left:280px"></div>
+    <div class="grid-line grid-v" style="left:336px"></div>
+    <div class="grid-line grid-v" style="left:392px"></div>
+    <div class="grid-line grid-v" style="left:448px"></div>
+    <div class="grid-line grid-v" style="left:504px"></div>
+    <div class="grid-line grid-v" style="left:560px"></div>
+    <div class="grid-line grid-v" style="left:616px"></div>
+    <div class="grid-line grid-v" style="left:672px"></div>
+    <div class="grid-line grid-v" style="left:728px"></div>
+    <div class="deco-block"></div>
+  </div>
+  
+  <!-- Layer 2: Structure -->
+  <div class="structure-layer">
+    <div class="anchor-line"></div>
+    <div class="meta-line"></div>
+  </div>
+  
+  <!-- Layer 3: Content -->
+  <div class="content-layer">
+    <div class="kicker">Technical Architecture Document</div>
+    <div class="hero-title">Bulk SMS<br>Platform<br><span class="accent">Rebuild</span></div>
+    <div class="summary">Comprehensive technical blueprint for building a modern SMS platform reusing the existing sdasms_sdasms MySQL database with 65 tables, covering database analysis, API architecture, and migration strategy.</div>
+    <div class="meta"><span>Database: </span>sdasms_sdasms &nbsp;|&nbsp; <span>Tables: </span>65 &nbsp;|&nbsp; <span>Stack: </span>Next.js + Node.js</div>
+    <div class="footer">April 2026 &nbsp;&nbsp; Version 1.0</div>
+  </div>
+</div>
+</body>
+</html>
