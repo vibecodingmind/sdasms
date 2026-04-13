@@ -30,7 +30,6 @@ import {
   Receipt,
   Palette,
   ChevronDown,
-  ChevronRight,
   MessageSquare,
   AlertTriangle,
   X,
@@ -133,14 +132,14 @@ export function Sidebar() {
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/30 z-40 lg:hidden transition-opacity duration-200"
           onClick={toggleSidebar}
         />
       )}
 
       <aside
         className={cn(
-          'fixed top-0 left-0 z-50 h-full bg-[#F3F4F6] border-r border-gray-200 flex flex-col transition-all duration-300',
+          'fixed top-0 left-0 z-50 h-full bg-[#F3F4F6] border-r border-gray-200 flex flex-col transition-all duration-300 ease-in-out',
           sidebarOpen ? 'w-64' : 'w-0 lg:w-16',
           'lg:relative lg:z-auto'
         )}
@@ -148,7 +147,7 @@ export function Sidebar() {
         {/* Logo */}
         <div className="flex items-center h-16 px-4 border-b border-gray-200 shrink-0">
           <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="w-8 h-8 rounded-lg bg-[#6366F1] flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-[#6366F1] flex items-center justify-center shrink-0 transition-transform duration-200 hover:scale-110">
               <MessageSquare className="h-5 w-5 text-white" />
             </div>
             {sidebarOpen && (
@@ -159,7 +158,7 @@ export function Sidebar() {
           </div>
           <button
             onClick={toggleSidebar}
-            className="ml-auto lg:hidden p-1 rounded hover:bg-gray-200"
+            className="ml-auto lg:hidden p-1 rounded hover:bg-gray-200 transition-colors duration-150"
           >
             <X className="h-5 w-5 text-gray-500" />
           </button>
@@ -176,15 +175,16 @@ export function Sidebar() {
                     key={item.view}
                     onClick={() => setCurrentView(item.view)}
                     className={cn(
-                      'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors cursor-pointer',
+                      'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium cursor-pointer',
+                      'transition-all duration-200 ease-out',
                       active
-                        ? 'bg-[#6366F1] text-white'
+                        ? 'bg-[#6366F1] text-white shadow-sm shadow-[#6366F1]/25'
                         : 'text-gray-700 hover:bg-gray-200/70',
                       !sidebarOpen && 'lg:justify-center lg:px-0'
                     )}
                     title={!sidebarOpen ? item.label : undefined}
                   >
-                    <span className={cn(active ? 'text-white' : 'text-gray-500', 'shrink-0')}>
+                    <span className={cn(active ? 'text-white' : 'text-gray-500', 'shrink-0 transition-transform duration-200', active && 'scale-110')}>
                       {item.icon}
                     </span>
                     {sidebarOpen && <span className="truncate">{item.label}</span>}
@@ -205,7 +205,8 @@ export function Sidebar() {
                         }
                       }}
                       className={cn(
-                        'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors cursor-pointer',
+                        'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium cursor-pointer',
+                        'transition-all duration-200 ease-out',
                         parentActive && !expanded
                           ? 'text-[#6366F1]'
                           : expanded
@@ -217,43 +218,61 @@ export function Sidebar() {
                     >
                       <span className={cn(
                         parentActive || expanded ? 'text-[#6366F1]' : 'text-gray-500',
-                        'shrink-0'
+                        'shrink-0 transition-transform duration-200',
+                        expanded && 'scale-110'
                       )}>
                         {item.icon}
                       </span>
                       {sidebarOpen && (
                         <>
                           <span className="flex-1 text-left truncate">{item.label}</span>
-                          <span className="shrink-0 text-gray-400">
-                            {expanded ? (
-                              <ChevronDown className="h-3.5 w-3.5" />
-                            ) : (
-                              <ChevronRight className="h-3.5 w-3.5" />
-                            )}
+                          <span className={cn(
+                            'shrink-0 transition-transform duration-300 ease-out',
+                            expanded ? 'rotate-0' : '-rotate-90',
+                            parentActive || expanded ? 'text-[#6366F1]' : 'text-gray-400'
+                          )}>
+                            <ChevronDown className="h-3.5 w-3.5" />
                           </span>
                         </>
                       )}
                     </button>
-                    {sidebarOpen && expanded && (
-                      <div className="ml-3 mt-0.5 space-y-0.5">
-                        {item.children.map((child) => {
-                          const childActive = isActive(child.view);
-                          return (
-                            <button
-                              key={child.view}
-                              onClick={() => setCurrentView(child.view)}
-                              className={cn(
-                                'w-full flex items-center gap-2.5 pl-3 pr-2 py-1.5 rounded-md text-[12px] font-medium transition-colors cursor-pointer',
-                                childActive
-                                  ? 'bg-[#6366F1] text-white'
-                                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50'
-                              )}
-                            >
-                              <span className="shrink-0">{child.icon}</span>
-                              <span className="truncate">{child.label}</span>
-                            </button>
-                          );
-                        })}
+                    {/* Animated submenu using CSS grid trick for smooth height */}
+                    {sidebarOpen && (
+                      <div
+                        className="grid transition-[grid-template-rows] duration-250 ease-out"
+                        style={{
+                          gridTemplateRows: expanded ? '1fr' : '0fr',
+                        }}
+                      >
+                        <div className="overflow-hidden">
+                          <div className="ml-3 mt-0.5 space-y-0.5 py-0.5">
+                            {item.children.map((child, idx) => {
+                              const childActive = isActive(child.view);
+                              return (
+                                <button
+                                  key={child.view}
+                                  onClick={() => setCurrentView(child.view)}
+                                  className={cn(
+                                    'w-full flex items-center gap-2.5 pl-3 pr-2 py-1.5 rounded-md text-[12px] font-medium cursor-pointer',
+                                    'transition-all duration-200 ease-out',
+                                    childActive
+                                      ? 'bg-[#6366F1] text-white shadow-sm shadow-[#6366F1]/20'
+                                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200/50',
+                                    expanded
+                                      ? 'opacity-100 translate-x-0'
+                                      : 'opacity-0 -translate-x-2'
+                                  )}
+                                  style={{
+                                    transitionDelay: expanded ? `${idx * 40}ms` : '0ms',
+                                  }}
+                                >
+                                  <span className="shrink-0">{child.icon}</span>
+                                  <span className="truncate">{child.label}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -269,13 +288,13 @@ export function Sidebar() {
         {sidebarOpen && (
           <div className="border-t border-gray-200 p-3 shrink-0">
             <div className="flex items-center gap-3 px-2 py-2">
-              <div className="w-8 h-8 rounded-full bg-[#6366F1] flex items-center justify-center text-white text-xs font-semibold shrink-0">
+              <div className="w-8 h-8 rounded-full bg-[#6366F1] flex items-center justify-center text-white text-xs font-semibold shrink-0 transition-transform duration-200 hover:scale-110">
                 SA
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-800 truncate">Super Admin</p>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                   <span className="text-[11px] text-gray-500">Available</span>
                 </div>
               </div>
@@ -283,7 +302,7 @@ export function Sidebar() {
                 onClick={() => {
                   window.location.reload();
                 }}
-                className="p-1.5 rounded hover:bg-gray-200 text-gray-400 hover:text-gray-600"
+                className="p-1.5 rounded hover:bg-gray-200 text-gray-400 hover:text-gray-600 transition-all duration-150 hover:scale-110 hover:rotate-12"
                 title="Logout"
               >
                 <LogOut className="h-4 w-4" />
