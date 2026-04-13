@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "I notice you've shared an image of a phpMyAdmin database print view for a bulk SMS platform database called 'sdasms_sdasms', but the image appears to be blank or not displaying properly. The image shows only a white background with no visible content.\n\nTo extract the table names, column names, column types, and key information from your database, I would need to see the actual database schema content. The phpMyAdmin print view should typically show:\n\n1. Table names\n2. Column names for each table\n3. Column data types (e.g., INT, VARCHAR, TEXT, DATETIME)\n4. Key information (primary keys, foreign keys, indexes)\n5. Relationships between tables\n\nCould you please:\n1. Re-upload the image if it didn't load properly\n2. Or provide the database schema information in text format\n3. Or describe what you can see in the image\n\nOnce I can see the actual database structure, I'll be happy to extract and format all the requested information in a structured list as you've requested.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1776110654,
+  "id": "20260414040402c155f8f78512460a",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "20260414040402c155f8f78512460a",
+  "usage": {
+    "completion_tokens": 218,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 6134,
+    "prompt_tokens_details": {
+      "cached_tokens": 4
+    },
+    "total_tokens": 6352
+  }
+}
