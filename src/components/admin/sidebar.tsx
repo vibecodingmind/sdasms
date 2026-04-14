@@ -153,7 +153,7 @@ export function Sidebar() {
             </div>
             {sidebarOpen && (
               <span className="font-bold text-gray-800 dark:text-gray-100 text-lg tracking-tight whitespace-nowrap">
-                SMSPro
+                SDASMS
               </span>
             )}
           </div>

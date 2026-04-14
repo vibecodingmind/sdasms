@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SMSPro Admin - Bulk SMS Platform Administration",
-  description: "Admin panel for managing the SMSPro bulk SMS and multi-channel messaging platform",
+  title: "SDASMS Admin - Bulk SMS Platform Administration",
+  description: "Admin panel for managing the SDASMS bulk SMS and multi-channel messaging platform",
   icons: {
     icon: "/logo.png",
   },

@@ -55,8 +55,8 @@ export function LoginPage() {
           <div className="w-12 h-12 rounded-xl bg-[#6366F1] flex items-center justify-center mb-4 shadow-lg shadow-[#6366F1]/25 transition-transform duration-200 hover:scale-110">
             <MessageSquare className="h-7 w-7 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">SMSPro Admin</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Sign in to your admin panel</p>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">SDASMS Admin</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Sign in to your account</p>
         </div>
 
         {/* Login Card */}

@@ -24,7 +24,7 @@ export function AllSettingsView() {
           <CardContent className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Application Name</label>
-              <Input defaultValue="SMSPro" />
+              <Input defaultValue="SDASMS" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Logo URL</label>

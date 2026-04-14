@@ -52,3 +52,9 @@ prompt
 server.log
 # Skills directory
 /skills/
+
+# Upload & temp files
+/upload/
+/db/
+/agent-ctx/
+/tmp/

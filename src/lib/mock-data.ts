@@ -161,7 +161,7 @@ export const mockLanguages = [
 ];
 
 export const mockEmailTemplates = [
-  { id: 1, name: "Welcome Email", subject: "Welcome to SMSPro!", type: "customer", body: "Dear {{name}},\n\nWelcome to SMSPro! Your account has been created successfully..." },
+  { id: 1, name: "Welcome Email", subject: "Welcome to SDASMS!", type: "customer", body: "Dear {{name}},\n\nWelcome to SDASMS! Your account has been created successfully..." },
   { id: 2, name: "Password Reset", subject: "Reset Your Password", type: "auth", body: "Hello {{name}},\n\nYou requested a password reset. Click the link below..." },
   { id: 3, name: "Invoice Created", subject: "Invoice #{{invoice_id}} Created", type: "billing", body: "Dear {{name}},\n\nA new invoice has been generated for your subscription..." },
   { id: 4, name: "Subscription Expiring", subject: "Your Subscription is Expiring Soon", type: "billing", body: "Dear {{name}},\n\nYour subscription will expire on {{expiry_date}}..." },
@@ -292,7 +292,7 @@ export const mockDeliveryBreakdown = [
 ];
 
 export const mockSettings = {
-  app_name: "SMSPro",
+  app_name: "SDASMS",
   logo_url: "/logo.png",
   default_country: "US",
   default_timezone: "UTC",
@@ -304,7 +304,7 @@ export const mockSettings = {
   ai_enabled: false,
   ai_api_key: "",
   ai_model: "gpt-3.5-turbo",
-  terms_of_use: "# Terms of Use\n\n## 1. Acceptance of Terms\n\nBy accessing and using SMSPro, you agree to be bound by these Terms of Use...\n\n## 2. Service Description\n\nSMSPro provides bulk SMS and multi-channel messaging services...\n\n## 3. User Responsibilities\n\nUsers are responsible for maintaining the confidentiality of their account...",
+  terms_of_use: "# Terms of Use\n\n## 1. Acceptance of Terms\n\nBy accessing and using SDASMS, you agree to be bound by these Terms of Use...\n\n## 2. Service Description\n\nSDASMS provides bulk SMS and multi-channel messaging services...\n\n## 3. User Responsibilities\n\nUsers are responsible for maintaining the confidentiality of their account...",
   privacy_policy: "# Privacy Policy\n\n## 1. Information Collection\n\nWe collect information you provide directly to us, including name, email, phone number...\n\n## 2. Use of Information\n\nWe use the information we collect to provide, maintain, and improve our services...\n\n## 3. Data Security\n\nWe implement appropriate technical and organizational security measures...",
   current_version: "v3.2.1",
   php_version: "8.2.15",

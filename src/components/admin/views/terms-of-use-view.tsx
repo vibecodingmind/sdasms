@@ -11,11 +11,11 @@ export function TermsOfUseView() {
 
 ## 1. Acceptance of Terms
 
-By accessing and using SMSPro ("the Service"), you agree to be bound by these Terms of Use ("Terms"). If you do not agree to these Terms, you may not use the Service.
+By accessing and using SDASMS ("the Service"), you agree to be bound by these Terms of Use ("Terms"). If you do not agree to these Terms, you may not use the Service.
 
 ## 2. Service Description
 
-SMSPro provides bulk SMS and multi-channel messaging services including but not limited to SMS, WhatsApp, Viber, and OTP delivery through our web platform and REST API.
+SDASMS provides bulk SMS and multi-channel messaging services including but not limited to SMS, WhatsApp, Viber, and OTP delivery through our web platform and REST API.
 
 ## 3. User Responsibilities
 
@@ -44,7 +44,7 @@ SMSPro provides bulk SMS and multi-channel messaging services including but not 
 
 ## 7. Limitation of Liability
 
-SMSPro shall not be liable for any indirect, incidental, special, or consequential damages arising from the use of the Service.
+SDASMS shall not be liable for any indirect, incidental, special, or consequential damages arising from the use of the Service.
 
 ## 8. Governing Law
 

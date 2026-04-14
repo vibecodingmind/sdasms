@@ -1,0 +1,15 @@
+Dockerfile
+.dockerignore
+node_modules
+.next
+.git
+.gitignore
+skills/
+upload/
+db/
+agent-ctx/
+download/
+tmp/
+*.log
+.env*
+.vercel
