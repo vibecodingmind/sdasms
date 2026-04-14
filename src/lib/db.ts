@@ -7,7 +7,11 @@ const globalForPrisma = globalThis as unknown as {
 export const db =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log: ['query'],
+    log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
   })
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
+
+export function isDatabaseConnected(): boolean {
+  return !!process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('file:');
+}

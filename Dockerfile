@@ -2,25 +2,26 @@ FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
-COPY package.json bun.lock* package-lock.json* ./
-
-# Install bun and use it
-RUN npm install -g bun
-RUN bun install --frozen-lockfile || npm install
+COPY package.json package-lock.json* ./
+RUN npm install --legacy-peer-deps
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
-RUN npm install -g bun
+RUN apk add --no-cache openssl
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Generate Prisma client before build
+RUN npx prisma generate
+
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN bun run build
+RUN npm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
@@ -32,7 +33,12 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Copy prisma schema for potential migrations at runtime
+COPY prisma ./prisma/
+
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 # Set the correct permission for prerender cache
 RUN mkdir .next

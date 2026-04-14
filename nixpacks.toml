@@ -1,11 +1,11 @@
 [phases.setup]
-nixPkgs = ['...', 'nodejs_20', 'bun']
+nixPkgs = ['...', 'nodejs_20', 'openssl']
 
 [phases.install]
-cmds = ['bun install --frozen-lockfile']
+cmds = ['npm install --legacy-peer-deps']
 
 [phases.build]
-cmds = ['bun run build']
+cmds = ['npx prisma generate', 'npm run build']
 
 [phases.start]
 cmds = ['node .next/standalone/server.js']

@@ -205,9 +205,12 @@ export function LoginPage() {
         </div>
 
         {/* Demo credentials */}
-        <div className="mt-3 text-center">
+        <div className="mt-3 text-center space-y-1">
           <p className="text-xs text-gray-400 dark:text-gray-500">
-            Demo: <span className="text-gray-500 dark:text-gray-400">admin@admin.com</span> / <span className="text-gray-500 dark:text-gray-400">password123</span>
+            Admin: <span className="text-gray-500 dark:text-gray-400">admin@admin.com</span> / <span className="text-gray-500 dark:text-gray-400">password123</span>
+          </p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            Customer: <span className="text-gray-500 dark:text-gray-400">john@acmecorp.com</span> / <span className="text-gray-500 dark:text-gray-400">customer123</span>
           </p>
         </div>
       </div>

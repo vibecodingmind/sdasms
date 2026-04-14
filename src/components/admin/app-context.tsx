@@ -119,22 +119,48 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [theme]);
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
-    // Instant mock auth — no network delay
-    if (email === 'admin@admin.com' && password === 'password123') {
-      setUser({
-        id: 1,
-        uid: 'admin-001',
-        first_name: 'Godlisten',
-        last_name: 'Admin',
-        email: 'admin@admin.com',
-        is_admin: true,
-        avatar: null,
-        status: 'active',
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
-      setIsAuthenticated(true);
-      return true;
+      const data = await res.json();
+
+      if (data.success && data.user) {
+        const u = data.user;
+        setUser({
+          id: u.id,
+          uid: u.uid,
+          first_name: u.first_name || u.firstName,
+          last_name: u.last_name || u.lastName,
+          email: u.email,
+          is_admin: u.is_admin || u.isAdmin,
+          avatar: u.avatar || null,
+          status: u.status,
+        });
+        setIsAuthenticated(true);
+        return true;
+      }
+      return false;
+    } catch {
+      // Fallback to hardcoded admin if API fails
+      if (email === 'admin@admin.com' && password === 'password123') {
+        setUser({
+          id: 1,
+          uid: 'admin-001',
+          first_name: 'Super',
+          last_name: 'Admin',
+          email: 'admin@admin.com',
+          is_admin: true,
+          avatar: null,
+          status: 'active',
+        });
+        setIsAuthenticated(true);
+        return true;
+      }
+      return false;
     }
-    return false;
   }, []);
 
   const socialLogin = useCallback(async (provider: 'google' | 'facebook' | 'github'): Promise<boolean> => {
