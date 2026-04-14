@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 
 export type ViewId =
   | 'dashboard'
@@ -51,11 +51,13 @@ interface AppContextType {
   currentView: ViewId;
   sidebarOpen: boolean;
   expandedMenus: string[];
+  theme: 'light' | 'dark';
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   setCurrentView: (view: ViewId) => void;
   toggleSidebar: () => void;
   toggleMenu: (menu: string) => void;
+  toggleTheme: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -67,6 +69,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [currentView, setCurrentView] = useState<ViewId>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['Customer']);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  // Apply dark class to html element on theme change
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [theme]);
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     // Instant mock auth — no network delay
@@ -103,6 +116,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  }, []);
+
   return (
     <AppContext.Provider
       value={{
@@ -112,11 +129,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         currentView,
         sidebarOpen,
         expandedMenus,
+        theme,
         login,
         logout,
         setCurrentView,
         toggleSidebar,
         toggleMenu,
+        toggleTheme,
       }}
     >
       {children}

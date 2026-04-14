@@ -8,7 +8,6 @@ import { Header } from './header';
 import { LoginPage } from './login-page';
 import { Loader2 } from 'lucide-react';
 
-// Lazy load ALL views — only the active one gets bundled and loaded
 const LoadingFallback = () => (
   <div className="flex items-center justify-center py-20">
     <Loader2 className="h-6 w-6 animate-spin text-[#6366F1]" />
@@ -114,7 +113,7 @@ function ViewRouter() {
 
 export function AppShell() {
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex transition-colors duration-300">
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
         <Header />
@@ -128,10 +127,10 @@ export function AppShell() {
 
 export function AdminLoader() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
       <div className="flex flex-col items-center gap-3">
         <Loader2 className="h-8 w-8 animate-spin text-[#6366F1]" />
-        <p className="text-sm text-gray-500">Loading SMSPro Admin...</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Loading SMSPro Admin...</p>
       </div>
     </div>
   );
