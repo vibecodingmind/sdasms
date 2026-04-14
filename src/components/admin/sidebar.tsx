@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import {
   LayoutDashboard,
   Users,
@@ -148,13 +149,12 @@ export function Sidebar() {
         {/* Logo */}
         <div className="flex items-center h-16 px-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
           <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="w-8 h-8 rounded-lg bg-[#6366F1] flex items-center justify-center shrink-0 transition-transform duration-200 hover:scale-110">
-              <MessageSquare className="h-5 w-5 text-white" />
-            </div>
-            {sidebarOpen && (
-              <span className="font-bold text-gray-800 dark:text-gray-100 text-lg tracking-tight whitespace-nowrap">
-                SDASMS
-              </span>
+            {sidebarOpen ? (
+              <Image src="/logo.png" alt="SDASMS" width={120} height={24} className="h-6 w-auto object-contain shrink-0" />
+            ) : (
+              <div className="w-8 h-8 rounded-lg bg-[#6366F1] flex items-center justify-center shrink-0 transition-transform duration-200 hover:scale-110">
+                <MessageSquare className="h-5 w-5 text-white" />
+              </div>
             )}
           </div>
           <button

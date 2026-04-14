@@ -17,7 +17,8 @@ export const metadata: Metadata = {
   title: "SDASMS Admin - Bulk SMS Platform Administration",
   description: "Admin panel for managing the SDASMS bulk SMS and multi-channel messaging platform",
   icons: {
-    icon: "/logo.png",
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
 };
 

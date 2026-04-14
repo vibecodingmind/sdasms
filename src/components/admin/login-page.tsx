@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MessageSquare, Eye, EyeOff, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useApp } from './app-context';
 
 function SocialButtons({ onSocialLogin }: { onSocialLogin: (p: 'google' | 'facebook' | 'github') => Promise<boolean> }) {
@@ -115,9 +116,7 @@ export function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-[#6366F1] flex items-center justify-center mb-4 shadow-lg shadow-[#6366F1]/25 transition-transform duration-200 hover:scale-110">
-            <MessageSquare className="h-7 w-7 text-white" />
-          </div>
+          <Image src="/logo.png" alt="SDASMS" width={160} height={32} className="h-8 w-auto object-contain mb-4" priority />
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">SDASMS Admin</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Sign in to your account</p>
         </div>
