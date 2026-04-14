@@ -60,10 +60,23 @@ interface AdminUser {
   status: string;
 }
 
+interface CustomerUser {
+  id: number;
+  uid: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  plan: string;
+  sms_balance: number;
+  status: string;
+}
+
 interface AppContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   user: AdminUser | null;
+  impersonatedCustomer: CustomerUser | null;
   currentView: ViewId;
   sidebarOpen: boolean;
   expandedMenus: string[];
@@ -78,6 +91,8 @@ interface AppContextType {
   toggleMenu: (menu: string) => void;
   toggleTheme: () => void;
   setAuthMode: (mode: 'login' | 'register') => void;
+  loginAsCustomer: (customer: CustomerUser) => void;
+  exitImpersonation: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -91,6 +106,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['Customer']);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [impersonatedCustomer, setImpersonatedCustomer] = useState<CustomerUser | null>(null);
 
   // Apply dark class to html element on theme change
   useEffect(() => {
@@ -157,8 +173,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     setUser(null);
+    setImpersonatedCustomer(null);
     setIsAuthenticated(false);
     setCurrentView('dashboard');
+  }, []);
+
+  const loginAsCustomer = useCallback((customer: CustomerUser) => {
+    setImpersonatedCustomer(customer);
+  }, []);
+
+  const exitImpersonation = useCallback(() => {
+    setImpersonatedCustomer(null);
   }, []);
 
   const toggleSidebar = useCallback(() => {
@@ -181,6 +206,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         isAuthenticated,
         isLoading,
         user,
+        impersonatedCustomer,
         currentView,
         sidebarOpen,
         expandedMenus,
@@ -195,6 +221,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         toggleMenu,
         toggleTheme,
         setAuthMode,
+        loginAsCustomer,
+        exitImpersonation,
       }}
     >
       {children}

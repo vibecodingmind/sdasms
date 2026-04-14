@@ -91,3 +91,42 @@ Stage Summary:
 - Prisma schema ready for MySQL database connection
 - Auth system with JWT tokens
 - Lint passes cleanly
+
+---
+Task ID: 5
+Agent: Main Agent
+Task: Add "Login As Customer" impersonation feature to admin panel
+
+Work Log:
+- Read and analyzed current project structure: AppContext, Header, CustomersView, app-shell, mock-data
+- Updated AppContext (app-context.tsx):
+  - Added CustomerUser interface with id, uid, first_name, last_name, email, phone, plan, sms_balance, status
+  - Added impersonatedCustomer state (CustomerUser | null)
+  - Added loginAsCustomer(customer) and exitImpersonation() callbacks
+  - Updated logout() to clear impersonatedCustomer
+  - Added all new fields to AppContextType and Provider value
+- Updated Header (header.tsx):
+  - Added amber-colored impersonation banner above main header when impersonatedCustomer is set
+  - Banner shows "Viewing as customer: {name} ({email})" with plan badge
+  - "Exit Impersonation" button in banner calls exitImpersonation()
+  - Profile avatar changes to orange when impersonating, shows customer initials/name/email
+  - Breadcrumb changes from "Admin Panel" to "Customer Panel" during impersonation
+- Updated CustomersView (customers-view.tsx):
+  - Added "Login As Customer" action in row dropdown menu (amber-colored, with UserCheck icon)
+  - Added confirmation dialog before switching with customer details preview
+  - When impersonating, renders a full customer dashboard view with:
+    - Customer info card (avatar, name, email, phone, plan, SMS balance, status)
+    - Quick action cards (Send SMS, Contacts, Reports, WhatsApp)
+    - Recent activity feed with timeline
+    - "Exit Customer View" button
+  - Toast notifications on impersonation enter/exit
+- Lint passes cleanly with no errors
+
+Stage Summary:
+- Admin can click "Login As Customer" from any customer's row actions dropdown
+- Confirmation dialog shows customer details before switching
+- Amber impersonation banner appears at top of page when active
+- Customer dashboard view replaces admin table when impersonating
+- "Exit Impersonation" button available in banner and customer view
+- Profile section in header updates to show customer identity
+- All state properly managed through React Context
