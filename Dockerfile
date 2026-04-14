@@ -5,18 +5,22 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-COPY package.json bun.lock ./
-RUN corepack enable && bun install --frozen-lockfile
+COPY package.json bun.lock* package-lock.json* ./
+
+# Install bun and use it
+RUN npm install -g bun
+RUN bun install --frozen-lockfile || npm install
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+RUN npm install -g bun
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN corepack enable && bun run build
+RUN bun run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
