@@ -13,5 +13,9 @@ export const db =
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
 
 export function isDatabaseConnected(): boolean {
-  return !!process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('file:');
+  // Only use database if DATABASE_URL is explicitly set and points to a real DB
+  if (!process.env.DATABASE_URL) return false;
+  if (process.env.DATABASE_URL.includes('file:')) return false;
+  if (process.env.DATABASE_URL.includes('your-')) return false;
+  return true;
 }

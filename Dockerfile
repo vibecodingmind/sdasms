@@ -1,6 +1,6 @@
 FROM node:20-alpine AS base
 
-# Install dependencies only when needed
+# Install dependencies
 FROM base AS deps
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm install --legacy-peer-deps
 
-# Rebuild the source code only when needed
+# Build
 FROM base AS builder
 WORKDIR /app
 RUN apk add --no-cache openssl
@@ -16,14 +16,18 @@ RUN apk add --no-cache openssl
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Generate Prisma client before build
-RUN npx prisma generate
-
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Skip prisma generate if no DATABASE_URL set (pure demo mode)
+RUN if [ -n "$DATABASE_URL" ] && [ "$DATABASE_URL" != "mysql://root:password@localhost:3306/sdasms_sdasms" ]; then \
+      npx prisma generate; \
+    else \
+      echo "No database configured — running in demo mode"; \
+    fi
 
 RUN npm run build
 
-# Production image, copy all the files and run next
+# Production image
 FROM base AS runner
 WORKDIR /app
 
@@ -33,18 +37,16 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy prisma schema for potential migrations at runtime
-COPY prisma ./prisma/
-
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
-# Set the correct permission for prerender cache
+# Copy Prisma client if it was generated
+RUN mkdir -p node_modules/.prisma node_modules/@prisma 2>/dev/null || true
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma 2>/dev/null || true
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma 2>/dev/null || true
+
 RUN mkdir .next
 RUN chown nextjs:nodejs .next
 
-# Automatically leverage output traces to reduce image size
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
