@@ -1,20 +1,47 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MessageSquare, Eye, EyeOff, Loader2, ArrowLeft, Building2, Phone, User } from 'lucide-react';
+import {
+  MessageSquare,
+  Eye,
+  EyeOff,
+  Loader2,
+  ArrowLeft,
+  Building2,
+  Phone,
+  User,
+  Mail,
+  MapPin,
+  Globe,
+  FileText,
+  BadgeCheck,
+  Briefcase,
+} from 'lucide-react';
 import { useApp } from './app-context';
 
 export function RegisterPage() {
   const { register, theme, toggleTheme, setAuthMode } = useApp();
+  const [accountType, setAccountType] = useState<'personal' | 'organization'>('personal');
+  const [step, setStep] = useState<1 | 2>(1);
+
+  // Common fields
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [company, setCompany] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // Organization fields
+  const [company, setCompany] = useState('');
+  const [organizationType, setOrganizationType] = useState('');
+  const [taxNumber, setTaxNumber] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [country, setCountry] = useState('');
+
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -39,14 +66,25 @@ export function RegisterPage() {
       return;
     }
 
+    if (accountType === 'organization' && !company) {
+      setError('Organization name is required');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const success = await register({
+        account_type: accountType,
         first_name: firstName,
         last_name: lastName,
         email,
         phone,
         company,
+        organization_type,
+        tax_number: taxNumber,
+        address,
+        city,
+        country,
         password,
         password_confirm: passwordConfirm,
       });
@@ -75,6 +113,13 @@ export function RegisterPage() {
     return { label: 'Very Strong', color: 'bg-emerald-500', width: '100%' };
   })();
 
+  const canProceedStep1 = firstName.trim() && email.trim() && password.trim() && password.length >= 8 && password === passwordConfirm;
+
+  const inputClass =
+    'w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all duration-200';
+  const inputIconClass = 'absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400';
+  const labelClass = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5';
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4 transition-colors duration-300 relative">
       {/* Theme toggle */}
@@ -97,12 +142,63 @@ export function RegisterPage() {
 
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="flex flex-col items-center mb-8">
+        <div className="flex flex-col items-center mb-6">
           <div className="w-12 h-12 rounded-xl bg-[#6366F1] flex items-center justify-center mb-4 shadow-lg shadow-[#6366F1]/25 transition-transform duration-200 hover:scale-110">
             <MessageSquare className="h-7 w-7 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">SDASMS Admin</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Create your account</p>
+        </div>
+
+        {/* Account Type Selector */}
+        <div className="flex gap-3 mb-4">
+          <button
+            type="button"
+            onClick={() => { setAccountType('personal'); setStep(1); setError(''); }}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              accountType === 'personal'
+                ? 'border-[#6366F1] bg-[#6366F1]/5 text-[#6366F1] shadow-sm'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600'
+            }`}
+          >
+            <User className="h-5 w-5" />
+            <div className="text-left">
+              <div>Personal</div>
+              <div className="text-[10px] font-normal opacity-70">Individual account</div>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => { setAccountType('organization'); setStep(1); setError(''); }}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              accountType === 'organization'
+                ? 'border-[#6366F1] bg-[#6366F1]/5 text-[#6366F1] shadow-sm'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600'
+            }`}
+          >
+            <Building2 className="h-5 w-5" />
+            <div className="text-left">
+              <div>Organization</div>
+              <div className="text-[10px] font-normal opacity-70">Company / Business</div>
+            </div>
+          </button>
+        </div>
+
+        {/* Progress indicator */}
+        <div className="flex items-center gap-2 mb-4 px-1">
+          <div className={`flex items-center gap-1.5 text-xs font-medium transition-colors duration-200 ${step >= 1 ? 'text-[#6366F1]' : 'text-gray-400 dark:text-gray-500'}`}>
+            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors duration-200 ${step > 1 ? 'bg-[#6366F1] text-white' : 'bg-[#6366F1]/10 text-[#6366F1]'}`}>
+              {step > 1 ? '\u2713' : '1'}
+            </span>
+            {accountType === 'organization' ? 'Organization Info' : 'Personal Info'}
+          </div>
+          <div className={`flex-1 h-0.5 rounded transition-colors duration-300 ${step > 1 ? 'bg-[#6366F1]' : 'bg-gray-200 dark:bg-gray-700'}`} />
+          <div className={`flex items-center gap-1.5 text-xs font-medium transition-colors duration-200 ${step >= 2 ? 'text-[#6366F1]' : 'text-gray-400 dark:text-gray-500'}`}>
+            <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors duration-200 ${step >= 2 ? 'bg-[#6366F1]/10 text-[#6366F1]' : 'bg-gray-200 dark:bg-gray-700 text-gray-400'}`}>
+              2
+            </span>
+            Security
+          </div>
         </div>
 
         {/* Register Card */}
@@ -114,188 +210,354 @@ export function RegisterPage() {
               </div>
             )}
 
-            {/* Name row */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">First Name *</label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <input
-                    type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all duration-200"
-                    placeholder="First name"
-                    required
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Last Name</label>
-                <input
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all duration-200"
-                  placeholder="Last name"
-                />
-              </div>
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Email Address *</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all duration-200"
-                placeholder="Enter your email"
-                required
-              />
-            </div>
-
-            {/* Phone */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Phone Number</label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all duration-200"
-                  placeholder="+255 xxx xxx xxx"
-                />
-              </div>
-            </div>
-
-            {/* Company */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Company Name</label>
-              <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all duration-200"
-                  placeholder="Your company name"
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Password *</label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all duration-200 pr-10"
-                  placeholder="Min. 8 characters"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-              {/* Password strength indicator */}
-              {password && (
-                <div className="mt-2">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Password strength</span>
-                    <span className="text-xs font-medium text-gray-600 dark:text-gray-300">{passwordStrength.label}</span>
+            {/* ===== STEP 1: Account / Personal Info ===== */}
+            {step === 1 && (
+              <div className="space-y-4">
+                {/* Organization name — shown first for org accounts */}
+                {accountType === 'organization' && (
+                  <div>
+                    <label className={labelClass}>Organization Name *</label>
+                    <div className="relative">
+                      <Building2 className={inputIconClass} />
+                      <input
+                        type="text"
+                        value={company}
+                        onChange={(e) => setCompany(e.target.value)}
+                        className={`${inputClass} pl-9`}
+                        placeholder="e.g. Acme Communications Ltd"
+                        required
+                      />
+                    </div>
                   </div>
-                  <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-300 ${passwordStrength.color}`}
-                      style={{ width: passwordStrength.width }}
+                )}
+
+                {/* Name row */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={labelClass}>First Name *</label>
+                    <div className="relative">
+                      <User className={inputIconClass} />
+                      <input
+                        type="text"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        className={`${inputClass} pl-9`}
+                        placeholder="First name"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Last Name</label>
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className={inputClass}
+                      placeholder="Last name"
                     />
                   </div>
                 </div>
-              )}
-            </div>
 
-            {/* Confirm Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Confirm Password *</label>
-              <div className="relative">
-                <input
-                  type={showConfirm ? 'text' : 'password'}
-                  value={passwordConfirm}
-                  onChange={(e) => setPasswordConfirm(e.target.value)}
-                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all duration-200 pr-10"
-                  placeholder="Confirm your password"
-                  required
-                />
+                {/* Email */}
+                <div>
+                  <label className={labelClass}>Email Address *</label>
+                  <div className="relative">
+                    <Mail className={inputIconClass} />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={`${inputClass} pl-9`}
+                      placeholder="you@example.com"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <label className={labelClass}>Phone Number</label>
+                  <div className="relative">
+                    <Phone className={inputIconClass} />
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className={`${inputClass} pl-9`}
+                      placeholder="+255 xxx xxx xxx"
+                    />
+                  </div>
+                </div>
+
+                {/* Organization-specific fields */}
+                {accountType === 'organization' && (
+                  <>
+                    {/* Organization Type */}
+                    <div>
+                      <label className={labelClass}>Organization Type</label>
+                      <div className="relative">
+                        <Briefcase className={inputIconClass} />
+                        <select
+                          value={organizationType}
+                          onChange={(e) => setOrganizationType(e.target.value)}
+                          className={`${inputClass} pl-9 appearance-none cursor-pointer`}
+                        >
+                          <option value="">Select type</option>
+                          <option value="corporation">Corporation</option>
+                          <option value="llc">LLC</option>
+                          <option value="partnership">Partnership</option>
+                          <option value="sole_proprietorship">Sole Proprietorship</option>
+                          <option value="nonprofit">Non-Profit</option>
+                          <option value="government">Government</option>
+                          <option value="education">Education</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Tax Number */}
+                    <div>
+                      <label className={labelClass}>Tax / VAT Number</label>
+                      <div className="relative">
+                        <BadgeCheck className={inputIconClass} />
+                        <input
+                          type="text"
+                          value={taxNumber}
+                          onChange={(e) => setTaxNumber(e.target.value)}
+                          className={`${inputClass} pl-9`}
+                          placeholder="e.g. TIN-123456789"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Address */}
+                    <div>
+                      <label className={labelClass}>Address</label>
+                      <div className="relative">
+                        <MapPin className={inputIconClass} />
+                        <input
+                          type="text"
+                          value={address}
+                          onChange={(e) => setAddress(e.target.value)}
+                          className={`${inputClass} pl-9`}
+                          placeholder="Street address"
+                        />
+                      </div>
+                    </div>
+
+                    {/* City + Country */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className={labelClass}>City</label>
+                        <input
+                          type="text"
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                          className={inputClass}
+                          placeholder="City"
+                        />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Country</label>
+                        <div className="relative">
+                          <Globe className={inputIconClass} />
+                          <select
+                            value={country}
+                            onChange={(e) => setCountry(e.target.value)}
+                            className={`${inputClass} pl-9 appearance-none cursor-pointer`}
+                          >
+                            <option value="">Select</option>
+                            <option value="TZ">Tanzania</option>
+                            <option value="KE">Kenya</option>
+                            <option value="UG">Uganda</option>
+                            <option value="RW">Rwanda</option>
+                            <option value="NG">Nigeria</option>
+                            <option value="ZA">South Africa</option>
+                            <option value="GH">Ghana</option>
+                            <option value="US">United States</option>
+                            <option value="GB">United Kingdom</option>
+                            <option value="OTHER">Other</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Step 1: Next button */}
                 <button
                   type="button"
-                  onClick={() => setShowConfirm(!showConfirm)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  onClick={() => {
+                    setError('');
+                    if (accountType === 'organization' && !company.trim()) {
+                      setError('Organization name is required');
+                      return;
+                    }
+                    if (!firstName.trim() || !email.trim()) {
+                      setError('First name and email are required');
+                      return;
+                    }
+                    setStep(2);
+                  }}
+                  className="w-full bg-[#6366F1] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#5558E6] transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
                 >
-                  {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  Continue
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </button>
               </div>
-              {passwordConfirm && password !== passwordConfirm && (
-                <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
-              )}
-            </div>
+            )}
 
-            {/* Terms */}
-            <div>
-              <label className="flex items-start gap-2.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={agreeTerms}
-                  onChange={(e) => setAgreeTerms(e.target.checked)}
-                  className="w-4 h-4 mt-0.5 rounded border-gray-300 dark:border-gray-600 text-[#6366F1] focus:ring-[#6366F1] bg-white dark:bg-gray-800"
-                />
-                <span className="text-sm text-gray-600 dark:text-gray-400 leading-snug">
-                  I agree to the{' '}
-                  <button type="button" className="text-[#6366F1] hover:underline font-medium">
-                    Terms of Service
-                  </button>{' '}
-                  and{' '}
-                  <button type="button" className="text-[#6366F1] hover:underline font-medium">
-                    Privacy Policy
+            {/* ===== STEP 2: Security ===== */}
+            {step === 2 && (
+              <div className="space-y-4">
+                {/* Summary */}
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-[#6366F1]/10 flex items-center justify-center shrink-0">
+                    {accountType === 'personal' ? (
+                      <User className="h-4 w-4 text-[#6366F1]" />
+                    ) : (
+                      <Building2 className="h-4 w-4 text-[#6366F1]" />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">
+                      {company || `${firstName} ${lastName}`.trim()}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {email} &middot; {accountType === 'personal' ? 'Personal' : 'Organization'} account
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="text-xs text-[#6366F1] hover:underline font-medium shrink-0"
+                  >
+                    Edit
                   </button>
-                </span>
-              </label>
-            </div>
+                </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full bg-[#6366F1] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#5558E6] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Creating account...
-                </>
-              ) : (
-                'Create Account'
-              )}
-            </button>
+                {/* Password */}
+                <div>
+                  <label className={labelClass}>Password *</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className={`${inputClass} pr-10`}
+                      placeholder="Min. 8 characters"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {/* Password strength indicator */}
+                  {password && (
+                    <div className="mt-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Password strength</span>
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-300">{passwordStrength.label}</span>
+                      </div>
+                      <div className="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-300 ${passwordStrength.color}`}
+                          style={{ width: passwordStrength.width }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Confirm Password */}
+                <div>
+                  <label className={labelClass}>Confirm Password *</label>
+                  <div className="relative">
+                    <input
+                      type={showConfirm ? 'text' : 'password'}
+                      value={passwordConfirm}
+                      onChange={(e) => setPasswordConfirm(e.target.value)}
+                      className={`${inputClass} pr-10`}
+                      placeholder="Confirm your password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirm(!showConfirm)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                    >
+                      {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {passwordConfirm && password !== passwordConfirm && (
+                    <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
+                  )}
+                </div>
+
+                {/* Terms */}
+                <div>
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={agreeTerms}
+                      onChange={(e) => setAgreeTerms(e.target.checked)}
+                      className="w-4 h-4 mt-0.5 rounded border-gray-300 dark:border-gray-600 text-[#6366F1] focus:ring-[#6366F1] bg-white dark:bg-gray-800"
+                    />
+                    <span className="text-sm text-gray-600 dark:text-gray-400 leading-snug">
+                      I agree to the{' '}
+                      <button type="button" className="text-[#6366F1] hover:underline font-medium">
+                        Terms of Service
+                      </button>{' '}
+                      and{' '}
+                      <button type="button" className="text-[#6366F1] hover:underline font-medium">
+                        Privacy Policy
+                      </button>
+                    </span>
+                  </label>
+                </div>
+
+                {/* Buttons */}
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5" />
+                    Back
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex-1 bg-[#6366F1] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#5558E6] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Creating account...
+                      </>
+                    ) : (
+                      <>
+                        <FileText className="h-4 w-4" />
+                        Create {accountType === 'personal' ? 'Personal' : 'Organization'} Account
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </form>
         </div>
 
         {/* Back to login */}
-        <div className="mt-6 text-center space-y-1">
-          <button
-            onClick={() => setAuthMode('login')}
-            className="inline-flex items-center gap-1.5 text-sm text-[#6366F1] hover:text-[#5558E6] font-medium transition-colors cursor-pointer"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Back to Sign In
-          </button>
+        <div className="mt-5 text-center space-y-1">
           <p className="text-xs text-gray-400 dark:text-gray-500">
             Already have an account?{' '}
             <button

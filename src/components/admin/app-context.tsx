@@ -34,11 +34,17 @@ export type ViewId =
   | 'theme-customizer';
 
 interface RegisterData {
+  account_type: 'personal' | 'organization';
   first_name: string;
   last_name: string;
   email: string;
   phone: string;
   company: string;
+  organization_type: string;
+  tax_number: string;
+  address: string;
+  city: string;
+  country: string;
   password: string;
   password_confirm: string;
 }
