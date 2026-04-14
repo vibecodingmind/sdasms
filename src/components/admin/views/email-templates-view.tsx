@@ -13,7 +13,7 @@ import { mockEmailTemplates } from '@/lib/mock-data';
 
 const typeColors: Record<string, string> = {
   customer: 'bg-blue-100 text-blue-700',
-  auth: 'bg-purple-100 text-purple-700',
+  auth: 'bg-rose-100 text-rose-700',
   billing: 'bg-green-100 text-green-700',
   notification: 'bg-orange-100 text-orange-700',
 };
@@ -44,7 +44,7 @@ export function EmailTemplatesView() {
                 <TableRow key={t.id} className="hover:bg-gray-50/50">
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-[#6366F1]" />
+                      <Mail className="h-4 w-4 text-[#D72444]" />
                       <span className="text-sm font-medium text-gray-800">{t.name}</span>
                     </div>
                   </TableCell>
@@ -82,7 +82,7 @@ export function EmailTemplatesView() {
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <Button variant="outline" onClick={() => setSelected(null)}>Cancel</Button>
-                <Button className="bg-[#6366F1] hover:bg-[#5558E6] text-white">Save Template</Button>
+                <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white">Save Template</Button>
               </div>
             </div>
           )}

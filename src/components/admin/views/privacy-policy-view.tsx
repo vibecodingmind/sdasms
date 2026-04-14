@@ -83,7 +83,7 @@ For privacy-related inquiries, contact us at privacy@smspro.com`);
             </div>
           )}
           <div className="flex justify-end">
-            <Button className="bg-[#6366F1] hover:bg-[#5558E6] text-white" onClick={() => setSaved(true)}>
+            <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white" onClick={() => setSaved(true)}>
               <Save className="h-4 w-4 mr-2" /> Save
             </Button>
           </div>

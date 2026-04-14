@@ -20,10 +20,10 @@ function GatewayLogo({ name }: { name: string }) {
   const configs: Record<string, { color: string; icon: React.ReactNode; bg: string }> = {
     Pesapal: { color: '#F59E0B', icon: <Smartphone className="h-6 w-6" />, bg: 'bg-amber-50 dark:bg-amber-950/30' },
     PayPal: { color: '#003087', icon: <Globe className="h-6 w-6" />, bg: 'bg-blue-50 dark:bg-blue-950/30' },
-    Stripe: { color: '#635BFF', icon: <CreditCard className="h-6 w-6" />, bg: 'bg-violet-50 dark:bg-violet-950/30' },
+    Stripe: { color: '#635BFF', icon: <CreditCard className="h-6 w-6" />, bg: 'bg-rose-50 dark:bg-rose-950/30' },
     'Manual Payment': { color: '#059669', icon: <Building2 className="h-6 w-6" />, bg: 'bg-emerald-50 dark:bg-emerald-950/30' },
   };
-  const cfg = configs[name] || { color: '#6366F1', icon: <CreditCard className="h-6 w-6" />, bg: 'bg-indigo-50 dark:bg-indigo-950/30' };
+  const cfg = configs[name] || { color: '#D72444', icon: <CreditCard className="h-6 w-6" />, bg: 'bg-rose-50 dark:bg-rose-950/30' };
   return (
     <div className={`${cfg.bg} p-3 rounded-xl`} style={{ color: cfg.color }}>
       {cfg.icon}
@@ -54,7 +54,7 @@ function GatewayCard({ gw, onSelect }: { gw: typeof mockPaymentGateways[0]; onSe
   const isActive = enabled;
 
   return (
-    <Card className={`border-0 shadow-sm hover:shadow-md transition-all cursor-pointer ${isActive ? 'ring-1 ring-[#6366F1]/20' : 'opacity-80'}`}>
+    <Card className={`border-0 shadow-sm hover:shadow-md transition-all cursor-pointer ${isActive ? 'ring-1 ring-[#D72444]/20' : 'opacity-80'}`}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
@@ -104,7 +104,7 @@ function GatewayCard({ gw, onSelect }: { gw: typeof mockPaymentGateways[0]; onSe
         <Button
           variant="outline"
           size="sm"
-          className="w-full h-8 text-xs border-[#6366F1]/30 text-[#6366F1] hover:bg-[#6366F1] hover:text-white"
+          className="w-full h-8 text-xs border-[#D72444]/30 text-[#D72444] hover:bg-[#D72444] hover:text-white"
           onClick={(e) => { e.stopPropagation(); onSelect(); }}
         >
           <Settings className="h-3 w-3 mr-1" /> Configure & View Transactions
@@ -189,7 +189,7 @@ function ConfigPanel({ gw }: { gw: typeof mockPaymentGateways[0] }) {
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Key className="h-4 w-4 text-[#6366F1]" />
+            <Key className="h-4 w-4 text-[#D72444]" />
             API Credentials & Settings
           </CardTitle>
           <CardDescription className="text-xs">
@@ -205,7 +205,7 @@ function ConfigPanel({ gw }: { gw: typeof mockPaymentGateways[0] }) {
               {key === 'payment_instructions' ? (
                 <textarea
                   defaultValue={value as string}
-                  className="w-full min-h-[80px] text-xs p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6366F1]/30 resize-none"
+                  className="w-full min-h-[80px] text-xs p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#D72444]/30 resize-none"
                 />
               ) : (
                 <div className="relative">
@@ -237,7 +237,7 @@ function ConfigPanel({ gw }: { gw: typeof mockPaymentGateways[0] }) {
 
           <Button
             onClick={handleSave}
-            className="w-full bg-[#6366F1] hover:bg-[#5558E6] text-white h-9 text-sm mt-2"
+            className="w-full bg-[#D72444] hover:bg-[#C01E3A] text-white h-9 text-sm mt-2"
           >
             {saved ? (
               <><Check className="h-4 w-4 mr-1" /> Saved Successfully</>
@@ -253,7 +253,7 @@ function ConfigPanel({ gw }: { gw: typeof mockPaymentGateways[0] }) {
         <Card className="border-0 shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <ExternalLink className="h-4 w-4 text-[#6366F1]" />
+              <ExternalLink className="h-4 w-4 text-[#D72444]" />
               Webhook & Integration
             </CardTitle>
           </CardHeader>
@@ -326,12 +326,12 @@ function TransactionTable({ gateway }: { gateway: string }) {
             {transactions.filter((t) => t.status === 'failed' || t.status === 'rejected').length}
           </p>
         </div>
-        <div className="bg-indigo-50 dark:bg-indigo-950/20 rounded-xl p-3">
+        <div className="bg-rose-50 dark:bg-rose-950/20 rounded-xl p-3">
           <div className="flex items-center gap-2 mb-1">
-            <DollarSign className="h-4 w-4 text-[#6366F1]" />
-            <span className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">Total Revenue</span>
+            <DollarSign className="h-4 w-4 text-[#D72444]" />
+            <span className="text-xs text-rose-600 dark:text-rose-400 font-medium">Total Revenue</span>
           </div>
-          <p className="text-lg font-bold text-indigo-700 dark:text-indigo-300">
+          <p className="text-lg font-bold text-rose-700 dark:text-rose-300">
             ${transactions.filter((t) => t.status === 'completed').reduce((s, t) => s + t.amount, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
           </p>
         </div>
@@ -344,7 +344,7 @@ function TransactionTable({ gateway }: { gateway: string }) {
             key={s}
             className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-colors capitalize ${
               filter === s
-                ? 'bg-[#6366F1] text-white'
+                ? 'bg-[#D72444] text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
             }`}
             onClick={() => setFilter(s)}
@@ -378,7 +378,7 @@ function TransactionTable({ gateway }: { gateway: string }) {
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
               {filtered.map((tx) => (
                 <tr key={tx.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
-                  <td className="py-2.5 px-3 font-mono font-medium text-[#6366F1]">{tx.transaction_id}</td>
+                  <td className="py-2.5 px-3 font-mono font-medium text-[#D72444]">{tx.transaction_id}</td>
                   <td className="py-2.5 px-3">
                     <div>
                       <p className="font-medium text-gray-800 dark:text-gray-200">{tx.customer}</p>
@@ -457,8 +457,8 @@ export function PaymentGatewaysView() {
             <Card className="border-0 shadow-sm">
               <CardContent className="p-4">
                 <div className="flex items-center gap-2">
-                  <div className="bg-[#6366F1]/10 p-2 rounded-lg">
-                    <CreditCard className="h-4 w-4 text-[#6366F1]" />
+                  <div className="bg-[#D72444]/10 p-2 rounded-lg">
+                    <CreditCard className="h-4 w-4 text-[#D72444]" />
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Active Gateways</p>
@@ -531,7 +531,7 @@ export function PaymentGatewaysView() {
           <Card className="border-0 shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <RefreshCw className="h-4 w-4 text-[#6366F1]" />
+                <RefreshCw className="h-4 w-4 text-[#D72444]" />
                 Recent Transactions (All Gateways)
               </CardTitle>
             </CardHeader>
@@ -552,7 +552,7 @@ export function PaymentGatewaysView() {
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                       {mockPaymentTransactions.slice(0, 8).map((tx) => (
                         <tr key={tx.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30">
-                          <td className="py-2 px-3 font-mono font-medium text-[#6366F1]">{tx.transaction_id}</td>
+                          <td className="py-2 px-3 font-mono font-medium text-[#D72444]">{tx.transaction_id}</td>
                           <td className="py-2 px-3">
                             <Badge
                               variant="outline"

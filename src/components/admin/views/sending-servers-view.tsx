@@ -16,9 +16,9 @@ interface SendingServer {
 
 const typeColors: Record<string, string> = {
   http: 'bg-blue-100 text-blue-700',
-  smpp: 'bg-purple-100 text-purple-700',
+  smpp: 'bg-rose-100 text-rose-700',
   whatsapp: 'bg-green-100 text-green-700',
-  viber: 'bg-violet-100 text-violet-700',
+  viber: 'bg-rose-100 text-rose-700',
   otp: 'bg-orange-100 text-orange-700',
 };
 
@@ -47,7 +47,7 @@ export function SendingServersView() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[#6366F1] hover:bg-[#5558E6] text-white"><Plus className="h-4 w-4 mr-2" /> Add Server</Button>
+            <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white"><Plus className="h-4 w-4 mr-2" /> Add Server</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>Add Sending Server</DialogTitle></DialogHeader>
@@ -70,7 +70,7 @@ export function SendingServersView() {
               <div><label className="block text-sm font-medium text-gray-700 mb-1">Quota (messages)</label><Input type="number" placeholder="100000" /></div>
               <div className="flex justify-end gap-3 pt-2">
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                <Button type="submit" className="bg-[#6366F1] hover:bg-[#5558E6] text-white">Create</Button>
+                <Button type="submit" className="bg-[#D72444] hover:bg-[#C01E3A] text-white">Create</Button>
               </div>
             </form>
           </DialogContent>

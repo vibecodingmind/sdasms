@@ -53,7 +53,7 @@ export function Header() {
     ? `${impersonatedCustomer.first_name.charAt(0)}${impersonatedCustomer.last_name.charAt(0)}`
     : 'SA';
 
-  const avatarBg = impersonatedCustomer ? 'bg-orange-500' : 'bg-[#6366F1]';
+  const avatarBg = impersonatedCustomer ? 'bg-orange-500' : 'bg-[#D72444]';
 
   return (
     <>

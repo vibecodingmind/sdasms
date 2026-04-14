@@ -9,13 +9,13 @@ import { Switch } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 export function ThemeCustomizerView() {
-  const [primaryColor, setPrimaryColor] = useState('#6366F1');
+  const [primaryColor, setPrimaryColor] = useState('#D72444');
   const [sidebarStyle, setSidebarStyle] = useState<'light' | 'dark'>('light');
   const [saved, setSaved] = useState(false);
   const [activeFont, setActiveFont] = useState('Inter');
 
   const colors = [
-    { name: 'Indigo', value: '#6366F1' },
+    { name: 'Crimson', value: '#D72444' },
     { name: 'Blue', value: '#3B82F6' },
     { name: 'Green', value: '#10B981' },
     { name: 'Purple', value: '#8B5CF6' },
@@ -80,7 +80,7 @@ export function ThemeCustomizerView() {
                     onClick={() => setActiveFont(f)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
                       activeFont === f
-                        ? 'border-[#6366F1] bg-[#EEF2FF] text-[#6366F1]'
+                        ? 'border-[#D72444] bg-[#FEF2F2] text-[#D72444]'
                         : 'border-gray-200 text-gray-600 hover:border-gray-300'
                     }`}
                     style={{ fontFamily: f.toLowerCase() }}
@@ -100,7 +100,7 @@ export function ThemeCustomizerView() {
                 <button
                   onClick={() => setSidebarStyle('light')}
                   className={`flex-1 p-4 rounded-lg border-2 transition-all ${
-                    sidebarStyle === 'light' ? 'border-[#6366F1] bg-[#EEF2FF]' : 'border-gray-200'
+                    sidebarStyle === 'light' ? 'border-[#D72444] bg-[#FEF2F2]' : 'border-gray-200'
                   }`}
                 >
                   <Sun className="h-5 w-5 text-yellow-500 mx-auto mb-2" />
@@ -109,7 +109,7 @@ export function ThemeCustomizerView() {
                 <button
                   onClick={() => setSidebarStyle('dark')}
                   className={`flex-1 p-4 rounded-lg border-2 transition-all ${
-                    sidebarStyle === 'dark' ? 'border-[#6366F1] bg-[#EEF2FF]' : 'border-gray-200'
+                    sidebarStyle === 'dark' ? 'border-[#D72444] bg-[#FEF2F2]' : 'border-gray-200'
                   }`}
                 >
                   <Moon className="h-5 w-5 text-gray-700 mx-auto mb-2" />
@@ -123,7 +123,7 @@ export function ThemeCustomizerView() {
           <Card className="border-0 shadow-sm">
             <CardHeader><CardTitle className="text-base">Logo Upload</CardTitle></CardHeader>
             <CardContent>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[#6366F1] transition-colors cursor-pointer">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[#D72444] transition-colors cursor-pointer">
                 <Palette className="h-10 w-10 text-gray-400 mx-auto mb-3" />
                 <p className="text-sm text-gray-600 font-medium">Click to upload logo</p>
                 <p className="text-xs text-gray-400 mt-1">SVG, PNG, or JPG (max 2MB)</p>
@@ -133,7 +133,7 @@ export function ThemeCustomizerView() {
 
           {/* Actions */}
           <div className="flex gap-3">
-            <Button className="bg-[#6366F1] hover:bg-[#5558E6] text-white flex-1" onClick={() => setSaved(true)}>
+            <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white flex-1" onClick={() => setSaved(true)}>
               <Save className="h-4 w-4 mr-2" /> Save Theme
             </Button>
             <Button variant="outline" className="flex-1">
@@ -156,7 +156,7 @@ export function ThemeCustomizerView() {
               {/* Mini sidebar */}
               <div className={`h-full w-16 ${sidebarStyle === 'light' ? 'bg-gray-100' : 'bg-gray-900'} p-2 space-y-2`}>
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className={`h-6 rounded ${i === 1 ? 'bg-[#6366F1]' : sidebarStyle === 'light' ? 'bg-gray-200' : 'bg-gray-700'}`} />
+                  <div key={i} className={`h-6 rounded ${i === 1 ? 'bg-[#D72444]' : sidebarStyle === 'light' ? 'bg-gray-200' : 'bg-gray-700'}`} />
                 ))}
               </div>
               {/* Mini content */}

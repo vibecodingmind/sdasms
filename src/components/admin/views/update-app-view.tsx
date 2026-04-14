@@ -29,7 +29,7 @@ export function UpdateAppView() {
         <Card className="border-0 shadow-sm">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <Info className="h-5 w-5 text-[#6366F1]" />
+              <Info className="h-5 w-5 text-[#D72444]" />
               Application Version
             </CardTitle>
           </CardHeader>
@@ -45,7 +45,7 @@ export function UpdateAppView() {
             </div>
 
             <Button
-              className="w-full bg-[#6366F1] hover:bg-[#5558E6] text-white"
+              className="w-full bg-[#D72444] hover:bg-[#C01E3A] text-white"
               onClick={checkUpdates}
               disabled={checking}
             >
@@ -69,7 +69,7 @@ export function UpdateAppView() {
         <Card className="border-0 shadow-sm">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <Server className="h-5 w-5 text-[#6366F1]" />
+              <Server className="h-5 w-5 text-[#D72444]" />
               System Information
             </CardTitle>
           </CardHeader>
@@ -111,7 +111,7 @@ export function UpdateAppView() {
             ].map((release) => (
               <div key={release.version} className="p-4 rounded-lg border border-gray-100">
                 <div className="flex items-center gap-3 mb-2">
-                  <span className="text-sm font-semibold text-[#6366F1]">{release.version}</span>
+                  <span className="text-sm font-semibold text-[#D72444]">{release.version}</span>
                   <span className="text-xs text-gray-400">{release.date}</span>
                 </div>
                 <ul className="space-y-1">

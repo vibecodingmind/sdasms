@@ -54,7 +54,7 @@ export function InvoicesView() {
           { label: 'Total Invoices', value: invoices.length, color: 'text-gray-800' },
           { label: 'Paid', value: invoices.filter(i => i.status === 'paid').length, color: 'text-green-600' },
           { label: 'Unpaid', value: invoices.filter(i => i.status === 'unpaid').length, color: 'text-red-600' },
-          { label: 'Total Revenue', value: `$${invoices.filter(i => i.status === 'paid').reduce((sum, i) => sum + i.amount, 0).toLocaleString()}`, color: 'text-[#6366F1]' },
+          { label: 'Total Revenue', value: `$${invoices.filter(i => i.status === 'paid').reduce((sum, i) => sum + i.amount, 0).toLocaleString()}`, color: 'text-[#D72444]' },
         ].map((s) => (
           <Card key={s.label} className="border-0 shadow-sm">
             <CardContent className="p-4 text-center">

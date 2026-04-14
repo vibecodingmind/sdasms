@@ -10,7 +10,7 @@ import { Loader2 } from 'lucide-react';
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center py-20">
-    <Loader2 className="h-6 w-6 animate-spin text-[#6366F1]" />
+    <Loader2 className="h-6 w-6 animate-spin text-[#D72444]" />
   </div>
 );
 
@@ -129,7 +129,7 @@ export function AdminLoader() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
       <div className="flex flex-col items-center gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-[#6366F1]" />
+        <Loader2 className="h-8 w-8 animate-spin text-[#D72444]" />
         <p className="text-sm text-gray-500 dark:text-gray-400">Loading SDASMS Admin...</p>
       </div>
     </div>

@@ -150,11 +150,9 @@ export function Sidebar() {
         <div className="flex items-center h-16 px-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
           <div className="flex items-center gap-2.5 overflow-hidden">
             {sidebarOpen ? (
-              <Image src="/logo.png" alt="SDASMS" width={120} height={24} className="h-6 w-auto object-contain shrink-0" />
+              <Image src="/logo.png" alt="SDASMS" width={140} height={28} className="h-7 w-auto object-contain shrink-0" />
             ) : (
-              <div className="w-8 h-8 rounded-lg bg-[#6366F1] flex items-center justify-center shrink-0 transition-transform duration-200 hover:scale-110">
-                <MessageSquare className="h-5 w-5 text-white" />
-              </div>
+              <Image src="/logo.png" alt="SDASMS" width={32} height={32} className="w-8 h-8 object-contain rounded-lg shrink-0" />
             )}
           </div>
           <button
@@ -179,7 +177,7 @@ export function Sidebar() {
                       'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium cursor-pointer',
                       'transition-all duration-200 ease-out',
                       active
-                        ? 'bg-[#6366F1] text-white shadow-sm shadow-[#6366F1]/25 dark:shadow-[#6366F1]/40'
+                        ? 'bg-[#D72444] text-white shadow-sm shadow-[#D72444]/25 dark:shadow-[#D72444]/40'
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200/70 dark:hover:bg-gray-800',
                       !sidebarOpen && 'lg:justify-center lg:px-0'
                     )}
@@ -209,7 +207,7 @@ export function Sidebar() {
                         'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium cursor-pointer',
                         'transition-all duration-200 ease-out',
                         parentActive && !expanded
-                          ? 'text-[#6366F1]'
+                          ? 'text-[#D72444]'
                           : expanded
                             ? 'text-gray-800 dark:text-gray-100'
                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-200/70 dark:hover:bg-gray-800',
@@ -218,7 +216,7 @@ export function Sidebar() {
                       title={!sidebarOpen ? item.label : undefined}
                     >
                       <span className={cn(
-                        parentActive || expanded ? 'text-[#6366F1]' : 'text-gray-500 dark:text-gray-400',
+                        parentActive || expanded ? 'text-[#D72444]' : 'text-gray-500 dark:text-gray-400',
                         'shrink-0 transition-transform duration-200',
                         expanded && 'scale-110'
                       )}>
@@ -230,7 +228,7 @@ export function Sidebar() {
                           <span className={cn(
                             'shrink-0 transition-transform duration-300 ease-out',
                             expanded ? 'rotate-0' : '-rotate-90',
-                            parentActive || expanded ? 'text-[#6366F1]' : 'text-gray-400 dark:text-gray-500'
+                            parentActive || expanded ? 'text-[#D72444]' : 'text-gray-400 dark:text-gray-500'
                           )}>
                             <ChevronDown className="h-3.5 w-3.5" />
                           </span>
@@ -257,7 +255,7 @@ export function Sidebar() {
                                     'w-full flex items-center gap-2.5 pl-3 pr-2 py-1.5 rounded-md text-[12px] font-medium cursor-pointer',
                                     'transition-all duration-200 ease-out',
                                     childActive
-                                      ? 'bg-[#6366F1] text-white shadow-sm shadow-[#6366F1]/20 dark:shadow-[#6366F1]/40'
+                                      ? 'bg-[#D72444] text-white shadow-sm shadow-[#D72444]/20 dark:shadow-[#D72444]/40'
                                       : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-gray-800',
                                     expanded
                                       ? 'opacity-100 translate-x-0'
@@ -289,7 +287,7 @@ export function Sidebar() {
         {sidebarOpen && (
           <div className="border-t border-gray-200 dark:border-gray-700 p-3 shrink-0">
             <div className="flex items-center gap-3 px-2 py-2">
-              <div className="w-8 h-8 rounded-full bg-[#6366F1] flex items-center justify-center text-white text-xs font-semibold shrink-0 transition-transform duration-200 hover:scale-110">
+              <div className="w-8 h-8 rounded-full bg-[#D72444] flex items-center justify-center text-white text-xs font-semibold shrink-0 transition-transform duration-200 hover:scale-110">
                 SA
               </div>
               <div className="flex-1 min-w-0">

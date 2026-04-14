@@ -20,11 +20,11 @@ export function ReportDashboardView() {
   }, []);
 
   if (!data) {
-    return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]" /></div>;
+    return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#D72444]" /></div>;
   }
 
   const statCards = [
-    { title: 'Total SMS Sent', value: data.stats.totalSent.toLocaleString(), icon: <MessageSquare className="h-5 w-5" />, color: 'bg-[#6366F1]', light: 'bg-[#EEF2FF]' },
+    { title: 'Total SMS Sent', value: data.stats.totalSent.toLocaleString(), icon: <MessageSquare className="h-5 w-5" />, color: 'bg-[#D72444]', light: 'bg-[#FEF2F2]' },
     { title: 'Delivered', value: data.stats.delivered.toLocaleString(), icon: <CheckCircle2 className="h-5 w-5" />, color: 'bg-[#10B981]', light: 'bg-[#ECFDF5]' },
     { title: 'Failed', value: data.stats.failed.toLocaleString(), icon: <XCircle className="h-5 w-5" />, color: 'bg-[#EF4444]', light: 'bg-[#FEF2F2]' },
     { title: 'Pending', value: data.stats.pending.toLocaleString(), icon: <Clock className="h-5 w-5" />, color: 'bg-[#F59E0B]', light: 'bg-[#FFFBEB]' },

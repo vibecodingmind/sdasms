@@ -111,13 +111,13 @@ function StepProgress({ step, labels }: { step: Step; labels: string[] }) {
                 step > i + 1
                   ? 'bg-green-500 text-white'
                   : step === i + 1
-                    ? 'bg-[#6366F1] text-white ring-2 ring-[#6366F1]/30'
+                    ? 'bg-[#D72444] text-white ring-2 ring-[#D72444]/30'
                     : 'bg-gray-200 dark:bg-gray-700 text-gray-400'
               }`}
             >
               {step > i + 1 ? <Check className="h-3 w-3" /> : i + 1}
             </span>
-            <span className={`text-xs font-medium transition-colors duration-200 hidden sm:block ${step >= i + 1 ? 'text-[#6366F1]' : 'text-gray-400 dark:text-gray-500'}`}>
+            <span className={`text-xs font-medium transition-colors duration-200 hidden sm:block ${step >= i + 1 ? 'text-[#D72444]' : 'text-gray-400 dark:text-gray-500'}`}>
               {label}
             </span>
           </div>
@@ -243,7 +243,7 @@ export function RegisterPage() {
     return { label: 'Very Strong', color: 'bg-emerald-500', width: '100%' };
   })();
 
-  const ic = 'w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all duration-200';
+  const ic = 'w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#D72444] focus:border-transparent transition-all duration-200';
   const icl = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5';
   const icIcon = 'absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400';
 
@@ -266,7 +266,7 @@ export function RegisterPage() {
           <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
           <div className="w-full max-w-md">
             <div className="flex flex-col items-center mb-6">
-              <div className="w-12 h-12 rounded-xl bg-[#6366F1] flex items-center justify-center mb-4 shadow-lg shadow-[#6366F1]/25">
+              <div className="w-12 h-12 rounded-xl bg-[#D72444] flex items-center justify-center mb-4 shadow-lg shadow-[#D72444]/25">
                 <Building2 className="h-7 w-7 text-white" />
               </div>
               <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Organization Details</h1>
@@ -278,7 +278,7 @@ export function RegisterPage() {
             {/* Connected social account banner */}
             <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-xl p-4 mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#6366F1] flex items-center justify-center text-white font-bold text-sm shrink-0">
+                <div className="w-10 h-10 rounded-full bg-[#D72444] flex items-center justify-center text-white font-bold text-sm shrink-0">
                   {avatar}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -381,7 +381,7 @@ export function RegisterPage() {
               <button
                 type="button"
                 onClick={() => { setError(''); setStep(2); }}
-                className="w-full mt-6 bg-[#6366F1] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#5558E6] transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
+                className="w-full mt-6 bg-[#D72444] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#C01E3A] transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
               >
                 Continue
                 <ArrowRight className="h-4 w-4" />
@@ -391,7 +391,7 @@ export function RegisterPage() {
             <div className="mt-5 text-center">
               <p className="text-xs text-gray-400 dark:text-gray-500">
                 Already have an account?{' '}
-                <button onClick={() => setAuthMode('login')} className="text-[#6366F1] hover:underline font-medium">Sign in</button>
+                <button onClick={() => setAuthMode('login')} className="text-[#D72444] hover:underline font-medium">Sign in</button>
               </p>
             </div>
           </div>
@@ -422,14 +422,14 @@ export function RegisterPage() {
             {/* Organization Summary */}
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-4 space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#6366F1]/10 flex items-center justify-center">
-                  <Building2 className="h-5 w-5 text-[#6366F1]" />
+                <div className="w-10 h-10 rounded-lg bg-[#D72444]/10 flex items-center justify-center">
+                  <Building2 className="h-5 w-5 text-[#D72444]" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{company || 'Organization'}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{[organizationType, city, country].filter(Boolean).join(' / ') || 'No additional details'}</p>
                 </div>
-                <button type="button" onClick={() => setStep(1)} className="text-xs text-[#6366F1] hover:underline font-medium shrink-0">Edit</button>
+                <button type="button" onClick={() => setStep(1)} className="text-xs text-[#D72444] hover:underline font-medium shrink-0">Edit</button>
               </div>
             </div>
 
@@ -437,7 +437,7 @@ export function RegisterPage() {
             <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 mb-4 space-y-3">
               <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Connected Account</p>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#6366F1] flex items-center justify-center text-white font-bold text-sm shrink-0">{avatar}</div>
+                <div className="w-10 h-10 rounded-full bg-[#D72444] flex items-center justify-center text-white font-bold text-sm shrink-0">{avatar}</div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
                     <span className="text-sm font-medium text-gray-800 dark:text-gray-100">{firstName} {lastName}</span>
@@ -457,13 +457,13 @@ export function RegisterPage() {
                 type="checkbox"
                 checked={agreeTerms}
                 onChange={(e) => setAgreeTerms(e.target.checked)}
-                className="w-4 h-4 mt-0.5 rounded border-gray-300 dark:border-gray-600 text-[#6366F1] focus:ring-[#6366F1] bg-white dark:bg-gray-800"
+                className="w-4 h-4 mt-0.5 rounded border-gray-300 dark:border-gray-600 text-[#D72444] focus:ring-[#D72444] bg-white dark:bg-gray-800"
               />
               <span className="text-sm text-gray-600 dark:text-gray-400 leading-snug">
                 I agree to the{' '}
-                <button type="button" className="text-[#6366F1] hover:underline font-medium">Terms of Service</button>
+                <button type="button" className="text-[#D72444] hover:underline font-medium">Terms of Service</button>
                 {' '}and{' '}
-                <button type="button" className="text-[#6366F1] hover:underline font-medium">Privacy Policy</button>
+                <button type="button" className="text-[#D72444] hover:underline font-medium">Privacy Policy</button>
               </span>
             </label>
 
@@ -480,7 +480,7 @@ export function RegisterPage() {
                 type="button"
                 onClick={handleSocialComplete}
                 disabled={submitting}
-                className="flex-1 bg-[#6366F1] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#5558E6] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
+                className="flex-1 bg-[#D72444] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#C01E3A] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
               >
                 {submitting ? (
                   <><Loader2 className="h-4 w-4 animate-spin" /> Creating...</>
@@ -497,7 +497,7 @@ export function RegisterPage() {
           <div className="mt-5 text-center">
             <p className="text-xs text-gray-400 dark:text-gray-500">
               Already have an account?{' '}
-              <button onClick={() => setAuthMode('login')} className="text-[#6366F1] hover:underline font-medium">Sign in</button>
+              <button onClick={() => setAuthMode('login')} className="text-[#D72444] hover:underline font-medium">Sign in</button>
             </p>
           </div>
         </div>
@@ -530,7 +530,7 @@ export function RegisterPage() {
             {/* Connected Account Card */}
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-[#6366F1] flex items-center justify-center text-white font-bold text-lg shrink-0">
+                <div className="w-12 h-12 rounded-full bg-[#D72444] flex items-center justify-center text-white font-bold text-lg shrink-0">
                   {avatar}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -578,13 +578,13 @@ export function RegisterPage() {
                 type="checkbox"
                 checked={agreeTerms}
                 onChange={(e) => setAgreeTerms(e.target.checked)}
-                className="w-4 h-4 mt-0.5 rounded border-gray-300 dark:border-gray-600 text-[#6366F1] focus:ring-[#6366F1] bg-white dark:bg-gray-800"
+                className="w-4 h-4 mt-0.5 rounded border-gray-300 dark:border-gray-600 text-[#D72444] focus:ring-[#D72444] bg-white dark:bg-gray-800"
               />
               <span className="text-sm text-gray-600 dark:text-gray-400 leading-snug">
                 I agree to the{' '}
-                <button type="button" className="text-[#6366F1] hover:underline font-medium">Terms of Service</button>
+                <button type="button" className="text-[#D72444] hover:underline font-medium">Terms of Service</button>
                 {' '}and{' '}
-                <button type="button" className="text-[#6366F1] hover:underline font-medium">Privacy Policy</button>
+                <button type="button" className="text-[#D72444] hover:underline font-medium">Privacy Policy</button>
               </span>
             </label>
 
@@ -592,7 +592,7 @@ export function RegisterPage() {
               type="button"
               onClick={handleSocialComplete}
               disabled={submitting}
-              className="w-full mt-5 bg-[#6366F1] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#5558E6] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
+              className="w-full mt-5 bg-[#D72444] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#C01E3A] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
             >
               {submitting ? (
                 <><Loader2 className="h-4 w-4 animate-spin" /> Creating account...</>
@@ -608,7 +608,7 @@ export function RegisterPage() {
           <div className="mt-5 text-center">
             <p className="text-xs text-gray-400 dark:text-gray-500">
               Already have an account?{' '}
-              <button onClick={() => setAuthMode('login')} className="text-[#6366F1] hover:underline font-medium">Sign in</button>
+              <button onClick={() => setAuthMode('login')} className="text-[#D72444] hover:underline font-medium">Sign in</button>
             </p>
           </div>
         </div>
@@ -628,7 +628,7 @@ export function RegisterPage() {
         <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center mb-6">
-            <div className="w-12 h-12 rounded-xl bg-[#6366F1] flex items-center justify-center mb-4 shadow-lg shadow-[#6366F1]/25 hover:scale-110 transition-transform duration-200">
+            <div className="w-12 h-12 rounded-xl bg-[#D72444] flex items-center justify-center mb-4 shadow-lg shadow-[#D72444]/25 hover:scale-110 transition-transform duration-200">
               <MessageSquare className="h-7 w-7 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Create Account</h1>
@@ -649,12 +649,12 @@ export function RegisterPage() {
                 onClick={() => { setAccountType('personal'); setError(''); }}
                 className={`relative flex flex-col items-center gap-2 py-5 px-4 rounded-xl border-2 text-sm font-semibold transition-all duration-200 cursor-pointer group ${
                   accountType === 'personal'
-                    ? 'border-[#6366F1] bg-[#6366F1]/5 text-[#6366F1] shadow-sm'
+                    ? 'border-[#D72444] bg-[#D72444]/5 text-[#D72444] shadow-sm'
                     : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
-                {accountType === 'personal' && <span className="absolute top-2 right-2 w-5 h-5 bg-[#6366F1] rounded-full flex items-center justify-center"><Check className="h-3 w-3 text-white" /></span>}
-                <User className={`h-7 w-7 ${accountType === 'personal' ? 'text-[#6366F1]' : 'text-gray-400 group-hover:text-gray-500'}`} />
+                {accountType === 'personal' && <span className="absolute top-2 right-2 w-5 h-5 bg-[#D72444] rounded-full flex items-center justify-center"><Check className="h-3 w-3 text-white" /></span>}
+                <User className={`h-7 w-7 ${accountType === 'personal' ? 'text-[#D72444]' : 'text-gray-400 group-hover:text-gray-500'}`} />
                 <span>Personal</span>
                 <span className="text-[10px] font-normal opacity-70">For individuals</span>
               </button>
@@ -663,12 +663,12 @@ export function RegisterPage() {
                 onClick={() => { setAccountType('organization'); setError(''); }}
                 className={`relative flex flex-col items-center gap-2 py-5 px-4 rounded-xl border-2 text-sm font-semibold transition-all duration-200 cursor-pointer group ${
                   accountType === 'organization'
-                    ? 'border-[#6366F1] bg-[#6366F1]/5 text-[#6366F1] shadow-sm'
+                    ? 'border-[#D72444] bg-[#D72444]/5 text-[#D72444] shadow-sm'
                     : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               >
-                {accountType === 'organization' && <span className="absolute top-2 right-2 w-5 h-5 bg-[#6366F1] rounded-full flex items-center justify-center"><Check className="h-3 w-3 text-white" /></span>}
-                <Building2 className={`h-7 w-7 ${accountType === 'organization' ? 'text-[#6366F1]' : 'text-gray-400 group-hover:text-gray-500'}`} />
+                {accountType === 'organization' && <span className="absolute top-2 right-2 w-5 h-5 bg-[#D72444] rounded-full flex items-center justify-center"><Check className="h-3 w-3 text-white" /></span>}
+                <Building2 className={`h-7 w-7 ${accountType === 'organization' ? 'text-[#D72444]' : 'text-gray-400 group-hover:text-gray-500'}`} />
                 <span>Organization</span>
                 <span className="text-[10px] font-normal opacity-70">Company / NGO</span>
               </button>
@@ -757,7 +757,7 @@ export function RegisterPage() {
                 if (accountType === 'organization' && !company.trim()) { setError('Organization name is required'); return; }
                 setStep(2);
               }}
-              className="w-full mt-4 bg-[#6366F1] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#5558E6] transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
+              className="w-full mt-4 bg-[#D72444] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#C01E3A] transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
             >
               Continue with Email
               <ArrowRight className="h-4 w-4" />
@@ -767,7 +767,7 @@ export function RegisterPage() {
           <div className="mt-5 text-center">
             <p className="text-xs text-gray-400 dark:text-gray-500">
               Already have an account?{' '}
-              <button onClick={() => setAuthMode('login')} className="text-[#6366F1] hover:underline font-medium">Sign in</button>
+              <button onClick={() => setAuthMode('login')} className="text-[#D72444] hover:underline font-medium">Sign in</button>
             </p>
           </div>
         </div>
@@ -782,7 +782,7 @@ export function RegisterPage() {
         <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center mb-6">
-            <div className="w-12 h-12 rounded-xl bg-[#6366F1] flex items-center justify-center mb-4 shadow-lg shadow-[#6366F1]/25">
+            <div className="w-12 h-12 rounded-xl bg-[#D72444] flex items-center justify-center mb-4 shadow-lg shadow-[#D72444]/25">
               <MessageSquare className="h-7 w-7 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Your Information</h1>
@@ -795,15 +795,15 @@ export function RegisterPage() {
             )}
 
             {accountType === 'organization' && company && (
-              <div className="bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800 rounded-lg p-3 flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-full bg-[#6366F1]/10 flex items-center justify-center shrink-0">
-                  <Building2 className="h-4 w-4 text-[#6366F1]" />
+              <div className="bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 rounded-lg p-3 flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-full bg-[#D72444]/10 flex items-center justify-center shrink-0">
+                  <Building2 className="h-4 w-4 text-[#D72444]" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{company}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{[organizationType, city, country].filter(Boolean).join(' / ') || 'Organization'}</p>
                 </div>
-                <button type="button" onClick={() => setStep(1)} className="text-xs text-[#6366F1] hover:underline font-medium shrink-0">Edit</button>
+                <button type="button" onClick={() => setStep(1)} className="text-xs text-[#D72444] hover:underline font-medium shrink-0">Edit</button>
               </div>
             )}
 
@@ -846,13 +846,13 @@ export function RegisterPage() {
                 if (!firstName.trim()) { setError('First name is required'); return; }
                 if (!email.trim() || !email.includes('@')) { setError('A valid email is required'); return; }
                 setStep(3);
-              }} className="flex-1 bg-[#6366F1] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#5558E6] transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer">
+              }} className="flex-1 bg-[#D72444] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#C01E3A] transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer">
                 Continue <ArrowRight className="h-4 w-4" />
               </button>
             </div>
           </div>
           <div className="mt-5 text-center">
-            <p className="text-xs text-gray-400 dark:text-gray-500">Already have an account? <button onClick={() => setAuthMode('login')} className="text-[#6366F1] hover:underline font-medium">Sign in</button></p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">Already have an account? <button onClick={() => setAuthMode('login')} className="text-[#D72444] hover:underline font-medium">Sign in</button></p>
           </div>
         </div>
       </div>
@@ -865,7 +865,7 @@ export function RegisterPage() {
       <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-6">
-          <div className="w-12 h-12 rounded-xl bg-[#6366F1] flex items-center justify-center mb-4 shadow-lg shadow-[#6366F1]/25">
+          <div className="w-12 h-12 rounded-xl bg-[#D72444] flex items-center justify-center mb-4 shadow-lg shadow-[#D72444]/25">
             <Shield className="h-7 w-7 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Secure Your Account</h1>
@@ -875,14 +875,14 @@ export function RegisterPage() {
 
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 transition-colors duration-300">
           <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 flex items-center gap-3 mb-5">
-            <div className="w-9 h-9 rounded-full bg-[#6366F1]/10 flex items-center justify-center shrink-0">
-              {accountType === 'personal' ? <User className="h-4 w-4 text-[#6366F1]" /> : <Building2 className="h-4 w-4 text-[#6366F1]" />}
+            <div className="w-9 h-9 rounded-full bg-[#D72444]/10 flex items-center justify-center shrink-0">
+              {accountType === 'personal' ? <User className="h-4 w-4 text-[#D72444]" /> : <Building2 className="h-4 w-4 text-[#D72444]" />}
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{company || `${firstName} ${lastName}`.trim() || 'New User'}</p>
               <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{email || 'No email'} &middot; {accountType === 'personal' ? 'Personal' : 'Organization'}{phone ? ` &middot; ${phone}` : ''}</p>
             </div>
-            <button type="button" onClick={() => setStep(2)} className="text-xs text-[#6366F1] hover:underline font-medium shrink-0">Edit</button>
+            <button type="button" onClick={() => setStep(2)} className="text-xs text-[#D72444] hover:underline font-medium shrink-0">Edit</button>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -923,26 +923,26 @@ export function RegisterPage() {
               )}
             </div>
             <label className="flex items-start gap-2.5 cursor-pointer">
-              <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} className="w-4 h-4 mt-0.5 rounded border-gray-300 dark:border-gray-600 text-[#6366F1] focus:ring-[#6366F1] bg-white dark:bg-gray-800" />
+              <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} className="w-4 h-4 mt-0.5 rounded border-gray-300 dark:border-gray-600 text-[#D72444] focus:ring-[#D72444] bg-white dark:bg-gray-800" />
               <span className="text-sm text-gray-600 dark:text-gray-400 leading-snug">
                 I agree to the{' '}
-                <button type="button" className="text-[#6366F1] hover:underline font-medium">Terms of Service</button>
+                <button type="button" className="text-[#D72444] hover:underline font-medium">Terms of Service</button>
                 {' '}and{' '}
-                <button type="button" className="text-[#6366F1] hover:underline font-medium">Privacy Policy</button>
+                <button type="button" className="text-[#D72444] hover:underline font-medium">Privacy Policy</button>
               </span>
             </label>
             <div className="flex gap-3">
               <button type="button" onClick={() => { setError(''); setStep(2); }} className="px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
                 <ArrowLeft className="h-3.5 w-3.5" /> Back
               </button>
-              <button type="submit" disabled={submitting} className="flex-1 bg-[#6366F1] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#5558E6] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer">
+              <button type="submit" disabled={submitting} className="flex-1 bg-[#D72444] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#C01E3A] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer">
                 {submitting ? (<><Loader2 className="h-4 w-4 animate-spin" /> Creating account...</>) : (<><Check className="h-4 w-4" /> Create {accountType === 'personal' ? 'Personal' : 'Organization'} Account</>)}
               </button>
             </div>
           </form>
         </div>
         <div className="mt-5 text-center">
-          <p className="text-xs text-gray-400 dark:text-gray-500">Already have an account? <button onClick={() => setAuthMode('login')} className="text-[#6366F1] hover:underline font-medium">Sign in</button></p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">Already have an account? <button onClick={() => setAuthMode('login')} className="text-[#D72444] hover:underline font-medium">Sign in</button></p>
         </div>
       </div>
     </div>

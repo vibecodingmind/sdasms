@@ -29,7 +29,7 @@ export function LanguageView() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[#6366F1] hover:bg-[#5558E6] text-white"><Plus className="h-4 w-4 mr-2" /> Add Language</Button>
+            <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white"><Plus className="h-4 w-4 mr-2" /> Add Language</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>Add Language</DialogTitle></DialogHeader>
@@ -50,7 +50,7 @@ export function LanguageView() {
               <div className="flex items-center gap-3"><Switch defaultChecked /><label className="text-sm text-gray-700">Active</label></div>
               <div className="flex justify-end gap-3 pt-2">
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                <Button type="submit" className="bg-[#6366F1] hover:bg-[#5558E6] text-white">Save</Button>
+                <Button type="submit" className="bg-[#D72444] hover:bg-[#C01E3A] text-white">Save</Button>
               </div>
             </form>
           </DialogContent>
@@ -75,7 +75,7 @@ export function LanguageView() {
                   <TableCell className="text-sm font-medium text-gray-800">{l.name}</TableCell>
                   <TableCell className="text-sm text-gray-500 font-mono">{l.code}</TableCell>
                   <TableCell>
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${l.direction === 'RTL' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'}`}>{l.direction}</span>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${l.direction === 'RTL' ? 'bg-rose-100 text-rose-700' : 'bg-gray-100 text-gray-600'}`}>{l.direction}</span>
                   </TableCell>
                   <TableCell>
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${l.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>{l.status}</span>

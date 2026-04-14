@@ -35,7 +35,7 @@ export function AdminRolesView() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[#6366F1] hover:bg-[#5558E6] text-white"><Plus className="h-4 w-4 mr-2" /> Add Role</Button>
+            <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white"><Plus className="h-4 w-4 mr-2" /> Add Role</Button>
           </DialogTrigger>
           <DialogContent className="max-w-lg">
             <DialogHeader><DialogTitle>Create Role</DialogTitle></DialogHeader>
@@ -53,7 +53,7 @@ export function AdminRolesView() {
                         type="checkbox"
                         checked={selectedPerms.includes(perm)}
                         onChange={() => togglePerm(perm)}
-                        className="w-4 h-4 rounded border-gray-300 text-[#6366F1] focus:ring-[#6366F1]"
+                        className="w-4 h-4 rounded border-gray-300 text-[#D72444] focus:ring-[#D72444]"
                       />
                       <span className="text-xs text-gray-600">{perm}</span>
                     </label>
@@ -62,7 +62,7 @@ export function AdminRolesView() {
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                <Button type="submit" className="bg-[#6366F1] hover:bg-[#5558E6] text-white">Create Role</Button>
+                <Button type="submit" className="bg-[#D72444] hover:bg-[#C01E3A] text-white">Create Role</Button>
               </div>
             </form>
           </DialogContent>
@@ -85,7 +85,7 @@ export function AdminRolesView() {
                 <TableRow key={role.id} className="hover:bg-gray-50/50">
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-[#6366F1]" />
+                      <Shield className="h-4 w-4 text-[#D72444]" />
                       <span className="text-sm font-medium text-gray-800">{role.name}</span>
                     </div>
                   </TableCell>

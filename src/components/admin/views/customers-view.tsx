@@ -139,8 +139,8 @@ export function CustomersView() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
             <CardContent className="p-5 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-[#EEF2FF] flex items-center justify-center">
-                <svg className="w-5 h-5 text-[#6366F1]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+              <div className="w-10 h-10 rounded-lg bg-[#FEF2F2] flex items-center justify-center">
+                <svg className="w-5 h-5 text-[#D72444]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
               </div>
               <div>
                 <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">Send SMS</p>
@@ -161,8 +161,8 @@ export function CustomersView() {
           </Card>
           <Card className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
             <CardContent className="p-5 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center">
-                <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+              <div className="w-10 h-10 rounded-lg bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center">
+                <svg className="w-5 h-5 text-rose-600 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
               </div>
               <div>
                 <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">Reports</p>
@@ -198,7 +198,7 @@ export function CustomersView() {
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3 py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
                   <div className={`w-2 h-2 rounded-full shrink-0 ${
-                    item.type === 'sms' ? 'bg-[#6366F1]' :
+                    item.type === 'sms' ? 'bg-[#D72444]' :
                     item.type === 'contact' ? 'bg-green-500' :
                     item.type === 'payment' ? 'bg-amber-500' :
                     'bg-emerald-500'
@@ -228,7 +228,7 @@ export function CustomersView() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[#6366F1] hover:bg-[#5558E6] text-white">
+            <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white">
               <Plus className="h-4 w-4 mr-2" /> Add Customer
             </Button>
           </DialogTrigger>
@@ -286,7 +286,7 @@ export function CustomersView() {
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                <Button type="submit" className="bg-[#6366F1] hover:bg-[#5558E6] text-white">Create Customer</Button>
+                <Button type="submit" className="bg-[#D72444] hover:bg-[#C01E3A] text-white">Create Customer</Button>
               </div>
             </form>
           </DialogContent>
@@ -347,7 +347,7 @@ export function CustomersView() {
                     <TableCell className="text-sm text-gray-500 dark:text-gray-400">{(page - 1) * perPage + i + 1}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-[#EEF2FF] dark:bg-[#6366F1]/20 flex items-center justify-center text-[#6366F1] text-xs font-semibold shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-[#FEF2F2] dark:bg-[#D72444]/20 flex items-center justify-center text-[#D72444] text-xs font-semibold shrink-0">
                           {c.first_name.charAt(0)}{c.last_name.charAt(0)}
                         </div>
                         <span className="text-sm font-medium text-gray-800 dark:text-gray-100 whitespace-nowrap">
@@ -358,7 +358,7 @@ export function CustomersView() {
                     <TableCell className="text-sm text-gray-500 dark:text-gray-400">{c.email}</TableCell>
                     <TableCell className="text-sm text-gray-500 dark:text-gray-400 hidden md:table-cell">{c.phone}</TableCell>
                     <TableCell>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#EEF2FF] dark:bg-[#6366F1]/20 text-[#6366F1] dark:text-indigo-300">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#FEF2F2] dark:bg-[#D72444]/20 text-[#D72444] dark:text-rose-300">
                         {c.plan}
                       </span>
                     </TableCell>

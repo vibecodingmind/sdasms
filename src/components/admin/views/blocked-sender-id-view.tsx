@@ -25,7 +25,7 @@ export function BlockedSenderIdView() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[#6366F1] hover:bg-[#5558E6] text-white"><Plus className="h-4 w-4 mr-2" /> Block Sender ID</Button>
+            <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white"><Plus className="h-4 w-4 mr-2" /> Block Sender ID</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>Block Sender ID</DialogTitle></DialogHeader>
@@ -34,7 +34,7 @@ export function BlockedSenderIdView() {
               <div><label className="block text-sm font-medium text-gray-700 mb-1">Reason</label><Textarea placeholder="Reason for blocking" /></div>
               <div className="flex justify-end gap-3 pt-2">
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                <Button type="submit" className="bg-[#6366F1] hover:bg-[#5558E6] text-white">Block</Button>
+                <Button type="submit" className="bg-[#D72444] hover:bg-[#C01E3A] text-white">Block</Button>
               </div>
             </form>
           </DialogContent>

@@ -91,7 +91,7 @@ export function LoginPage() {
   };
 
   const inputClass =
-    'w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all duration-200';
+    'w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#D72444] focus:border-transparent transition-all duration-200';
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4 transition-colors duration-300 relative">
@@ -116,7 +116,7 @@ export function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <Image src="/logo.png" alt="SDASMS" width={160} height={32} className="h-8 w-auto object-contain mb-4" priority />
+          <Image src="/logo.png" alt="SDASMS" width={180} height={36} className="h-9 w-auto object-contain mb-4" priority />
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">SDASMS Admin</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Sign in to your account</p>
         </div>
@@ -163,10 +163,10 @@ export function LoginPage() {
 
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-[#6366F1] focus:ring-[#6366F1] bg-white dark:bg-gray-800" />
+                <input type="checkbox" defaultChecked className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-[#D72444] focus:ring-[#D72444] bg-white dark:bg-gray-800" />
                 <span className="text-sm text-gray-600 dark:text-gray-400">Remember me</span>
               </label>
-              <button type="button" className="text-sm text-[#6366F1] hover:underline font-medium">
+              <button type="button" className="text-sm text-[#D72444] hover:underline font-medium">
                 Forgot password?
               </button>
             </div>
@@ -174,7 +174,7 @@ export function LoginPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-[#6366F1] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#5558E6] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
+              className="w-full bg-[#D72444] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#C01E3A] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
             >
               {submitting ? (
                 <><Loader2 className="h-4 w-4 animate-spin" /> Signing in...</>
@@ -196,7 +196,7 @@ export function LoginPage() {
             Don&apos;t have an account?{' '}
             <button
               onClick={() => setAuthMode('register')}
-              className="text-[#6366F1] hover:underline font-medium"
+              className="text-[#D72444] hover:underline font-medium"
             >
               Create Account
             </button>

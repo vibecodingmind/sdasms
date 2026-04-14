@@ -46,7 +46,7 @@ export function SpamWordsView() {
               <option value="phishing">Phishing</option>
               <option value="financial">Financial</option>
             </select>
-            <Button className="bg-[#6366F1] hover:bg-[#5558E6] text-white shrink-0" onClick={addWord}><Plus className="h-4 w-4 mr-2" /> Add Word</Button>
+            <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white shrink-0" onClick={addWord}><Plus className="h-4 w-4 mr-2" /> Add Word</Button>
           </div>
         </CardContent>
       </Card>
@@ -67,7 +67,7 @@ export function SpamWordsView() {
             <Card key={cat} className="border-0 shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold text-gray-700 capitalize flex items-center gap-2">
-                  <Tag className="h-4 w-4 text-[#6366F1]" />
+                  <Tag className="h-4 w-4 text-[#D72444]" />
                   {cat}
                   <Badge variant="secondary" className="text-[10px]">{catWords.length}</Badge>
                 </CardTitle>

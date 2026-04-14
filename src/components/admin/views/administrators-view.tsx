@@ -23,7 +23,7 @@ export function AdministratorsView() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[#6366F1] hover:bg-[#5558E6] text-white"><Plus className="h-4 w-4 mr-2" /> Add Administrator</Button>
+            <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white"><Plus className="h-4 w-4 mr-2" /> Add Administrator</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader><DialogTitle>Add Administrator</DialogTitle></DialogHeader>
@@ -46,7 +46,7 @@ export function AdministratorsView() {
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                <Button type="submit" className="bg-[#6366F1] hover:bg-[#5558E6] text-white">Create</Button>
+                <Button type="submit" className="bg-[#D72444] hover:bg-[#C01E3A] text-white">Create</Button>
               </div>
             </form>
           </DialogContent>
@@ -71,7 +71,7 @@ export function AdministratorsView() {
                 <TableRow key={a.id} className="hover:bg-gray-50/50">
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-[#6366F1] flex items-center justify-center text-white text-xs font-semibold">
+                      <div className="w-8 h-8 rounded-full bg-[#D72444] flex items-center justify-center text-white text-xs font-semibold">
                         {a.first_name[0]}{a.last_name[0]}
                       </div>
                       <span className="text-sm font-medium text-gray-800">{a.first_name} {a.last_name}</span>
@@ -79,7 +79,7 @@ export function AdministratorsView() {
                   </TableCell>
                   <TableCell className="text-sm text-gray-500">{a.email}</TableCell>
                   <TableCell>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#EEF2FF] text-[#6366F1]">{a.role}</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#FEF2F2] text-[#D72444]">{a.role}</span>
                   </TableCell>
                   <TableCell>
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${a.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>{a.status}</span>

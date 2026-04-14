@@ -89,7 +89,7 @@ export function SubscriptionView() {
                   <TableRow key={sub.id} className="hover:bg-gray-50/50">
                     <TableCell className="text-sm font-medium text-gray-800">{sub.customer}</TableCell>
                     <TableCell>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#EEF2FF] text-[#6366F1]">{sub.plan}</span>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#FEF2F2] text-[#D72444]">{sub.plan}</span>
                     </TableCell>
                     <TableCell className="text-sm text-gray-500 hidden md:table-cell">{sub.start_date}</TableCell>
                     <TableCell className="text-sm text-gray-500 hidden md:table-cell">{sub.end_date}</TableCell>

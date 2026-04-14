@@ -34,7 +34,7 @@ export function DashboardView() {
   if (!data) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366F1]" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#D72444]" />
       </div>
     );
   }
@@ -45,8 +45,8 @@ export function DashboardView() {
       value: data.stats.totalCustomers.toLocaleString(),
       growth: data.stats.customersGrowth,
       icon: <Users className="h-5 w-5" />,
-      color: 'bg-[#6366F1]',
-      lightColor: 'bg-[#EEF2FF]',
+      color: 'bg-[#D72444]',
+      lightColor: 'bg-[#FEF2F2]',
     },
     {
       title: 'SMS Sent Today',
@@ -136,8 +136,8 @@ export function DashboardView() {
                 <AreaChart data={data.revenueData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
                   <defs>
                     <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366F1" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="#6366F1" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#D72444" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="#D72444" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
@@ -153,7 +153,7 @@ export function DashboardView() {
                     }}
                     formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
                   />
-                  <Area type="monotone" dataKey="revenue" stroke="#6366F1" strokeWidth={2.5} fill="url(#colorRevenue)" />
+                  <Area type="monotone" dataKey="revenue" stroke="#D72444" strokeWidth={2.5} fill="url(#colorRevenue)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -167,7 +167,7 @@ export function DashboardView() {
           </CardHeader>
           <CardContent className="pt-0 space-y-4">
             {[
-              { label: 'Total Users', value: data.systemOverview.totalUsers.toLocaleString(), color: 'text-[#6366F1]' },
+              { label: 'Total Users', value: data.systemOverview.totalUsers.toLocaleString(), color: 'text-[#D72444]' },
               { label: 'Messages Queued', value: data.systemOverview.messagesQueued.toLocaleString(), color: 'text-[#3B82F6]' },
               { label: 'Server Status', value: data.systemOverview.serverStatus, color: 'text-[#10B981]' },
               { label: 'Uptime', value: data.systemOverview.uptime, color: 'text-[#10B981]' },
@@ -189,7 +189,7 @@ export function DashboardView() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-semibold text-gray-800">Recent Orders</CardTitle>
-              <button className="text-xs text-[#6366F1] hover:underline font-medium flex items-center gap-1">
+              <button className="text-xs text-[#D72444] hover:underline font-medium flex items-center gap-1">
                 View All <ArrowUpRight className="h-3 w-3" />
               </button>
             </div>

@@ -33,7 +33,7 @@ export function AnnouncementsView() {
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-[#6366F1] hover:bg-[#5558E6] text-white">
+            <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white">
               <Plus className="h-4 w-4 mr-2" /> New Announcement
             </Button>
           </DialogTrigger>
@@ -56,7 +56,7 @@ export function AnnouncementsView() {
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                <Button type="submit" className="bg-[#6366F1] hover:bg-[#5558E6] text-white">Create</Button>
+                <Button type="submit" className="bg-[#D72444] hover:bg-[#C01E3A] text-white">Create</Button>
               </div>
             </form>
           </DialogContent>
