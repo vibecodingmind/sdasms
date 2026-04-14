@@ -4,455 +4,348 @@ import { hash } from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('=== SDASMS Database Seeding Started ===\n');
+  console.log('🌱 Seeding database...');
 
-  // ==================== ROLES ====================
-  console.log('Seeding roles...');
-  const superAdminRole = await prisma.role.upsert({
-    where: { id: 1 },
-    update: { name: 'Super Admin', status: 'active' },
-    create: { id: 1, uid: 'role-001', name: 'Super Admin', status: 'active' },
-  });
-  const supportAdminRole = await prisma.role.upsert({
-    where: { id: 2 },
-    update: { name: 'Support Admin', status: 'active' },
-    create: { id: 2, uid: 'role-002', name: 'Support Admin', status: 'active' },
-  });
-  const billingAdminRole = await prisma.role.upsert({
-    where: { id: 3 },
-    update: { name: 'Billing Admin', status: 'active' },
-    create: { id: 3, uid: 'role-003', name: 'Billing Admin', status: 'active' },
-  });
-  const techAdminRole = await prisma.role.upsert({
-    where: { id: 4 },
-    update: { name: 'Technical Admin', status: 'active' },
-    create: { id: 4, uid: 'role-004', name: 'Technical Admin', status: 'active' },
-  });
-  const viewerRole = await prisma.role.upsert({
-    where: { id: 5 },
-    update: { name: 'Viewer', status: 'active' },
-    create: { id: 5, uid: 'role-005', name: 'Viewer', status: 'active' },
-  });
-  console.log(`  Created 5 roles`);
+  // ──────────────────────────────────────────────
+  // 1. USERS
+  // ──────────────────────────────────────────────
+  console.log('  Creating users...');
 
-  // ==================== PLANS ====================
-  console.log('Seeding plans...');
-  const starterPlan = await prisma.plan.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      id: 1, uid: 'plan-001', name: 'Starter', price: 49.99, billingCycle: 'monthly',
-      options: JSON.stringify({ sms: '5,000', contacts: '1,000', groups: '5', sender_ids: '1', templates: '10' }),
-      status: 'active', isDlt: false, coverage: null, creditPrice: 0.01,
-    },
-  });
-  const businessPlan = await prisma.plan.upsert({
-    where: { id: 2 },
-    update: {},
-    create: {
-      id: 2, uid: 'plan-002', name: 'Business', price: 199.99, billingCycle: 'monthly',
-      options: JSON.stringify({ sms: '50,000', contacts: '25,000', groups: '25', sender_ids: '5', templates: '50', api_access: true }),
-      status: 'active', isDlt: false, coverage: null, creditPrice: 0.008,
-    },
-  });
-  const enterprisePlan = await prisma.plan.upsert({
-    where: { id: 3 },
-    update: {},
-    create: {
-      id: 3, uid: 'plan-003', name: 'Enterprise', price: 499.99, billingCycle: 'monthly',
-      options: JSON.stringify({ sms: 'Unlimited', contacts: 'Unlimited', groups: 'Unlimited', sender_ids: '25', templates: 'Unlimited', api_access: true, priority_support: true, dedicated_server: true }),
-      status: 'active', isDlt: false, coverage: null, creditPrice: 0.005,
-    },
-  });
-  console.log(`  Created 3 plans`);
-
-  // ==================== ADMINS ====================
-  console.log('Seeding admin users...');
   const adminPassword = await hash('password123', 12);
-  const superAdmin = await prisma.user.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      id: 1, uid: 'admin-001', firstName: 'Super', lastName: 'Admin',
-      email: 'admin@admin.com', password: adminPassword,
-      status: 'active', smsUnit: 999999, isAdmin: true, isCustomer: false,
-      apiToken: 'admin-api-token-001', locale: 'en', timezone: 'UTC',
-    },
-  });
-  const supportAdmin = await prisma.user.upsert({
-    where: { id: 2 },
-    update: {},
-    create: {
-      id: 2, uid: 'admin-002', firstName: 'Support', lastName: 'Manager',
-      email: 'support@admin.com', password: adminPassword,
-      status: 'active', smsUnit: 0, isAdmin: true, isCustomer: false,
-      apiToken: 'admin-api-token-002', locale: 'en', timezone: 'UTC',
-    },
-  });
-  const billingAdmin = await prisma.user.upsert({
-    where: { id: 3 },
-    update: {},
-    create: {
-      id: 3, uid: 'admin-003', firstName: 'Billing', lastName: 'Admin',
-      email: 'billing@admin.com', password: adminPassword,
-      status: 'active', smsUnit: 0, isAdmin: true, isCustomer: false,
-      apiToken: 'admin-api-token-003', locale: 'en', timezone: 'UTC',
-    },
-  });
-  const techAdmin = await prisma.user.upsert({
-    where: { id: 4 },
-    update: {},
-    create: {
-      id: 4, uid: 'admin-004', firstName: 'Tech', lastName: 'Lead',
-      email: 'tech@admin.com', password: adminPassword,
-      status: 'inactive', smsUnit: 0, isAdmin: true, isCustomer: false,
-      apiToken: 'admin-api-token-004', locale: 'en', timezone: 'UTC',
-    },
-  });
-
-  // Assign roles
-  await prisma.roleUser.upsert({ where: { userId_roleId: { userId: 1, roleId: 1 } }, update: {}, create: { userId: 1, roleId: 1 } });
-  await prisma.roleUser.upsert({ where: { userId_roleId: { userId: 2, roleId: 2 } }, update: {}, create: { userId: 2, roleId: 2 } });
-  await prisma.roleUser.upsert({ where: { userId_roleId: { userId: 3, roleId: 3 } }, update: {}, create: { userId: 3, roleId: 3 } });
-  await prisma.roleUser.upsert({ where: { userId_roleId: { userId: 4, roleId: 4 } }, update: {}, create: { userId: 4, roleId: 4 } });
-  console.log(`  Created 4 admin users with role assignments`);
-
-  // ==================== CUSTOMERS ====================
-  console.log('Seeding customers...');
   const customerPassword = await hash('customer123', 12);
-  const customerData = [
-    { id: 10, uid: 'c-001', first: 'John', last: 'Smith', email: 'john@acmecorp.com', phone: '+1 555-0101', planId: 3, sms: 45000, status: 'active', joined: '2024-01-15' },
-    { id: 11, uid: 'c-002', first: 'Sarah', last: 'Johnson', email: 'sarah@globaltech.com', phone: '+1 555-0102', planId: 2, sms: 22000, status: 'active', joined: '2024-02-20' },
-    { id: 12, uid: 'c-003', first: 'Michael', last: 'Chen', email: 'michael@asiainc.com', phone: '+86 138-0001', planId: 1, sms: 5600, status: 'active', joined: '2024-03-10' },
-    { id: 13, uid: 'c-004', first: 'Emma', last: 'Williams', email: 'emma@euromail.com', phone: '+44 7700-0401', planId: 3, sms: 67000, status: 'active', joined: '2024-01-05' },
-    { id: 14, uid: 'c-005', first: 'David', last: 'Brown', email: 'david@startup.io', phone: '+1 555-0105', planId: 2, sms: 12000, status: 'inactive', joined: '2024-04-18' },
-    { id: 15, uid: 'c-006', first: 'Lisa', last: 'Martinez', email: 'lisa@latamco.com', phone: '+52 55-0106', planId: 1, sms: 800, status: 'active', joined: '2024-05-22' },
-    { id: 16, uid: 'c-007', first: 'James', last: 'Wilson', email: 'james@techfirm.com', phone: '+1 555-0107', planId: 3, sms: 91000, status: 'active', joined: '2023-11-30' },
-    { id: 17, uid: 'c-008', first: 'Aisha', last: 'Patel', email: 'aisha@indiatech.in', phone: '+91 9876-0801', planId: 2, sms: 18500, status: 'active', joined: '2024-06-01' },
-    { id: 18, uid: 'c-009', first: 'Robert', last: 'Taylor', email: 'robert@mktgpro.com', phone: '+1 555-0109', planId: 1, sms: 3200, status: 'inactive', joined: '2024-07-15' },
-    { id: 19, uid: 'c-010', first: 'Maria', last: 'Garcia', email: 'maria@bizlat.com', phone: '+34 600-1010', planId: 2, sms: 15000, status: 'active', joined: '2024-03-25' },
-    { id: 20, uid: 'c-011', first: 'Tom', last: 'Anderson', email: 'tom@nordic.se', phone: '+46 70-1011', planId: 3, sms: 55000, status: 'active', joined: '2024-02-14' },
-    { id: 21, uid: 'c-012', first: 'Nina', last: 'Kowalski', email: 'nina@polandtel.pl', phone: '+48 500-1012', planId: 1, sms: 1000, status: 'active', joined: '2024-08-01' },
+
+  const admins = [
+    { uid: 'admin-001', firstName: 'Super', lastName: 'Admin', email: 'admin@admin.com', password: adminPassword, status: 'active', isAdmin: true, isCustomer: false },
+    { uid: 'admin-002', firstName: 'Support', lastName: 'Manager', email: 'support@admin.com', password: adminPassword, status: 'active', isAdmin: true, isCustomer: false },
+    { uid: 'admin-003', firstName: 'Billing', lastName: 'Admin', email: 'billing@admin.com', password: adminPassword, status: 'active', isAdmin: true, isCustomer: false },
+    { uid: 'admin-004', firstName: 'Tech', lastName: 'Lead', email: 'tech@admin.com', password: adminPassword, status: 'inactive', isAdmin: true, isCustomer: false },
   ];
 
-  for (const c of customerData) {
+  const customers = [
+    { uid: 'c-001', firstName: 'John', lastName: 'Smith', email: 'john@acmecorp.com', password: customerPassword, status: 'active', isAdmin: false, isCustomer: true, smsUnit: 45000 },
+    { uid: 'c-002', firstName: 'Sarah', lastName: 'Johnson', email: 'sarah@globaltech.com', password: customerPassword, status: 'active', isAdmin: false, isCustomer: true, smsUnit: 22000 },
+    { uid: 'c-003', firstName: 'Michael', lastName: 'Chen', email: 'michael@asiainc.com', password: customerPassword, status: 'active', isAdmin: false, isCustomer: true, smsUnit: 5600 },
+    { uid: 'c-004', firstName: 'Emma', lastName: 'Williams', email: 'emma@euromail.com', password: customerPassword, status: 'active', isAdmin: false, isCustomer: true, smsUnit: 67000 },
+    { uid: 'c-005', firstName: 'David', lastName: 'Brown', email: 'david@startup.io', password: customerPassword, status: 'inactive', isAdmin: false, isCustomer: true, smsUnit: 12000 },
+    { uid: 'c-006', firstName: 'Lisa', lastName: 'Martinez', email: 'lisa@latamco.com', password: customerPassword, status: 'active', isAdmin: false, isCustomer: true, smsUnit: 800 },
+    { uid: 'c-007', firstName: 'James', lastName: 'Wilson', email: 'james@techfirm.com', password: customerPassword, status: 'active', isAdmin: false, isCustomer: true, smsUnit: 91000 },
+    { uid: 'c-008', firstName: 'Aisha', lastName: 'Patel', email: 'aisha@indiatech.in', password: customerPassword, status: 'active', isAdmin: false, isCustomer: true, smsUnit: 18500 },
+    { uid: 'c-009', firstName: 'Robert', lastName: 'Taylor', email: 'robert@mktgpro.com', password: customerPassword, status: 'inactive', isAdmin: false, isCustomer: true, smsUnit: 3200 },
+    { uid: 'c-010', firstName: 'Maria', lastName: 'Garcia', email: 'maria@bizlat.com', password: customerPassword, status: 'active', isAdmin: false, isCustomer: true, smsUnit: 15000 },
+    { uid: 'c-011', firstName: 'Tom', lastName: 'Anderson', email: 'tom@nordic.se', password: customerPassword, status: 'active', isAdmin: false, isCustomer: true, smsUnit: 55000 },
+    { uid: 'c-012', firstName: 'Nina', lastName: 'Kowalski', email: 'nina@polandtel.pl', password: customerPassword, status: 'active', isAdmin: false, isCustomer: true, smsUnit: 1000 },
+  ];
+
+  const allUsers = [...admins, ...customers];
+
+  // Create or update users
+  for (const u of allUsers) {
     await prisma.user.upsert({
-      where: { id: c.id },
+      where: { email: u.email },
       update: {},
       create: {
-        id: c.id, uid: c.uid, firstName: c.first, lastName: c.last,
-        email: c.email, password: customerPassword, status: c.status,
-        smsUnit: c.sms, isAdmin: false, isCustomer: true,
-        apiToken: `cust-api-${c.uid}`, locale: 'en', timezone: 'UTC',
+        uid: u.uid,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        email: u.email,
+        password: u.password,
+        status: u.status,
+        isAdmin: u.isAdmin,
+        isCustomer: u.isCustomer,
+        smsUnit: (u as any).smsUnit || 0,
+        apiToken: u.isAdmin ? `admin-api-${u.uid}` : `cust-api-${u.uid}`,
       },
     });
   }
-  console.log(`  Created ${customerData.length} customer users`);
+  console.log(`    ✅ Created ${allUsers.length} users`);
 
-  // ==================== SUBSCRIPTIONS ====================
-  console.log('Seeding subscriptions...');
-  const subscriptionData = [
-    { userId: 10, planId: 3, status: 'active', start: '2024-01-15', end: '2025-01-15' },
-    { userId: 11, planId: 2, status: 'active', start: '2024-02-20', end: '2025-02-20' },
-    { userId: 12, planId: 1, status: 'expired', start: '2024-03-10', end: '2024-06-10' },
-    { userId: 13, planId: 3, status: 'active', start: '2024-01-05', end: '2025-01-05' },
-    { userId: 14, planId: 2, status: 'expired', start: '2024-04-18', end: '2024-10-18' },
-    { userId: 15, planId: 1, status: 'active', start: '2024-05-22', end: '2025-05-22' },
-    { userId: 16, planId: 3, status: 'active', start: '2023-11-30', end: '2024-11-30' },
-    { userId: 17, planId: 2, status: 'active', start: '2024-06-01', end: '2025-06-01' },
-    { userId: 18, planId: 1, status: 'cancelled', start: '2024-07-15', end: '2024-07-15' },
-    { userId: 19, planId: 2, status: 'active', start: '2024-03-25', end: '2025-03-25' },
-    { userId: 20, planId: 3, status: 'active', start: '2024-02-14', end: '2025-02-14' },
+  // Fetch user IDs for relations
+  const dbUsers = await prisma.user.findMany({ orderBy: { id: 'asc' } });
+  const adminUser = dbUsers.find(u => u.email === 'admin@admin.com')!;
+  const userById = Object.fromEntries(dbUsers.map(u => [u.email, u.id]));
+
+  // ──────────────────────────────────────────────
+  // 2. PLANS
+  // ──────────────────────────────────────────────
+  console.log('  Creating plans...');
+
+  const plans = [
+    { uid: 'plan-001', name: 'Starter', price: 49.99, billingCycle: 'monthly', options: { sms: '5,000', contacts: '1,000', groups: '5', sender_ids: '1', templates: '10' }, status: 'active', creditPrice: 0.01 },
+    { uid: 'plan-002', name: 'Business', price: 199.99, billingCycle: 'monthly', options: { sms: '50,000', contacts: '25,000', groups: '25', sender_ids: '5', templates: '50', api_access: true }, status: 'active', creditPrice: 0.008 },
+    { uid: 'plan-003', name: 'Enterprise', price: 499.99, billingCycle: 'monthly', options: { sms: 'Unlimited', contacts: 'Unlimited', groups: 'Unlimited', sender_ids: '25', templates: 'Unlimited', api_access: true, priority_support: true, dedicated_server: true }, status: 'active', creditPrice: 0.005 },
   ];
-  for (let i = 0; i < subscriptionData.length; i++) {
-    const s = subscriptionData[i];
+
+  const planIds: Record<string, number> = {};
+  for (const p of plans) {
+    const plan = await prisma.plan.upsert({
+      where: { uid: p.uid },
+      update: {},
+      create: {
+        uid: p.uid,
+        name: p.name,
+        price: p.price,
+        billingCycle: p.billingCycle,
+        options: p.options as any,
+        status: p.status,
+        creditPrice: p.creditPrice,
+      },
+    });
+    planIds[p.name] = plan.id;
+  }
+  console.log(`    ✅ Created ${plans.length} plans`);
+
+  // ──────────────────────────────────────────────
+  // 3. SUBSCRIPTIONS
+  // ──────────────────────────────────────────────
+  console.log('  Creating subscriptions...');
+
+  const subscriptions = [
+    { uid: 'sub-001', email: 'john@acmecorp.com', plan: 'Enterprise', status: 'active', endDate: '2025-01-15' },
+    { uid: 'sub-002', email: 'sarah@globaltech.com', plan: 'Business', status: 'active', endDate: '2025-02-20' },
+    { uid: 'sub-003', email: 'michael@asiainc.com', plan: 'Starter', status: 'expired', endDate: '2024-06-10' },
+    { uid: 'sub-004', email: 'emma@euromail.com', plan: 'Enterprise', status: 'active', endDate: '2025-01-05' },
+    { uid: 'sub-005', email: 'david@startup.io', plan: 'Business', status: 'expired', endDate: '2024-10-18' },
+    { uid: 'sub-006', email: 'lisa@latamco.com', plan: 'Starter', status: 'active', endDate: '2025-05-22' },
+    { uid: 'sub-007', email: 'james@techfirm.com', plan: 'Enterprise', status: 'active', endDate: '2024-11-30' },
+    { uid: 'sub-008', email: 'aisha@indiatech.in', plan: 'Business', status: 'active', endDate: '2025-06-01' },
+    { uid: 'sub-009', email: 'robert@mktgpro.com', plan: 'Starter', status: 'cancelled', endDate: '2024-07-15' },
+    { uid: 'sub-010', email: 'tom@nordic.se', plan: 'Enterprise', status: 'active', endDate: '2025-02-14' },
+  ];
+
+  for (const s of subscriptions) {
+    const userId = userById[s.email];
+    if (!userId) continue;
     await prisma.subscription.upsert({
-      where: { id: i + 1 },
+      where: { uid: s.uid },
       update: {},
       create: {
-        id: i + 1, uid: `sub-${String(i + 1).padStart(3, '0')}`,
-        userId: s.userId, planId: s.planId, status: s.status,
-        currentPeriodEndsAt: new Date(s.end),
+        uid: s.uid,
+        userId,
+        planId: planIds[s.plan],
+        status: s.status,
+        currentPeriodEndsAt: new Date(s.endDate),
       },
     });
   }
-  console.log(`  Created ${subscriptionData.length} subscriptions`);
+  console.log(`    ✅ Created ${subscriptions.length} subscriptions`);
 
-  // ==================== SENDING SERVERS ====================
-  console.log('Seeding sending servers...');
-  const serverData = [
-    { id: 1, uid: 'srv-001', userId: 1, name: 'Twilio HTTP Gateway', type: 'http', quota: 100000, status: 'active', settings: { url: 'https://api.twilio.com', api_key: '****' } },
-    { id: 2, uid: 'srv-002', userId: 1, name: 'Nexmo SMPP Server', type: 'smpp', quota: 500000, status: 'active', settings: { host: 'smpp.nexmo.com', port: 2775 } },
-    { id: 3, uid: 'srv-003', userId: 1, name: 'WhatsApp Business API', type: 'whatsapp', quota: 50000, status: 'active', settings: { phone_id: '+1234567890', token: '****' } },
-    { id: 4, uid: 'srv-004', userId: 1, name: 'Viber Business Channel', type: 'viber', quota: 25000, status: 'inactive', settings: { webhook: 'https://...' } },
-    { id: 5, uid: 'srv-005', userId: 1, name: 'MSG91 OTP Server', type: 'otp', quota: 200000, status: 'active', settings: { auth_key: '****' } },
-    { id: 6, uid: 'srv-006', userId: 1, name: 'Plivo HTTP API', type: 'http', quota: 75000, status: 'active', settings: { auth_id: '****', auth_token: '****' } },
+  // ──────────────────────────────────────────────
+  // 4. ANNOUNCEMENTS
+  // ──────────────────────────────────────────────
+  console.log('  Creating announcements...');
+
+  const announcements = [
+    { uid: 'ann-001', title: 'System Maintenance Scheduled', message: 'We will be performing scheduled maintenance on Jan 15, 2025 from 2:00 AM to 4:00 AM UTC. Services may be temporarily unavailable.', status: 'active' },
+    { uid: 'ann-002', title: 'New WhatsApp Channel Launch', message: "We're excited to announce the launch of our new WhatsApp Business API integration. All Enterprise and Business plan users can now send messages via WhatsApp.", status: 'active' },
+    { uid: 'ann-003', title: 'Holiday Hours', message: 'Our support team will have reduced hours during the holiday season. Emergency support will remain available 24/7.', status: 'inactive' },
+    { uid: 'ann-004', title: 'Pricing Update for 2025', message: 'Starting February 2025, there will be a small adjustment to our pricing plans. Current subscribers are locked in at their existing rates.', status: 'active' },
   ];
-  for (const s of serverData) {
+
+  for (const a of announcements) {
+    await prisma.announcement.upsert({
+      where: { uid: a.uid },
+      update: {},
+      create: {
+        uid: a.uid,
+        userId: adminUser.id,
+        title: a.title,
+        message: a.message,
+        status: a.status,
+      },
+    });
+  }
+  console.log(`    ✅ Created ${announcements.length} announcements`);
+
+  // ──────────────────────────────────────────────
+  // 5. SENDING SERVERS
+  // ──────────────────────────────────────────────
+  console.log('  Creating sending servers...');
+
+  const sendingServers = [
+    { uid: 'srv-001', name: 'Twilio HTTP Gateway', type: 'http', quotaValue: 100000, status: 'active', settings: { url: 'https://api.twilio.com', api_key: '****' } },
+    { uid: 'srv-002', name: 'Nexmo SMPP Server', type: 'smpp', quotaValue: 500000, status: 'active', settings: { host: 'smpp.nexmo.com', port: 2775 } },
+    { uid: 'srv-003', name: 'WhatsApp Business API', type: 'whatsapp', quotaValue: 50000, status: 'active', settings: { phone_id: '+1234567890', token: '****' } },
+    { uid: 'srv-004', name: 'Viber Business Channel', type: 'viber', quotaValue: 25000, status: 'inactive', settings: { webhook: 'https://...' } },
+    { uid: 'srv-005', name: 'MSG91 OTP Server', type: 'otp', quotaValue: 200000, status: 'active', settings: { auth_key: '****' } },
+    { uid: 'srv-006', name: 'Plivo HTTP API', type: 'http', quotaValue: 75000, status: 'active', settings: { auth_id: '****', auth_token: '****' } },
+    { uid: 'srv-007', name: 'Route Mobile SMPP', type: 'smpp', quotaValue: 300000, status: 'inactive', settings: { host: 'smpp.routemobile.com', port: 2776 } },
+  ];
+
+  for (const s of sendingServers) {
     await prisma.sendingServer.upsert({
-      where: { id: s.id },
+      where: { uid: s.uid },
       update: {},
       create: {
-        id: s.id, uid: s.uid, userId: s.userId, name: s.name,
-        type: s.type, quotaValue: s.quota, status: s.status,
-        settings: JSON.stringify(s.settings), smsPerRequest: 100,
+        uid: s.uid,
+        userId: adminUser.id,
+        name: s.name,
+        type: s.type,
+        quotaValue: s.quotaValue,
+        status: s.status,
+        settings: s.settings as any,
       },
     });
   }
-  console.log(`  Created ${serverData.length} sending servers`);
+  console.log(`    ✅ Created ${sendingServers.length} sending servers`);
 
-  // ==================== SENDER IDs ====================
-  console.log('Seeding sender IDs...');
-  const senderIdData = [
-    { userId: 10, sid: 'ACMECORP', status: 'active', countries: ['US', 'CA', 'UK'] },
-    { userId: 11, sid: 'GLOBALTECH', status: 'active', countries: ['US', 'UK'] },
-    { userId: 12, sid: 'ASIATICK', status: 'pending', countries: ['IN', 'SG'] },
-    { userId: 13, sid: 'EUROMAIL', status: 'active', countries: ['DE', 'FR', 'ES', 'IT'] },
-    { userId: 14, sid: 'STARTUP1', status: 'inactive', countries: ['US'] },
-    { userId: 15, sid: 'LATAMCO', status: 'pending', countries: ['MX', 'CO', 'AR'] },
-    { userId: 16, sid: 'TECHFRM', status: 'active', countries: ['US', 'CA', 'UK', 'AU'] },
-    { userId: 18, sid: 'MKTGPRO', status: 'active', countries: ['US'] },
+  // ──────────────────────────────────────────────
+  // 6. SENDER IDs
+  // ──────────────────────────────────────────────
+  console.log('  Creating sender IDs...');
+
+  const senderIds = [
+    { uid: 'sid-001', senderId: 'ACMECORP', email: 'john@acmecorp.com', status: 'active', countries: ['US', 'CA', 'UK'] },
+    { uid: 'sid-002', senderId: 'GLOBALTECH', email: 'sarah@globaltech.com', status: 'active', countries: ['US', 'UK'] },
+    { uid: 'sid-003', senderId: 'ASIATICK', email: 'michael@asiainc.com', status: 'pending', countries: ['IN', 'SG'] },
+    { uid: 'sid-004', senderId: 'EUROMAIL', email: 'emma@euromail.com', status: 'active', countries: ['DE', 'FR', 'ES', 'IT'] },
+    { uid: 'sid-005', senderId: 'STARTUP1', email: 'david@startup.io', status: 'inactive', countries: ['US'] },
+    { uid: 'sid-006', senderId: 'LATAMCO', email: 'lisa@latamco.com', status: 'pending', countries: ['MX', 'CO', 'AR'] },
+    { uid: 'sid-007', senderId: 'TECHFRM', email: 'james@techfirm.com', status: 'active', countries: ['US', 'CA', 'UK', 'AU'] },
+    { uid: 'sid-008', senderId: 'MKTGPRO', email: 'robert@mktgpro.com', status: 'active', countries: ['US'] },
   ];
-  for (let i = 0; i < senderIdData.length; i++) {
-    const s = senderIdData[i];
+
+  for (const s of senderIds) {
+    const userId = userById[s.email];
+    if (!userId) continue;
     await prisma.senderId.upsert({
-      where: { id: i + 1 },
+      where: { uid: s.uid },
       update: {},
       create: {
-        id: i + 1, uid: `sid-${String(i + 1).padStart(3, '0')}`,
-        userId: s.userId, senderId: s.sid, status: s.status,
-        supportingCountries: JSON.stringify(s.countries),
+        uid: s.uid,
+        userId,
+        senderId: s.senderId,
+        status: s.status,
+        supportingCountries: s.countries as any,
       },
     });
   }
-  console.log(`  Created ${senderIdData.length} sender IDs`);
+  console.log(`    ✅ Created ${senderIds.length} sender IDs`);
 
-  // ==================== CONTACT GROUPS ====================
-  console.log('Seeding contact groups...');
-  const groupData = [
-    { userId: 10, name: 'VIP Customers' }, { userId: 10, name: 'Newsletter Subscribers' },
-    { userId: 11, name: 'Enterprise Clients' }, { userId: 11, name: 'Trial Users' },
-    { userId: 13, name: 'EU Partners' }, { userId: 13, name: 'Marketing List' },
-    { userId: 16, name: 'All Contacts' }, { userId: 16, name: 'Active Users' },
-    { userId: 17, name: 'India Market' }, { userId: 20, name: 'Scandinavia' },
+  // ──────────────────────────────────────────────
+  // 7. PAYMENTS
+  // ──────────────────────────────────────────────
+  console.log('  Creating payments...');
+
+  const payments = [
+    // Pesapal transactions
+    { uid: 'pay-001', email: 'john@acmecorp.com', paymentMethod: 'Pesapal', amount: 499.99, currency: 'KES', status: 'completed', transactionId: 'PSP-2025-001' },
+    { uid: 'pay-002', email: 'lisa@latamco.com', paymentMethod: 'Pesapal', amount: 49.99, currency: 'KES', status: 'completed', transactionId: 'PSP-2025-002' },
+    { uid: 'pay-003', email: 'michael@asiainc.com', paymentMethod: 'Pesapal', amount: 25.00, currency: 'KES', status: 'pending', transactionId: 'PSP-2025-003' },
+    { uid: 'pay-004', email: 'aisha@indiatech.in', paymentMethod: 'Pesapal', amount: 199.99, currency: 'KES', status: 'failed', transactionId: 'PSP-2025-004' },
+    { uid: 'pay-005', email: 'maria@bizlat.com', paymentMethod: 'Pesapal', amount: 199.99, currency: 'KES', status: 'completed', transactionId: 'PSP-2025-005' },
+    // PayPal transactions
+    { uid: 'pay-006', email: 'emma@euromail.com', paymentMethod: 'PayPal', amount: 499.99, currency: 'USD', status: 'completed', transactionId: 'PPL-2025-001' },
+    { uid: 'pay-007', email: 'tom@nordic.se', paymentMethod: 'PayPal', amount: 499.99, currency: 'EUR', status: 'completed', transactionId: 'PPL-2025-002' },
+    { uid: 'pay-008', email: 'sarah@globaltech.com', paymentMethod: 'PayPal', amount: 199.99, currency: 'USD', status: 'completed', transactionId: 'PPL-2025-003' },
+    { uid: 'pay-009', email: 'david@startup.io', paymentMethod: 'PayPal', amount: 25.00, currency: 'USD', status: 'refunded', transactionId: 'PPL-2025-004' },
+    { uid: 'pay-010', email: 'robert@mktgpro.com', paymentMethod: 'PayPal', amount: 15.00, currency: 'GBP', status: 'completed', transactionId: 'PPL-2025-005' },
+    // Stripe transactions
+    { uid: 'pay-011', email: 'james@techfirm.com', paymentMethod: 'Stripe', amount: 499.99, currency: 'USD', status: 'completed', transactionId: 'STR-2025-001' },
+    { uid: 'pay-012', email: 'nina@polandtel.pl', paymentMethod: 'Stripe', amount: 49.99, currency: 'EUR', status: 'completed', transactionId: 'STR-2025-002' },
+    { uid: 'pay-013', email: 'john@acmecorp.com', paymentMethod: 'Stripe', amount: 50.00, currency: 'USD', status: 'completed', transactionId: 'STR-2025-003' },
+    { uid: 'pay-014', email: 'aisha@indiatech.in', paymentMethod: 'Stripe', amount: 199.99, currency: 'INR', status: 'failed', transactionId: 'STR-2025-004' },
+    { uid: 'pay-015', email: 'emma@euromail.com', paymentMethod: 'Stripe', amount: 100.00, currency: 'USD', status: 'completed', transactionId: 'STR-2025-005' },
+    // Manual transactions
+    { uid: 'pay-016', email: 'tom@nordic.se', paymentMethod: 'Manual Payment', amount: 499.99, currency: 'KES', status: 'completed', transactionId: 'MAN-2025-001' },
+    { uid: 'pay-017', email: 'maria@bizlat.com', paymentMethod: 'Manual Payment', amount: 199.99, currency: 'USD', status: 'completed', transactionId: 'MAN-2025-002' },
+    { uid: 'pay-018', email: 'robert@mktgpro.com', paymentMethod: 'Manual Payment', amount: 49.99, currency: 'KES', status: 'pending', transactionId: 'MAN-2025-003' },
+    { uid: 'pay-019', email: 'lisa@latamco.com', paymentMethod: 'Manual Payment', amount: 30.00, currency: 'USD', status: 'rejected', transactionId: 'MAN-2025-004' },
+    { uid: 'pay-020', email: 'david@startup.io', paymentMethod: 'Manual Payment', amount: 199.99, currency: 'KES', status: 'completed', transactionId: 'MAN-2025-005' },
   ];
-  for (let i = 0; i < groupData.length; i++) {
-    const g = groupData[i];
-    await prisma.contactGroup.upsert({
-      where: { id: i + 1 },
+
+  for (const p of payments) {
+    const userId = userById[p.email];
+    if (!userId) continue;
+    await prisma.payment.upsert({
+      where: { uid: p.uid },
       update: {},
       create: {
-        id: i + 1, uid: `grp-${String(i + 1).padStart(3, '0')}`,
-        userId: g.userId, name: g.name, status: 'active',
+        uid: p.uid,
+        userId,
+        paymentMethod: p.paymentMethod,
+        amount: p.amount,
+        currency: p.currency,
+        status: p.status,
+        transactionId: p.transactionId,
       },
     });
   }
-  console.log(`  Created ${groupData.length} contact groups`);
+  console.log(`    ✅ Created ${payments.length} payments`);
 
-  // ==================== CONTACTS ====================
-  console.log('Seeding contacts...');
-  const contactData = [
-    { userId: 10, groupId: 1, phone: '+1 555-1001', first: 'Alice', last: 'Wonder', email: 'alice@example.com' },
-    { userId: 10, groupId: 1, phone: '+1 555-1002', first: 'Bob', last: 'Builder', email: 'bob@example.com' },
-    { userId: 10, groupId: 2, phone: '+1 555-2001', first: 'Charlie', last: 'Brown', email: 'charlie@example.com' },
-    { userId: 10, groupId: 2, phone: '+1 555-2002', first: 'Diana', last: 'Prince', email: 'diana@example.com' },
-    { userId: 11, groupId: 3, phone: '+1 555-3001', first: 'Edward', last: 'Norton', email: 'edward@example.com' },
-    { userId: 11, groupId: 4, phone: '+1 555-4001', first: 'Fiona', last: 'Apple', email: 'fiona@example.com' },
-    { userId: 13, groupId: 5, phone: '+49 151-5001', first: 'Gunter', last: 'Schmidt', email: 'gunter@example.de' },
-    { userId: 13, groupId: 6, phone: '+33 600-5002', first: 'Henri', last: 'Dupont', email: 'henri@example.fr' },
-    { userId: 16, groupId: 7, phone: '+1 555-6001', first: 'Ivan', last: 'Petrov', email: 'ivan@example.com' },
-    { userId: 16, groupId: 8, phone: '+1 555-6002', first: 'Julia', last: 'Roberts', email: 'julia@example.com' },
-    { userId: 17, groupId: 9, phone: '+91 9876-7001', first: 'Kiran', last: 'Rao', email: 'kiran@example.in' },
-    { userId: 20, groupId: 10, phone: '+46 70-8001', first: 'Lars', last: 'Johansson', email: 'lars@example.se' },
+  // ──────────────────────────────────────────────
+  // 8. INVOICES
+  // ──────────────────────────────────────────────
+  console.log('  Creating invoices...');
+
+  const invoices = [
+    { uid: 'inv-001', email: 'john@acmecorp.com', amount: 499.99, currency: 'USD', status: 'paid', type: 'subscription', transactionId: 'INV-2024-001' },
+    { uid: 'inv-002', email: 'sarah@globaltech.com', amount: 199.99, currency: 'USD', status: 'paid', type: 'subscription', transactionId: 'INV-2024-002' },
+    { uid: 'inv-003', email: 'michael@asiainc.com', amount: 49.99, currency: 'USD', status: 'paid', type: 'subscription', transactionId: 'INV-2024-003' },
+    { uid: 'inv-004', email: 'emma@euromail.com', amount: 499.99, currency: 'USD', status: 'paid', type: 'subscription', transactionId: 'INV-2024-004' },
+    { uid: 'inv-005', email: 'david@startup.io', amount: 25.00, currency: 'USD', status: 'unpaid', type: 'topup', transactionId: 'INV-2024-005' },
+    { uid: 'inv-006', email: 'lisa@latamco.com', amount: 49.99, currency: 'USD', status: 'paid', type: 'subscription', transactionId: 'INV-2024-006' },
+    { uid: 'inv-007', email: 'james@techfirm.com', amount: 499.99, currency: 'USD', status: 'paid', type: 'subscription', transactionId: 'INV-2024-007' },
+    { uid: 'inv-008', email: 'aisha@indiatech.in', amount: 199.99, currency: 'USD', status: 'unpaid', type: 'subscription', transactionId: 'INV-2024-008' },
+    { uid: 'inv-009', email: 'robert@mktgpro.com', amount: 15.00, currency: 'USD', status: 'paid', type: 'topup', transactionId: 'INV-2024-009' },
+    { uid: 'inv-010', email: 'tom@nordic.se', amount: 499.99, currency: 'USD', status: 'unpaid', type: 'subscription', transactionId: 'INV-2025-001' },
+    { uid: 'inv-011', email: 'maria@bizlat.com', amount: 199.99, currency: 'USD', status: 'paid', type: 'subscription', transactionId: 'INV-2024-011' },
+    { uid: 'inv-012', email: 'john@acmecorp.com', amount: 50.00, currency: 'USD', status: 'paid', type: 'topup', transactionId: 'INV-2024-012' },
   ];
-  for (let i = 0; i < contactData.length; i++) {
-    const c = contactData[i];
-    await prisma.contact.upsert({
-      where: { id: i + 1 },
+
+  for (const inv of invoices) {
+    const userId = userById[inv.email];
+    if (!userId) continue;
+    await prisma.invoice.upsert({
+      where: { uid: inv.uid },
       update: {},
       create: {
-        id: i + 1, uid: `cnt-${String(i + 1).padStart(3, '0')}`,
-        userId: c.userId, groupId: c.groupId, phone: c.phone,
-        firstName: c.first, lastName: c.last, email: c.email,
-        status: 'subscribed',
+        uid: inv.uid,
+        userId,
+        amount: inv.amount,
+        currency: inv.currency,
+        status: inv.status,
+        type: inv.type,
+        transactionId: inv.transactionId,
       },
     });
   }
-  console.log(`  Created ${contactData.length} contacts`);
+  console.log(`    ✅ Created ${invoices.length} invoices`);
 
-  // ==================== TEMPLATES ====================
-  console.log('Seeding templates...');
-  const templateData = [
-    { userId: 10, name: 'Welcome Message', message: 'Welcome to ACME Corp! Your account has been activated.' },
-    { userId: 10, name: 'Order Confirmation', message: 'Hi {{name}}, your order #{{order_id}} has been confirmed.' },
-    { userId: 11, name: 'Meeting Reminder', message: 'Reminder: You have a meeting scheduled at {{time}} on {{date}}.' },
-    { userId: 13, name: 'Promo Alert', message: 'Hello {{name}}, check out our latest offers at {{link}}!' },
-    { userId: 16, name: 'Security Alert', message: 'Hi {{name}}, a new login was detected from {{ip}}.' },
-    { userId: 16, name: 'Delivery Update', message: 'Your package #{{tracking_id}} is out for delivery.' },
+  // ──────────────────────────────────────────────
+  // 9. BLACKLISTS
+  // ──────────────────────────────────────────────
+  console.log('  Creating blacklists...');
+
+  const blacklists = [
+    { uid: 'bl-001', email: 'john@acmecorp.com', number: '+1 555-999-0001', reason: 'Spam complaints received' },
+    { uid: 'bl-002', email: 'admin@admin.com', number: '+1 555-999-0002', reason: 'Invalid number - undeliverable' },
+    { uid: 'bl-003', email: 'emma@euromail.com', number: '+44 7700-999-003', reason: 'Opt-out request' },
+    { uid: 'bl-004', email: 'admin@admin.com', number: '+91 9876-999-004', reason: 'Regulatory block - DND' },
+    { uid: 'bl-005', email: 'sarah@globaltech.com', number: '+1 555-999-0005', reason: 'Abusive messages' },
   ];
-  for (let i = 0; i < templateData.length; i++) {
-    const t = templateData[i];
-    await prisma.template.upsert({
-      where: { id: i + 1 },
+
+  for (const b of blacklists) {
+    const userId = userById[b.email];
+    if (!userId) continue;
+    await prisma.blacklist.upsert({
+      where: { uid: b.uid },
       update: {},
       create: {
-        id: i + 1, uid: `tpl-${String(i + 1).padStart(3, '0')}`,
-        userId: t.userId, name: t.name, message: t.message, status: 'active',
+        uid: b.uid,
+        userId,
+        number: b.number,
+        reason: b.reason,
       },
     });
   }
-  console.log(`  Created ${templateData.length} templates`);
+  console.log(`    ✅ Created ${blacklists.length} blacklists`);
 
-  // ==================== CAMPAIGNS ====================
-  console.log('Seeding campaigns...');
-  const campaignData = [
-    { userId: 10, name: 'January Promo', message: 'New Year Sale! 30% off everything.', status: 'completed' },
-    { userId: 11, name: 'Flash Sale Alert', message: 'Flash sale starts NOW! 50% off for the next 24 hours.', status: 'completed' },
-    { userId: 13, name: 'Welcome Series', message: 'Welcome to EuroMail! Here is your getting started guide.', status: 'active' },
-    { userId: 16, name: 'Payment Reminder', message: 'Your subscription renews on Feb 1. Plan: Enterprise.', status: 'completed' },
-    { userId: 15, name: 'New Year Greetings', message: 'Happy New Year from LATAMCO! Wishing you a prosperous 2025.', status: 'completed' },
-    { userId: 10, name: 'OTP Verification', message: 'Your verification code is {{code}}. Valid for 5 minutes.', status: 'completed' },
-  ];
-  for (let i = 0; i < campaignData.length; i++) {
-    const c = campaignData[i];
-    await prisma.campaign.upsert({
-      where: { id: i + 1 },
-      update: {},
-      create: {
-        id: i + 1, uid: `camp-${String(i + 1).padStart(3, '0')}`,
-        userId: c.userId, campaignName: c.name, message: c.message, status: c.status,
-      },
-    });
-  }
-  console.log(`  Created ${campaignData.length} campaigns`);
-
-  // ==================== REPORTS (SMS History) ====================
-  console.log('Seeding reports (SMS history)...');
-  const reportStatuses = ['delivered', 'delivered', 'delivered', 'sent', 'failed', 'pending', 'delivered', 'delivered', 'delivered', 'delivered'];
-  const reportData = [
-    { userId: 10, campaignId: 1, from: 'ACMECORP', to: '+1 555-1001', message: 'Your order #12345 has been shipped!', cost: 0.012, status: 'delivered' },
-    { userId: 11, campaignId: 2, from: 'GLOBALTECH', to: '+44 7700-0401', message: 'Meeting reminder: Team standup at 10 AM tomorrow', cost: 0.015, status: 'delivered' },
-    { userId: 10, campaignId: 1, from: 'ACMECORP', to: '+1 555-1002', message: 'Flash Sale! 50% off all items.', cost: 0.012, status: 'sent' },
-    { userId: 16, campaignId: 4, from: 'TECHFRM', to: '+1 555-6001', message: 'Subscription renewal reminder for Feb 1.', cost: 0.012, status: 'delivered' },
-    { userId: 13, campaignId: 3, from: 'EUROMAIL', to: '+49 151-5001', message: 'Welcome! Your account is ready.', cost: 0.018, status: 'delivered' },
-    { userId: 12, campaignId: null, from: 'ASIATICK', to: '+86 138-0001', message: 'Your verification code is 456789.', cost: 0.020, status: 'failed' },
-    { userId: 10, campaignId: null, from: 'ACMECORP', to: '+1 555-2001', message: 'Appointment confirmed for Jan 15 at 2:00 PM.', cost: 0.012, status: 'delivered' },
-    { userId: 15, campaignId: 5, from: 'LATAMCO', to: '+52 55-0106', message: 'Recordatorio: Su cita es manana.', cost: 0.016, status: 'pending' },
-    { userId: 18, campaignId: null, from: 'MKTGPRO', to: '+1 555-0109', message: 'SMS marketing webinar this Friday!', cost: 0.012, status: 'delivered' },
-    { userId: 20, campaignId: null, from: 'NORDICTECH', to: '+46 70-8001', message: 'Din bestallning har skickats.', cost: 0.022, status: 'delivered' },
-  ];
-  for (let i = 0; i < reportData.length; i++) {
-    const r = reportData[i];
-    await prisma.report.create({
-      data: {
-        id: i + 1, userId: r.userId, campaignId: r.campaignId,
-        from: r.from, to: r.to, message: r.message,
-        cost: r.cost, smsCount: 1, status: r.status,
-        direction: 'outgoing', sendBy: 'api',
-      },
-    }).catch(() => {});
-  }
-  console.log(`  Created ${reportData.length} report records`);
-
-  // ==================== INVOICES ====================
-  console.log('Seeding invoices...');
-  const invoiceData = [
-    { userId: 10, amount: 499.99, status: 'paid', type: 'subscription' },
-    { userId: 11, amount: 199.99, status: 'paid', type: 'subscription' },
-    { userId: 12, amount: 49.99, status: 'paid', type: 'subscription' },
-    { userId: 13, amount: 499.99, status: 'paid', type: 'subscription' },
-    { userId: 14, amount: 25.00, status: 'unpaid', type: 'topup' },
-    { userId: 15, amount: 49.99, status: 'paid', type: 'subscription' },
-    { userId: 16, amount: 499.99, status: 'paid', type: 'subscription' },
-    { userId: 17, amount: 199.99, status: 'unpaid', type: 'subscription' },
-    { userId: 18, amount: 15.00, status: 'paid', type: 'topup' },
-    { userId: 20, amount: 499.99, status: 'unpaid', type: 'subscription' },
-  ];
-  for (let i = 0; i < invoiceData.length; i++) {
-    const inv = invoiceData[i];
-    await prisma.invoice.create({
-      data: {
-        id: i + 1, uid: `inv-${String(i + 1).padStart(3, '0')}`,
-        userId: inv.userId, amount: inv.amount, currency: 'USD',
-        status: inv.status, type: inv.type,
-        transactionId: `TXN-${String(i + 1).padStart(6, '0')}`,
-      },
-    }).catch(() => {});
-  }
-  console.log(`  Created ${invoiceData.length} invoices`);
-
-  // ==================== BLACKLISTS ====================
-  console.log('Seeding blacklists...');
-  const blacklistData = [
-    { userId: 10, number: '+1 555-999-0001', reason: 'Spam complaints received' },
-    { userId: 1, number: '+1 555-999-0002', reason: 'Invalid number - undeliverable' },
-    { userId: 13, number: '+44 7700-999-003', reason: 'Opt-out request' },
-    { userId: 1, number: '+91 9876-999-004', reason: 'Regulatory block - DND' },
-    { userId: 11, number: '+1 555-999-0005', reason: 'Abusive messages' },
-  ];
-  for (let i = 0; i < blacklistData.length; i++) {
-    const b = blacklistData[i];
-    await prisma.blacklist.create({
-      data: {
-        id: i + 1, uid: `bl-${String(i + 1).padStart(3, '0')}`,
-        userId: b.userId, number: b.number, reason: b.reason,
-      },
-    }).catch(() => {});
-  }
-  console.log(`  Created ${blacklistData.length} blacklist entries`);
-
-  // ==================== ANNOUNCEMENTS ====================
-  console.log('Seeding announcements...');
-  const announcementData = [
-    { title: 'System Maintenance Scheduled', message: 'Maintenance on Jan 15, 2025 from 2:00 AM to 4:00 AM UTC.', status: 'active' },
-    { title: 'New WhatsApp Channel Launch', message: 'WhatsApp Business API integration now available for Enterprise and Business plans.', status: 'active' },
-    { title: 'Holiday Hours', message: 'Support team will have reduced hours during the holiday season.', status: 'inactive' },
-    { title: 'Pricing Update for 2025', message: 'Starting February 2025, small pricing adjustments. Current subscribers locked in.', status: 'active' },
-  ];
-  for (let i = 0; i < announcementData.length; i++) {
-    const a = announcementData[i];
-    await prisma.announcement.create({
-      data: {
-        id: i + 1, uid: `ann-${String(i + 1).padStart(3, '0')}`,
-        userId: 1, title: a.title, message: a.message, status: a.status,
-      },
-    }).catch(() => {});
-  }
-  console.log(`  Created ${announcementData.length} announcements`);
-
-  // ==================== PERMISSIONS ====================
-  console.log('Seeding permissions...');
-  const allPerms = [
-    'dashboard.view', 'customers.view', 'customers.create', 'customers.edit', 'customers.delete',
-    'reports.view', 'campaigns.view', 'campaigns.create', 'campaigns.edit', 'campaigns.delete',
-    'announcements.manage', 'plans.manage', 'invoices.view', 'invoices.manage',
-    'servers.manage', 'settings.manage', 'blacklists.manage', 'templates.manage',
-    'senderids.view', 'senderids.manage', 'contacts.view', 'contacts.manage',
-    'subscriptions.view', 'subscriptions.manage', 'topups.manage', 'roles.manage',
-    'admins.manage',
-  ];
-  for (let i = 0; i < allPerms.length; i++) {
-    await prisma.permission.create({
-      data: { id: i + 1, roleId: 1, name: allPerms[i], guardName: 'web' },
-    }).catch(() => {});
-  }
-  console.log(`  Created ${allPerms.length} permissions for Super Admin role`);
-
-  console.log('\n=== SDASMS Database Seeding Complete ===');
-  console.log('\nTest Accounts:');
-  console.log('  Admin:    admin@admin.com / password123');
-  console.log('  Support:  support@admin.com / password123');
-  console.log('  Billing:  billing@admin.com / password123');
-  console.log('  Tech:     tech@admin.com / password123');
-  console.log('  Customer: john@acmecorp.com / customer123');
-  console.log('  Customer: sarah@globaltech.com / customer123');
-  console.log('  Customer: emma@euromail.com / customer123');
-  console.log('  (all 12 customers use password: customer123)');
+  console.log('\n✅ Seed completed successfully!');
 }
 
 main()
   .catch((e) => {
-    console.error('Seed error:', e);
+    console.error('❌ Seed failed:', e);
     process.exit(1);
   })
   .finally(async () => {
