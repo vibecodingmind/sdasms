@@ -267,7 +267,7 @@ export function RegisterPage() {
           <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
           <div className="w-full max-w-md">
             <div className="flex flex-col items-center mb-6">
-              <Image src="/logo-icon.png" alt="SDASMS" width={48} height={48} className="w-12 h-12 object-contain mb-4" />
+              <Image src="/logo-icon.png" alt="SDASMS" width={96} height={96} className="w-24 h-24 object-contain mb-4" />
               <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Organization Details</h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Complete your organization profile</p>
             </div>
@@ -627,7 +627,7 @@ export function RegisterPage() {
         <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center mb-6">
-            <Image src="/logo-icon.png" alt="SDASMS" width={48} height={48} className="w-12 h-12 object-contain mb-4" />
+            <Image src="/logo-icon.png" alt="SDASMS" width={96} height={96} className="w-24 h-24 object-contain mb-4" />
             <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Create Account</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Step 1 — Choose your account type</p>
           </div>
@@ -779,7 +779,7 @@ export function RegisterPage() {
         <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center mb-6">
-            <Image src="/logo-icon.png" alt="SDASMS" width={48} height={48} className="w-12 h-12 object-contain mb-4" />
+            <Image src="/logo-icon.png" alt="SDASMS" width={96} height={96} className="w-24 h-24 object-contain mb-4" />
             <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Your Information</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Step 2 — Tell us about yourself</p>
           </div>
@@ -860,7 +860,7 @@ export function RegisterPage() {
       <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-6">
-          <Image src="/logo-icon.png" alt="SDASMS" width={48} height={48} className="w-12 h-12 object-contain mb-4" />
+          <Image src="/logo-icon.png" alt="SDASMS" width={96} height={96} className="w-24 h-24 object-contain mb-4" />
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Secure Your Account</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Step 3 — Set up your password</p>
         </div>

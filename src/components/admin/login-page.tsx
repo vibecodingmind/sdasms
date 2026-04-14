@@ -116,7 +116,7 @@ export function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <Image src="/logo-icon.png" alt="SDASMS" width={56} height={56} className="w-14 h-14 object-contain mb-4" priority />
+          <Image src="/logo-icon.png" alt="SDASMS" width={96} height={96} className="w-24 h-24 object-contain mb-4" priority />
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Sign in to your account</p>
         </div>
 
