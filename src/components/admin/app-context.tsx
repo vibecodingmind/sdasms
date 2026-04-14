@@ -70,6 +70,7 @@ interface AppContextType {
   theme: 'light' | 'dark';
   authMode: 'login' | 'register';
   login: (email: string, password: string) => Promise<boolean>;
+  socialLogin: (provider: 'google' | 'facebook' | 'github') => Promise<boolean>;
   register: (data: RegisterData) => Promise<boolean>;
   logout: () => void;
   setCurrentView: (view: ViewId) => void;
@@ -118,6 +119,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return true;
     }
     return false;
+  }, []);
+
+  const socialLogin = useCallback(async (provider: 'google' | 'facebook' | 'github'): Promise<boolean> => {
+    // Mock social login
+    setUser({
+      id: Date.now(),
+      uid: `social-${provider}-${Date.now()}`,
+      first_name: provider.charAt(0).toUpperCase() + provider.slice(1),
+      last_name: 'User',
+      email: `user@${provider}.com`,
+      is_admin: false,
+      avatar: null,
+      status: 'active',
+    });
+    setIsAuthenticated(true);
+    return true;
   }, []);
 
   const register = useCallback(async (data: RegisterData): Promise<boolean> => {
@@ -170,6 +187,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         theme,
         authMode,
         login,
+        socialLogin,
         register,
         logout,
         setCurrentView,
