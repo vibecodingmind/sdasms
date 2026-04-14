@@ -78,13 +78,145 @@
   --sidebar-ring: #6366F1;
 }
 
+/* ===== DARK MODE ===== */
+.dark {
+  --background: #030712;
+  --foreground: #F3F4F6;
+  --card: #111827;
+  --card-foreground: #F3F4F6;
+  --popover: #111827;
+  --popover-foreground: #F3F4F6;
+  --primary: #818CF8;
+  --primary-foreground: #030712;
+  --secondary: #1F2937;
+  --secondary-foreground: #E5E7EB;
+  --muted: #1F2937;
+  --muted-foreground: #9CA3AF;
+  --accent: #1F2937;
+  --accent-foreground: #E5E7EB;
+  --destructive: #F87171;
+  --border: #374151;
+  --input: #374151;
+  --ring: #818CF8;
+  --sidebar: #0F172A;
+  --sidebar-foreground: #E5E7EB;
+  --sidebar-primary: #818CF8;
+  --sidebar-primary-foreground: #030712;
+  --sidebar-accent: #1E293B;
+  --sidebar-accent-foreground: #E5E7EB;
+  --sidebar-border: #1E293B;
+  --sidebar-ring: #818CF8;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-gray-50 text-foreground;
+    @apply bg-gray-50 text-foreground transition-colors duration-300;
   }
+}
+
+/* ===== GLOBAL DARK MODE OVERRIDES ===== */
+/* Force all elements dark when .dark is on the html element */
+.dark body {
+  background: #030712;
+  color: #F3F4F6;
+}
+
+.dark .bg-white {
+  background-color: #111827 !important;
+}
+.dark .bg-gray-50 {
+  background-color: #030712 !important;
+}
+.dark .bg-gray-100 {
+  background-color: #111827 !important;
+}
+.dark .bg-gray-200\/70,
+.dark .bg-gray-200\/50 {
+  background-color: rgba(55, 65, 81, 0.5) !important;
+}
+.dark .bg-gray-200 {
+  background-color: #1F2937 !important;
+}
+
+/* Border overrides */
+.dark .border-gray-100,
+.dark .border-gray-200 {
+  border-color: #374151 !important;
+}
+.dark .border-gray-300 {
+  border-color: #4B5563 !important;
+}
+
+/* Text overrides */
+.dark .text-gray-100 {
+  color: #F3F4F6 !important;
+}
+.dark .text-gray-200 {
+  color: #E5E7EB !important;
+}
+.dark .text-gray-300 {
+  color: #D1D5DB !important;
+}
+.dark .text-gray-400 {
+  color: #9CA3AF !important;
+}
+.dark .text-gray-500 {
+  color: #9CA3AF !important;
+}
+.dark .text-gray-600 {
+  color: #9CA3AF !important;
+}
+.dark .text-gray-700 {
+  color: #E5E7EB !important;
+}
+.dark .text-gray-800 {
+  color: #F3F4F6 !important;
+}
+.dark .text-gray-900 {
+  color: #F9FAFB !important;
+}
+
+/* Input overrides */
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: #1F2937 !important;
+  border-color: #374151 !important;
+  color: #E5E7EB !important;
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #6B7280 !important;
+}
+
+/* Table overrides */
+.dark table {
+  --tw-bg-opacity: 1;
+}
+.dark thead {
+  background-color: #1F2937 !important;
+}
+.dark tbody tr {
+  border-color: #374151 !important;
+}
+.dark tbody tr:hover {
+  background-color: rgba(31, 41, 55, 0.5) !important;
+}
+
+/* Shadow overrides */
+.dark .shadow-sm {
+  --tw-shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Scrollbar dark */
+.dark ::-webkit-scrollbar-thumb {
+  background: #4B5563;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6B7280;
 }
 
 /* Custom scrollbar */
