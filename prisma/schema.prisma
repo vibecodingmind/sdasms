@@ -117,6 +117,8 @@ model PersonalAccessToken {
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
 
+  user           User      @relation(fields: [tokenableId], references: [id], onDelete: Cascade)
+
   @@map("cg_personal_access_tokens")
 }
 
@@ -246,6 +248,28 @@ model ContactGroup {
 
   @@index([userId])
   @@map("cg_contact_groups")
+}
+
+model Contact {
+  id         Int      @id @default(autoincrement())
+  uid        String?  @unique @db.VarChar(36)
+  userId     Int      @map("user_id")
+  groupId    Int?     @map("group_id")
+  phone      String   @db.VarChar(191)
+  firstName  String?  @map("first_name") @db.VarChar(191)
+  lastName   String?  @map("last_name") @db.VarChar(191)
+  email      String?  @db.VarChar(191)
+  status     String   @default("subscribed") @db.VarChar(191)
+  attributes Json?    @db.Json
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group    ContactGroup? @relation(fields: [groupId], references: [id])
+
+  @@index([userId])
+  @@index([phone])
+  @@map("cg_contacts")
 }
 
 model ContactImport {
@@ -553,6 +577,8 @@ model Announcement {
   status    String?  @db.VarChar(191)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("cg_announcements")
 }
