@@ -167,3 +167,28 @@ Stage Summary:
 - Comprehensive seed data for all 65 cg_ tables
 - Railway Dockerfile fixed (bun removed, npm only)
 - Need: New Railway token to redeploy, MySQL database credentials to connect
+---
+Task ID: 1
+Agent: main
+Task: Add Pesapal, PayPal, Stripe, Manual Payment gateways (remove all others)
+
+Work Log:
+- Read existing payment-gateways-view.tsx and mock-data.ts
+- Explored all files referencing payment gateways (sidebar, app-context, app-shell, header)
+- Updated mock-data.ts: replaced old gateways (Razorpay, Paystack, Mollie) with Pesapal, PayPal, Stripe, Manual Payment
+- Added mockPaymentTransactions array with 20 transactions across all 4 gateways
+- Each gateway now has: description, logo, mode, supported_currencies, total_transactions, total_revenue, last_transaction
+- Completely rewrote payment-gateways-view.tsx with:
+  - Overview page with summary stats (active gateways, total transactions, revenue, pending)
+  - Gateway cards with quick stats, currency badges, and enable/disable toggle
+  - Click-through to individual gateway detail with Config/Transactions tabs
+  - Configuration panel with test/live mode toggle, show/hide secrets, copy URLs, webhook info
+  - Transaction table with filter tabs, status badges, summary cards
+  - Manual payment has bank details configuration instead of API keys
+- Ran lint: all clean, no errors
+
+Stage Summary:
+- Removed: Razorpay, Paystack, Mollie gateways
+- Added: Pesapal (East African), PayPal, Stripe, Manual Payment (bank transfer/check/cash)
+- Files modified: src/lib/mock-data.ts, src/components/admin/views/payment-gateways-view.tsx
+- No new files created; no API routes needed (demo mode uses mock data directly)

@@ -170,11 +170,99 @@ export const mockEmailTemplates = [
 ];
 
 export const mockPaymentGateways = [
-  { id: 1, name: "Stripe", status: "active", type: "credit_card", fields: { api_key: "****", webhook_secret: "****" } },
-  { id: 2, name: "PayPal", status: "active", type: "paypal", fields: { client_id: "****", client_secret: "****" } },
-  { id: 3, name: "Razorpay", status: "inactive", type: "indian", fields: { key_id: "****", key_secret: "****" } },
-  { id: 4, name: "Paystack", status: "inactive", type: "african", fields: { public_key: "****", secret_key: "****" } },
-  { id: 5, name: "Mollie", status: "active", type: "european", fields: { api_key: "****" } },
+  {
+    id: 1, name: 'Pesapal', status: 'active', type: 'pesapal',
+    description: 'East African payment gateway supporting M-Pesa, Airtel Money, Visa, Mastercard',
+    logo: 'pesapal',
+    mode: 'live',
+    fields: {
+      consumer_key: '****',
+      consumer_secret: '****',
+      ipn_url: 'https://sdasms.com/api/payments/pesapal/ipn',
+      callback_url: 'https://sdasms.com/payments/pesapal/callback',
+    },
+    supported_currencies: ['KES', 'UGX', 'TZS', 'USD'],
+    total_transactions: 342,
+    total_revenue: 285750,
+    last_transaction: '2025-01-10 14:23',
+  },
+  {
+    id: 2, name: 'PayPal', status: 'active', type: 'paypal',
+    description: 'Global payment platform supporting cards, bank transfers, and PayPal balance',
+    logo: 'paypal',
+    mode: 'live',
+    fields: {
+      client_id: '****',
+      client_secret: '****',
+      webhook_id: '****',
+      webhook_url: 'https://sdasms.com/api/payments/paypal/webhook',
+    },
+    supported_currencies: ['USD', 'EUR', 'GBP', 'AUD', 'CAD'],
+    total_transactions: 891,
+    total_revenue: 456200,
+    last_transaction: '2025-01-10 16:45',
+  },
+  {
+    id: 3, name: 'Stripe', status: 'active', type: 'credit_card',
+    description: 'Accept credit cards, debit cards, Apple Pay, Google Pay and more',
+    logo: 'stripe',
+    mode: 'live',
+    fields: {
+      publishable_key: '****',
+      secret_key: '****',
+      webhook_secret: '****',
+      webhook_url: 'https://sdasms.com/api/payments/stripe/webhook',
+    },
+    supported_currencies: ['USD', 'EUR', 'GBP', 'INR', 'AUD', 'CAD', 'JPY'],
+    total_transactions: 1256,
+    total_revenue: 687400,
+    last_transaction: '2025-01-10 17:12',
+  },
+  {
+    id: 4, name: 'Manual Payment', status: 'active', type: 'manual',
+    description: 'Accept offline payments via bank transfer, check, or cash deposit with admin verification',
+    logo: 'manual',
+    mode: 'live',
+    fields: {
+      bank_name: 'National Bank of Kenya',
+      account_name: 'SDASMS Limited',
+      account_number: '0123456789012',
+      branch: 'Nairobi Main',
+      swift_code: 'NBOKENA0',
+      payment_instructions: 'Please include your account email as the payment reference. Payments are verified within 24 hours on business days.',
+    },
+    supported_currencies: ['KES', 'USD', 'EUR', 'GBP', 'UGX', 'TZS'],
+    total_transactions: 178,
+    total_revenue: 124300,
+    last_transaction: '2025-01-09 11:30',
+  },
+];
+
+export const mockPaymentTransactions = [
+  // Pesapal transactions
+  { id: 1, transaction_id: 'PSP-2025-001', gateway: 'Pesapal', customer: 'John Smith', customer_email: 'john@acmecorp.com', amount: 499.99, currency: 'KES', method: 'M-Pesa', status: 'completed', description: 'Enterprise Plan - Monthly', created_at: '2025-01-10 14:23:00', verified_at: '2025-01-10 14:25:00' },
+  { id: 2, transaction_id: 'PSP-2025-002', gateway: 'Pesapal', customer: 'Lisa Martinez', customer_email: 'lisa@latamco.com', amount: 49.99, currency: 'KES', method: 'Airtel Money', status: 'completed', description: 'Starter Plan - Monthly', created_at: '2025-01-09 10:15:00', verified_at: '2025-01-09 10:18:00' },
+  { id: 3, transaction_id: 'PSP-2025-003', gateway: 'Pesapal', customer: 'Michael Chen', customer_email: 'michael@asiainc.com', amount: 25.00, currency: 'KES', method: 'Visa', status: 'pending', description: 'SMS Credit Top-up', created_at: '2025-01-10 16:00:00', verified_at: null },
+  { id: 4, transaction_id: 'PSP-2025-004', gateway: 'Pesapal', customer: 'Aisha Patel', customer_email: 'aisha@indiatech.in', amount: 199.99, currency: 'KES', method: 'M-Pesa', status: 'failed', description: 'Business Plan - Monthly', created_at: '2025-01-08 09:30:00', verified_at: null },
+  { id: 5, transaction_id: 'PSP-2025-005', gateway: 'Pesapal', customer: 'Maria Garcia', customer_email: 'maria@bizlat.com', amount: 199.99, currency: 'KES', method: 'Mastercard', status: 'completed', description: 'Business Plan - Monthly', created_at: '2025-01-07 14:00:00', verified_at: '2025-01-07 14:05:00' },
+  // PayPal transactions
+  { id: 6, transaction_id: 'PPL-2025-001', gateway: 'PayPal', customer: 'Emma Williams', customer_email: 'emma@euromail.com', amount: 499.99, currency: 'USD', method: 'PayPal Balance', status: 'completed', description: 'Enterprise Plan - Monthly', created_at: '2025-01-10 16:45:00', verified_at: '2025-01-10 16:46:00' },
+  { id: 7, transaction_id: 'PPL-2025-002', gateway: 'PayPal', customer: 'Tom Anderson', customer_email: 'tom@nordic.se', amount: 499.99, currency: 'EUR', method: 'Credit Card', status: 'completed', description: 'Enterprise Plan - Monthly', created_at: '2025-01-10 12:30:00', verified_at: '2025-01-10 12:31:00' },
+  { id: 8, transaction_id: 'PPL-2025-003', gateway: 'PayPal', customer: 'Sarah Johnson', customer_email: 'sarah@globaltech.com', amount: 199.99, currency: 'USD', method: 'PayPal Balance', status: 'completed', description: 'Business Plan - Monthly', created_at: '2025-01-09 15:00:00', verified_at: '2025-01-09 15:02:00' },
+  { id: 9, transaction_id: 'PPL-2025-004', gateway: 'PayPal', customer: 'David Brown', customer_email: 'david@startup.io', amount: 25.00, currency: 'USD', method: 'Bank Transfer', status: 'refunded', description: 'SMS Credit Top-up', created_at: '2025-01-08 11:20:00', verified_at: '2025-01-08 11:22:00' },
+  { id: 10, transaction_id: 'PPL-2025-005', gateway: 'PayPal', customer: 'Robert Taylor', customer_email: 'robert@mktgpro.com', amount: 15.00, currency: 'GBP', method: 'Debit Card', status: 'completed', description: 'SMS Credit Top-up', created_at: '2025-01-07 09:00:00', verified_at: '2025-01-07 09:01:00' },
+  // Stripe transactions
+  { id: 11, transaction_id: 'STR-2025-001', gateway: 'Stripe', customer: 'James Wilson', customer_email: 'james@techfirm.com', amount: 499.99, currency: 'USD', method: 'Visa •••• 4242', status: 'completed', description: 'Enterprise Plan - Monthly', created_at: '2025-01-10 17:12:00', verified_at: '2025-01-10 17:12:00' },
+  { id: 12, transaction_id: 'STR-2025-002', gateway: 'Stripe', customer: 'Nina Kowalski', customer_email: 'nina@polandtel.pl', amount: 49.99, currency: 'EUR', method: 'Mastercard •••• 8888', status: 'completed', description: 'Starter Plan - Monthly', created_at: '2025-01-10 14:00:00', verified_at: '2025-01-10 14:00:00' },
+  { id: 13, transaction_id: 'STR-2025-003', gateway: 'Stripe', customer: 'John Smith', customer_email: 'john@acmecorp.com', amount: 50.00, currency: 'USD', method: 'Apple Pay', status: 'completed', description: 'SMS Credit Top-up', created_at: '2025-01-09 16:30:00', verified_at: '2025-01-09 16:30:00' },
+  { id: 14, transaction_id: 'STR-2025-004', gateway: 'Stripe', customer: 'Aisha Patel', customer_email: 'aisha@indiatech.in', amount: 199.99, currency: 'INR', method: 'Google Pay', status: 'failed', description: 'Business Plan - Monthly', created_at: '2025-01-08 08:00:00', verified_at: null },
+  { id: 15, transaction_id: 'STR-2025-005', gateway: 'Stripe', customer: 'Emma Williams', customer_email: 'emma@euromail.com', amount: 100.00, currency: 'USD', method: 'Visa •••• 1234', status: 'completed', description: 'SMS Credit Top-up', created_at: '2025-01-07 11:45:00', verified_at: '2025-01-07 11:45:00' },
+  // Manual transactions
+  { id: 16, transaction_id: 'MAN-2025-001', gateway: 'Manual Payment', customer: 'Tom Anderson', customer_email: 'tom@nordic.se', amount: 499.99, currency: 'KES', method: 'Bank Transfer', status: 'completed', description: 'Enterprise Plan - Monthly', created_at: '2025-01-09 11:30:00', verified_at: '2025-01-10 09:00:00' },
+  { id: 17, transaction_id: 'MAN-2025-002', gateway: 'Manual Payment', customer: 'Maria Garcia', customer_email: 'maria@bizlat.com', amount: 199.99, currency: 'USD', method: 'Bank Deposit', status: 'completed', description: 'Business Plan - Monthly', created_at: '2025-01-08 13:00:00', verified_at: '2025-01-08 16:00:00' },
+  { id: 18, transaction_id: 'MAN-2025-003', gateway: 'Manual Payment', customer: 'Robert Taylor', customer_email: 'robert@mktgpro.com', amount: 49.99, currency: 'KES', method: 'Check', status: 'pending', description: 'Starter Plan - Monthly', created_at: '2025-01-10 10:00:00', verified_at: null },
+  { id: 19, transaction_id: 'MAN-2025-004', gateway: 'Manual Payment', customer: 'Lisa Martinez', customer_email: 'lisa@latamco.com', amount: 30.00, currency: 'USD', method: 'Cash Deposit', status: 'rejected', description: 'SMS Credit Top-up', created_at: '2025-01-07 08:30:00', verified_at: null },
+  { id: 20, transaction_id: 'MAN-2025-005', gateway: 'Manual Payment', customer: 'David Brown', customer_email: 'david@startup.io', amount: 199.99, currency: 'KES', method: 'Bank Transfer', status: 'completed', description: 'Business Plan - Monthly', created_at: '2025-01-06 15:00:00', verified_at: '2025-01-07 10:00:00' },
 ];
 
 export const mockInvoices = [
