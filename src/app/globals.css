@@ -180,16 +180,16 @@
 }
 
 /* Input overrides */
-.dark input,
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
 .dark textarea,
 .dark select {
-  background-color: #1F2937 !important;
-  border-color: #374151 !important;
-  color: #E5E7EB !important;
+  background-color: #1F2937;
+  border-color: #374151;
+  color: #E5E7EB;
 }
 .dark input::placeholder,
 .dark textarea::placeholder {
-  color: #6B7280 !important;
+  color: #6B7280;
 }
 
 /* Table overrides */

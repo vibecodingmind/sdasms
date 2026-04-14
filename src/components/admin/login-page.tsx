@@ -5,26 +5,36 @@ import { MessageSquare, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useApp } from './app-context';
 
 export function LoginPage() {
-  const { login, isLoading, theme, toggleTheme } = useApp();
+  const { login, theme, toggleTheme } = useApp();
   const [email, setEmail] = useState('admin@admin.com');
   const [password, setPassword] = useState('password123');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setError('');
-    const success = await login(email, password);
-    if (!success) {
-      setError('Invalid email or password');
+    setSubmitting(true);
+    try {
+      const success = await login(email, password);
+      if (!success) {
+        setError('Invalid email or password');
+      }
+    } catch {
+      setError('Login failed. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4 transition-colors duration-300 relative">
-      {/* Theme toggle in top-right */}
+      {/* Theme toggle */}
       <button
         onClick={toggleTheme}
+        type="button"
         className="absolute top-4 right-4 p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:scale-110 active:scale-95 transition-all duration-200 shadow-sm"
         title={theme === 'light' ? 'Dark mode' : 'Light mode'}
       >
@@ -66,7 +76,6 @@ export function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all duration-200"
                 placeholder="Enter your email"
-                required
               />
             </div>
 
@@ -79,7 +88,6 @@ export function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6366F1] focus:border-transparent transition-all duration-200 pr-10"
                   placeholder="Enter your password"
-                  required
                 />
                 <button
                   type="button"
@@ -103,10 +111,10 @@ export function LoginPage() {
 
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full bg-[#6366F1] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#5558E6] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98]"
+              disabled={submitting}
+              className="w-full bg-[#6366F1] text-white py-2.5 rounded-lg font-medium text-sm hover:bg-[#5558E6] transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
             >
-              {isLoading ? (
+              {submitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Signing in...
@@ -121,7 +129,7 @@ export function LoginPage() {
         {/* Demo credentials */}
         <div className="mt-6 text-center">
           <p className="text-xs text-gray-400 dark:text-gray-500">
-            Demo credentials: <span className="text-gray-500 dark:text-gray-400">admin@admin.com</span> / <span className="text-gray-500 dark:text-gray-400">password123</span>
+            Demo: <span className="text-gray-500 dark:text-gray-400">admin@admin.com</span> / <span className="text-gray-500 dark:text-gray-400">password123</span>
           </p>
         </div>
       </div>
