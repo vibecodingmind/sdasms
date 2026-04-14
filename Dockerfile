@@ -58,4 +58,4 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Run DB migration + seed on startup, then start the app
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss 2>/dev/null && npx tsx prisma/seed.ts 2>/dev/null; node server.js"]
+CMD ["sh", "-c", "echo '=== DB SETUP START ===' && npx prisma db push --accept-data-loss 2>&1 && echo '=== SEEDING START ===' && npx tsx prisma/seed.ts 2>&1 && echo '=== STARTING APP ===' && node server.js"]
