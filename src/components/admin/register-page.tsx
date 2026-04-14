@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import {
   MessageSquare,
   Eye,
@@ -266,9 +267,7 @@ export function RegisterPage() {
           <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
           <div className="w-full max-w-md">
             <div className="flex flex-col items-center mb-6">
-              <div className="w-12 h-12 rounded-xl bg-[#D72444] flex items-center justify-center mb-4 shadow-lg shadow-[#D72444]/25">
-                <Building2 className="h-7 w-7 text-white" />
-              </div>
+              <Image src="/logo-icon.png" alt="SDASMS" width={48} height={48} className="w-12 h-12 object-contain mb-4" />
               <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Organization Details</h1>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Complete your organization profile</p>
             </div>
@@ -628,9 +627,7 @@ export function RegisterPage() {
         <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center mb-6">
-            <div className="w-12 h-12 rounded-xl bg-[#D72444] flex items-center justify-center mb-4 shadow-lg shadow-[#D72444]/25 hover:scale-110 transition-transform duration-200">
-              <MessageSquare className="h-7 w-7 text-white" />
-            </div>
+            <Image src="/logo-icon.png" alt="SDASMS" width={48} height={48} className="w-12 h-12 object-contain mb-4" />
             <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Create Account</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Step 1 — Choose your account type</p>
           </div>
@@ -782,9 +779,7 @@ export function RegisterPage() {
         <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
         <div className="w-full max-w-md">
           <div className="flex flex-col items-center mb-6">
-            <div className="w-12 h-12 rounded-xl bg-[#D72444] flex items-center justify-center mb-4 shadow-lg shadow-[#D72444]/25">
-              <MessageSquare className="h-7 w-7 text-white" />
-            </div>
+            <Image src="/logo-icon.png" alt="SDASMS" width={48} height={48} className="w-12 h-12 object-contain mb-4" />
             <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Your Information</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Step 2 — Tell us about yourself</p>
           </div>
@@ -865,9 +860,7 @@ export function RegisterPage() {
       <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-6">
-          <div className="w-12 h-12 rounded-xl bg-[#D72444] flex items-center justify-center mb-4 shadow-lg shadow-[#D72444]/25">
-            <Shield className="h-7 w-7 text-white" />
-          </div>
+          <Image src="/logo-icon.png" alt="SDASMS" width={48} height={48} className="w-12 h-12 object-contain mb-4" />
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Secure Your Account</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Step 3 — Set up your password</p>
         </div>
