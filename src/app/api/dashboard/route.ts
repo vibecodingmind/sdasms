@@ -9,13 +9,13 @@ export async function GET() {
       const { getDb } = await import('@/lib/db');
       const db = await getDb();
 
-      const [totalCustomers, totalReports, deliveredReports, activeSubscriptions, totalSmsUnit] =
+      const [totalCustomers, totalReports, deliveredReports, activeSubscriptions, totalSmsBalance] =
         await Promise.all([
-          db.user.count({ where: { isCustomer: true } }),
-          db.report.count(),
-          db.report.count({ where: { status: 'delivered' } }),
+          db.user.count({ where: { isAdmin: false } }),
+          db.smsReport.count(),
+          db.smsReport.count({ where: { status: 'delivered' } }),
           db.subscription.count({ where: { status: 'active' } }),
-          db.user.aggregate({ where: { isCustomer: true }, _sum: { smsUnit: true } }),
+          db.user.aggregate({ where: { isAdmin: false }, _sum: { smsBalance: true } }),
         ]);
 
       const recentInvoices = await db.invoice.findMany({
@@ -24,8 +24,8 @@ export async function GET() {
       });
 
       const topCustomers = await db.user.findMany({
-        where: { isCustomer: true }, orderBy: { smsUnit: 'desc' }, take: 5,
-        select: { firstName: true, lastName: true, email: true, smsUnit: true },
+        where: { isAdmin: false }, orderBy: { smsBalance: 'desc' }, take: 5,
+        select: { firstName: true, lastName: true, email: true, smsBalance: true },
       });
 
       return NextResponse.json({
@@ -36,7 +36,7 @@ export async function GET() {
             customersGrowth: 12.5,
             smsSentToday: totalReports || 34567,
             smsGrowth: 8.2,
-            revenue: parseFloat((totalSmsUnit._sum.smsUnit || 0).toString()) * 0.012,
+            revenue: parseFloat((totalSmsBalance._sum.smsBalance || 0).toString()) * 0.012,
             revenueGrowth: 15.3,
             activeSubscriptions,
             subscriptionsGrowth: 5.7,
@@ -45,7 +45,7 @@ export async function GET() {
           recentOrders: recentInvoices.map((inv: any) => ({
             id: inv.id,
             customer: `${inv.user.firstName} ${inv.user.lastName}`,
-            plan: 'Subscription',
+            plan: inv.type === 'subscription' ? 'Subscription' : 'Top-up',
             amount: `$${parseFloat(inv.amount.toString()).toFixed(2)}`,
             date: inv.createdAt.toISOString().split('T')[0],
             status: inv.status,
@@ -53,8 +53,8 @@ export async function GET() {
           topCustomers: topCustomers.map((c: any) => ({
             name: `${c.firstName} ${c.lastName}`,
             email: c.email,
-            sent: parseInt(c.smsUnit?.toString() || '0'),
-            revenue: `$${(parseFloat(c.smsUnit?.toString() || '0') * 0.012).toFixed(0)}`,
+            sent: parseInt(c.smsBalance?.toString() || '0'),
+            revenue: `$${(parseFloat(c.smsBalance?.toString() || '0') * 0.012).toFixed(0)}`,
           })),
           systemOverview: mockSystemOverview,
         },

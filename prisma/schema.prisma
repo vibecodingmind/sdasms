@@ -3,340 +3,219 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// Users (admins + customers in one table)
 model User {
-  id                   Int       @id @default(autoincrement())
-  uid                  String?   @unique @db.VarChar(36)
-  parentId             Int?      @map("parent_id")
-  apiToken             String?   @map("api_token") @db.VarChar(191)
-  firstName            String    @map("first_name") @db.VarChar(191)
-  lastName             String    @map("last_name") @db.VarChar(191)
-  email                String    @unique @db.VarChar(191)
-  password             String    @db.VarChar(191)
-  status               String    @default("active") @db.VarChar(191)
-  smsUnit              Decimal?  @default(0) @map("sms_unit") @db.Decimal(15, 2)
-  isAdmin              Boolean   @default(false) @map("is_admin")
-  isCustomer           Boolean   @default(false) @map("is_customer")
-  twoFactorSecret      String?   @map("two_factor_secret") @db.VarChar(191)
-  twoFactorCode        String?   @map("two_factor_code") @db.VarChar(191)
-  locale               String?   @db.VarChar(191)
-  timezone             String?   @db.VarChar(191)
-  avatar               String?   @db.VarChar(191)
-  csrfToken            String?   @map("csrf_token") @db.VarChar(191)
-  webhookUrl           String?   @map("webhook_url") @db.VarChar(191)
-  dltEntityId          String?   @map("dlt_entity_id") @db.VarChar(191)
-  dltTelemarketerId    String?   @map("dlt_telemarketer_id") @db.VarChar(191)
-  apiSendingServer     Int?      @map("api_sending_server")
-  ip                   String?   @db.VarChar(45)
-  userAgent            String?   @map("user_agent") @db.Text
-  createdAt            DateTime  @default(now()) @map("created_at")
-  updatedAt            DateTime  @updatedAt @map("updated_at")
+  id           Int       @id @default(autoincrement())
+  uid          String    @unique
+  firstName    String    @map("first_name")
+  lastName     String    @map("last_name")
+  email        String    @unique
+  password     String
+  phone        String?
+  isAdmin      Boolean   @default(false) @map("is_admin")
+  status       String    @default("active")
+  smsBalance   Decimal   @default(0) @map("sms_balance") @db.Decimal(15, 2)
+  avatar       String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
-  roles                RoleUser[]
-  campaigns            Campaign[]
-  contacts             Contact[]
-  contactGroups        ContactGroup[]
-  contactImports       ContactImport[]
-  sendingServers       SendingServer[]
-  smsRoutes            SmsRoute[]
-  blacklists           Blacklist[]
-  templates            Template[]
-  reports              Report[]
-  trackingLogs         TrackingLog[]
-  subscriptions        Subscription[]
-  payments             Payment[]
-  invoices             Invoice[]
-  topups               Topup[]
-  senderIds            SenderId[]
-  customerSettings     CustomerSetting[]
-  customerNotifications CustomerNotification[]
-  notifications        Notification[]
-  announcements        Announcement[]
-  phoneNumbers         PhoneNumber[]
-  webhooks             Webhook[]
-  fileManagers         FileManager[]
-  scheduleMessages     ScheduleMessage[]
-  segments             Segment[]
-  personalAccessTokens PersonalAccessToken[]
+  roles           UserRole[]
+  subscriptions   Subscription[]
+  campaigns       Campaign[]
+  contacts        Contact[]
+  contactGroups   ContactGroup[]
+  sendingServers  SendingServer[]
+  blacklists      Blacklist[]
+  payments        Payment[]
+  invoices        Invoice[]
+  senderIds       SenderId[]
+  notifications   Notification[]
+  smsReports      SmsReport[]
+  announcements   Announcement[] @relation("AuthorAnnouncements")
 
-  @@index([parentId])
-  @@index([email])
-  @@map("cg_users")
+  @@map("users")
 }
 
+// Roles
 model Role {
   id        Int      @id @default(autoincrement())
-  uid       String?  @unique @db.VarChar(36)
-  name      String   @db.VarChar(191)
-  status    String?  @db.VarChar(191)
+  name      String   @unique
+  status    String   @default("active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  users RoleUser[]
+  users       UserRole[]
   permissions Permission[]
 
-  @@map("cg_roles")
+  @@map("roles")
 }
 
-model RoleUser {
+model UserRole {
   userId Int @map("user_id")
   roleId Int @map("role_id")
 
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([userId, roleId])
-  @@map("cg_role_user")
+  @@map("user_roles")
 }
 
 model Permission {
   id        Int      @id @default(autoincrement())
   roleId    Int      @map("role_id")
-  name      String   @db.VarChar(191)
-  guardName String   @map("guard_name") @default("web") @db.VarChar(191)
+  name      String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@index([roleId])
-  @@map("cg_permissions")
+  @@map("permissions")
 }
 
-model PersonalAccessToken {
-  id             Int       @id @default(autoincrement())
-  tokenableType  String    @map("tokenable_type") @db.VarChar(191)
-  tokenableId    Int       @map("tokenable_id")
-  name           String    @db.VarChar(191)
-  token          String    @unique @db.VarChar(191)
-  abilities      String?   @db.Text
-  lastUsedAt     DateTime? @map("last_used_at")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-
-  user           User      @relation(fields: [tokenableId], references: [id], onDelete: Cascade)
-
-  @@map("cg_personal_access_tokens")
-}
-
-model Campaign {
-  id                 Int       @id @default(autoincrement())
-  uid                String?   @unique @db.VarChar(36)
-  userId             Int       @map("user_id")
-  campaignName       String    @map("campaign_name") @db.VarChar(191)
-  message            String?   @db.Text
-  mediaUrl           String?   @map("media_url") @db.VarChar(191)
-  scheduleTime       DateTime? @map("schedule_time")
-  scheduleType       String?   @map("schedule_type") @db.VarChar(191)
-  frequencyCycle     Int?      @map("frequency_cycle")
-  frequencyCycleUnit String?   @map("frequency_cycle_unit") @db.VarChar(191)
-  recurringEndTime   DateTime? @map("recurring_end_time")
-  dltTemplateId      String?   @map("dlt_template_id") @db.VarChar(191)
-  awsSnsArn          String?   @map("aws_sns_arn") @db.VarChar(191)
-  runningPid         Int?      @map("running_pid")
-  status             String    @default("pending") @db.VarChar(191)
-  createdAt          DateTime  @default(now()) @map("created_at")
-  updatedAt          DateTime  @updatedAt @map("updated_at")
-
-  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  campaignsLists    CampaignsList[]
-  campaignsGroups   CampaignsGroup[]
-  campaignsContacts CampaignsContact[]
-  scheduleMessages  ScheduleMessage[]
-  reports           Report[]
-
-  @@index([userId])
-  @@index([status])
-  @@map("cg_campaigns")
-}
-
-model CampaignsList {
+// Plans
+model Plan {
   id           Int      @id @default(autoincrement())
-  campaignId   Int      @map("campaign_id")
-  contactListId Int     @map("contact_list_id")
-  listType     String   @map("list_type") @db.VarChar(191)
+  uid          String   @unique
+  name         String
+  price        Decimal  @db.Decimal(15, 2)
+  billingCycle String   @map("billing_cycle")
+  features     Json     @default("{}")
+  status       String   @default("active")
+  creditPrice  Decimal? @map("credit_price") @db.Decimal(15, 4)
   createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  subscriptions Subscription[]
 
-  @@index([campaignId])
-  @@map("cg_campaigns_lists")
+  @@map("plans")
 }
 
-model CampaignsGroup {
-  id         Int      @id @default(autoincrement())
-  campaignId Int      @map("campaign_id")
-  groupId    Int      @map("group_id")
-  createdAt  DateTime @default(now()) @map("created_at")
+// Subscriptions
+model Subscription {
+  id                  Int       @id @default(autoincrement())
+  uid                 String    @unique
+  userId              Int       @map("user_id")
+  planId              Int       @map("plan_id")
+  status              String    @default("active")
+  currentPeriodEndsAt DateTime? @map("current_period_ends_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
 
-  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-
-  @@index([campaignId])
-  @@map("cg_campaigns_groups")
-}
-
-model CampaignsContact {
-  id         Int      @id @default(autoincrement())
-  campaignId Int      @map("campaign_id")
-  contactId  Int      @map("contact_id")
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-
-  @@index([campaignId])
-  @@map("cg_campaigns_contacts")
-}
-
-model ScheduleMessage {
-  id            Int       @id @default(autoincrement())
-  uid           String?   @unique @db.VarChar(36)
-  userId        Int       @map("user_id")
-  campaignId    Int?      @map("campaign_id")
-  contactId     Int?      @map("contact_id")
-  groupId       Int?      @map("group_id")
-  phone         String?   @db.VarChar(191)
-  message       String?   @db.Text
-  mediaUrl      String?   @map("media_url") @db.VarChar(191)
-  scheduleTime  DateTime? @map("schedule_time")
-  status        String?   @db.VarChar(191)
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  campaign Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan Plan @relation(fields: [planId], references: [id])
 
   @@index([userId])
-  @@map("cg_schedule_messages")
+  @@map("subscriptions")
 }
 
-model Contact {
-  id         Int      @id @default(autoincrement())
-  uid        String?  @unique @db.VarChar(36)
-  userId     Int      @map("user_id")
-  groupId    Int?     @map("group_id")
-  phone      String   @db.VarChar(191)
-  firstName  String?  @map("first_name") @db.VarChar(191)
-  lastName   String?  @map("last_name") @db.VarChar(191)
-  email      String?  @db.VarChar(191)
-  status     String   @default("subscribed") @db.VarChar(191)
-  attributes Json?    @db.Json
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+// Campaigns
+model Campaign {
+  id           Int      @id @default(autoincrement())
+  uid          String   @unique
+  userId       Int      @map("user_id")
+  name         String
+  type         String   @default("sms")
+  message      String?  @db.Text
+  status       String   @default("pending")
+  contacts     Int      @default(0)
+  delivered    Int      @default(0)
+  failed       Int      @default(0)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@map("campaigns")
+}
+
+// Contacts
+model Contact {
+  id        Int      @id @default(autoincrement())
+  uid       String   @unique
+  userId    Int      @map("user_id")
+  groupId   Int?     @map("group_id")
+  phone     String
+  firstName String?  @map("first_name")
+  lastName  String?  @map("last_name")
+  email     String?
+  status    String   @default("subscribed")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group ContactGroup? @relation(fields: [groupId], references: [id])
+
+  @@index([userId])
   @@index([phone])
-  @@map("cg_contacts")
+  @@map("contacts")
 }
 
 model ContactGroup {
   id          Int      @id @default(autoincrement())
-  uid         String?  @unique @db.VarChar(36)
+  uid         String   @unique
   userId      Int      @map("user_id")
-  name        String   @db.VarChar(191)
+  name        String
   description String?  @db.Text
-  status      String?  @default("active") @db.VarChar(191)
+  status      String   @default("active")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   contacts Contact[]
 
   @@index([userId])
-  @@map("cg_contact_groups")
+  @@map("contact_groups")
 }
 
-model Contact {
+// Sending Servers
+model SendingServer {
   id         Int      @id @default(autoincrement())
-  uid        String?  @unique @db.VarChar(36)
+  uid        String   @unique
   userId     Int      @map("user_id")
-  groupId    Int?     @map("group_id")
-  phone      String   @db.VarChar(191)
-  firstName  String?  @map("first_name") @db.VarChar(191)
-  lastName   String?  @map("last_name") @db.VarChar(191)
-  email      String?  @db.VarChar(191)
-  status     String   @default("subscribed") @db.VarChar(191)
-  attributes Json?    @db.Json
+  name       String
+  type       String
+  quotaValue Int?     @map("quota_value")
+  settings   Json     @default("{}")
+  status     String   @default("active")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  group    ContactGroup? @relation(fields: [groupId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([phone])
-  @@map("cg_contacts")
+  @@map("sending_servers")
 }
 
-model ContactImport {
-  id        Int      @id @default(autoincrement())
-  uid       String?  @unique @db.VarChar(36)
-  userId    Int      @map("user_id")
-  filePath  String?  @map("file_path") @db.VarChar(191)
-  total     Int?     @default(0)
-  imported  Int?     @default(0)
-  skipped   Int?     @default(0)
-  invalid   Int?     @default(0)
-  status    String?  @db.VarChar(191)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+// Sender IDs
+model SenderId {
+  id                  Int      @id @default(autoincrement())
+  uid                 String   @unique
+  userId              Int      @map("user_id")
+  senderId            String   @map("sender_id")
+  status              String   @default("pending")
+  supportingCountries Json?    @map("supporting_countries")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@map("cg_contact_imports")
+  @@map("sender_ids")
 }
 
-model SendingServer {
-  id             Int      @id @default(autoincrement())
-  uid            String?  @unique @db.VarChar(36)
-  userId         Int      @map("user_id")
-  name           String   @db.VarChar(191)
-  settings       Json?    @db.Json
-  type           String   @db.VarChar(191)
-  quotaValue     Int?     @map("quota_value")
-  smsPerRequest  Int?     @map("sms_per_request")
-  status         String   @default("active") @db.VarChar(191)
-  custom         String?  @db.VarChar(36)
-  awsCredentials Json?    @map("aws_credentials") @db.Json
-  otpCredentials Json?    @map("otp_credentials") @db.Json
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  smsRoutes SmsRoute[]
-
-  @@index([userId])
-  @@map("cg_sending_servers")
-}
-
-model SmsRoute {
-  id               Int      @id @default(autoincrement())
-  userId           Int      @map("user_id")
-  name             String   @db.VarChar(191)
-  sendingServerId  Int      @map("sending_server_id")
-  connectType      String?  @map("connect_type") @db.VarChar(191)
-  countryIds       Json?    @map("country_ids") @db.Json
-  status           String   @default("active") @db.VarChar(191)
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
-
-  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sendingServer  SendingServer  @relation(fields: [sendingServerId], references: [id])
-
-  @@index([userId])
-  @@map("cg_sms_routes")
-}
-
+// Blacklists
 model Blacklist {
   id        Int      @id @default(autoincrement())
-  uid       String?  @unique @db.VarChar(36)
+  uid       String   @unique
   userId    Int      @map("user_id")
-  number    String   @db.VarChar(191)
+  number    String
   reason    String?  @db.Text
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -344,332 +223,151 @@ model Blacklist {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@map("cg_blacklists")
+  @@map("blacklists")
 }
 
-model Template {
-  id        Int      @id @default(autoincrement())
-  uid       String?  @unique @db.VarChar(36)
-  userId    Int      @map("user_id")
-  name      String   @db.VarChar(191)
-  message   String?  @db.Text
-  status    String?  @default("active") @db.VarChar(191)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("cg_templates")
-}
-
-model TemplateGroup {
-  id        Int      @id @default(autoincrement())
-  uid       String?  @unique @db.VarChar(36)
-  userId    Int      @map("user_id")
-  name      String   @db.VarChar(191)
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@index([userId])
-  @@map("cg_templates_groups")
-}
-
-model Report {
-  id         Int       @id @default(autoincrement())
-  userId     Int       @map("user_id")
-  campaignId Int?      @map("campaign_id")
-  contactId  Int?      @map("contact_id")
-  from       String?   @db.VarChar(191)
-  to         String?   @db.VarChar(191)
-  message    String?   @db.Text
-  status     String?   @db.VarChar(191)
-  cost       Decimal?  @db.Decimal(15, 4)
-  smsCount   Int?      @map("sms_count")
-  direction  String?   @db.VarChar(191)
-  sendBy     String?   @map("send_by") @db.VarChar(191)
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @updatedAt @map("updated_at")
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  campaign Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-
-  @@index([userId])
-  @@index([campaignId])
-  @@index([status])
-  @@map("cg_reports")
-}
-
-model TrackingLog {
-  id              Int      @id @default(autoincrement())
-  uid             String?  @unique @db.VarChar(36)
-  messageId       String?  @map("message_id") @db.VarChar(191)
-  customerId      String?  @map("customer_id") @db.VarChar(191)
-  userId          Int      @map("user_id")
-  sendingServerId Int?     @map("sending_server_id")
-  campaignId      Int?     @map("campaign_id")
-  contactId       Int?     @map("contact_id")
-  status          String?  @db.VarChar(191)
-  cost            Decimal? @db.Decimal(15, 4)
-  error           String?  @db.Text
-  createdAt       DateTime @default(now()) @map("created_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("cg_tracking_logs")
-}
-
-model Plan {
+// Payments
+model Payment {
   id            Int      @id @default(autoincrement())
-  uid           String?  @unique @db.VarChar(36)
-  name          String   @db.VarChar(191)
-  price         Decimal  @db.Decimal(15, 2)
-  billingCycle  String   @map("billing_cycle") @db.VarChar(191)
-  options       Json?    @db.Json
-  status        String   @default("active") @db.VarChar(191)
-  isDlt         Boolean? @default(false) @map("is_dlt")
-  coverage      Json?    @db.Json
-  creditPrice   Decimal? @map("credit_price") @db.Decimal(15, 2)
+  uid           String   @unique
+  userId        Int      @map("user_id")
+  gateway       String
+  transactionId String   @map("transaction_id")
+  amount        Decimal  @db.Decimal(15, 2)
+  currency      String
+  paymentMethod String   @map("payment_method")
+  status        String   @default("pending")
+  description   String?
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
-  subscriptions Subscription[]
-
-  @@map("cg_plans")
-}
-
-model Subscription {
-  id                  Int        @id @default(autoincrement())
-  uid                 String?    @unique @db.VarChar(36)
-  userId              Int        @map("user_id")
-  planId              Int        @map("plan_id")
-  status              String     @default("new") @db.VarChar(191)
-  currentPeriodEndsAt DateTime?  @map("current_period_ends_at")
-  createdAt           DateTime   @default(now()) @map("created_at")
-  updatedAt           DateTime   @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan Plan @relation(fields: [planId], references: [id])
-
-  @@index([userId])
-  @@map("cg_subscriptions")
-}
-
-model Payment {
-  id             Int      @id @default(autoincrement())
-  uid            String?  @unique @db.VarChar(36)
-  userId         Int      @map("user_id")
-  paymentMethod  String?  @map("payment_method") @db.VarChar(191)
-  amount         Decimal  @db.Decimal(15, 2)
-  currency       String?  @db.VarChar(191)
-  status         String?  @db.VarChar(191)
-  transactionId  String?  @map("transaction_id") @db.VarChar(191)
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@map("cg_payments")
+  @@index([gateway])
+  @@map("payments")
 }
 
+// Invoices
 model Invoice {
-  id             Int      @id @default(autoincrement())
-  uid            String?  @unique @db.VarChar(36)
-  userId         Int      @map("user_id")
-  amount         Decimal  @db.Decimal(15, 2)
-  currency       String?  @db.VarChar(191)
-  status         String?  @db.VarChar(191)
-  type           String?  @db.VarChar(191)
-  transactionId  String?  @map("transaction_id") @db.VarChar(191)
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("cg_invoices")
-}
-
-model Topup {
-  id             Int      @id @default(autoincrement())
-  uid            String?  @unique @db.VarChar(36)
-  userId         Int      @map("user_id")
-  paymentMethod  String?  @map("payment_method") @db.VarChar(191)
-  amount         Decimal  @db.Decimal(15, 2)
-  currency       String?  @db.VarChar(191)
-  status         String?  @db.VarChar(191)
-  transactionId  String?  @map("transaction_id") @db.VarChar(191)
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("cg_topups")
-}
-
-model SenderId {
-  id                 Int      @id @default(autoincrement())
-  uid                String?  @unique @db.VarChar(36)
-  userId             Int      @map("user_id")
-  senderId           String   @map("sender_id") @db.VarChar(191)
-  status             String   @default("pending") @db.VarChar(191)
-  supportingCountries Json?   @map("supporting_countries") @db.Json
-  createdAt          DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("cg_senderid")
-}
-
-model CustomerSetting {
   id        Int      @id @default(autoincrement())
+  uid       String   @unique
   userId    Int      @map("user_id")
-  type      String?  @db.VarChar(191)
-  settings  Json?    @db.Json
+  invoiceNo String   @unique @map("invoice_no")
+  amount    Decimal  @db.Decimal(15, 2)
+  currency  String   @default("USD")
+  status    String   @default("unpaid")
+  type      String   @default("subscription")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@map("cg_customer_settings")
+  @@map("invoices")
 }
 
-model CustomerNotification {
-  id               Int      @id @default(autoincrement())
-  userId           Int      @map("user_id")
-  sendingServerId  Int?     @map("sending_server_id")
-  status           String?  @db.VarChar(191)
-  createdAt        DateTime @default(now()) @map("created_at")
+// Announcements
+model Announcement {
+  id        Int      @id @default(autoincrement())
+  uid       String   @unique
+  userId    Int?     @map("user_id")
+  title     String
+  message   String   @db.Text
+  status    String   @default("active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User? @relation("AuthorAnnouncements", fields: [userId], references: [id], onDelete: SetNull)
 
-  @@index([userId])
-  @@map("cg_customer_notifications_settings")
+  @@map("announcements")
 }
 
+// Notifications
 model Notification {
   id        Int      @id @default(autoincrement())
   userId    Int      @map("user_id")
-  from      String?  @db.VarChar(191)
-  to        String?  @db.VarChar(191)
+  title     String?
   message   String?  @db.Text
-  status    String?  @db.VarChar(191)
-  type      String?  @db.VarChar(191)
+  type      String?
+  status    String   @default("unread")
   createdAt DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@map("cg_notification")
+  @@map("notifications")
 }
 
-model Announcement {
+// SMS Reports
+model SmsReport {
   id        Int      @id @default(autoincrement())
-  uid       String?  @unique @db.VarChar(36)
-  userId    Int?     @map("user_id")
-  title     String?  @db.VarChar(191)
-  message   String?  @db.Text
-  status    String?  @db.VarChar(191)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("cg_announcements")
-}
-
-model PhoneNumber {
-  id            Int      @id @default(autoincrement())
-  uid           String?  @unique @db.VarChar(36)
-  userId        Int      @map("user_id")
-  number        String   @db.VarChar(191)
-  country       String?  @db.VarChar(191)
-  provider      String?  @db.VarChar(191)
-  status        String?  @db.VarChar(191)
-  capabilities  Json?    @db.Json
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("cg_phone_numbers")
-}
-
-model Segment {
-  id            Int      @id @default(autoincrement())
-  uid           String?  @unique @db.VarChar(36)
-  userId        Int      @map("user_id")
-  name          String   @db.VarChar(191)
-  segmentType   String?  @map("segment_type") @db.VarChar(191)
-  segmentLogic  Json?    @map("segment_logic") @db.Json
-  conditions    Json?    @db.Json
-  status        String?  @db.VarChar(191)
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("cg_segments")
-}
-
-model Webhook {
-  id        Int      @id @default(autoincrement())
-  uid       String?  @unique @db.VarChar(36)
   userId    Int      @map("user_id")
-  url       String   @db.VarChar(191)
-  events    Json?    @db.Json
-  status    String?  @db.VarChar(191)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("cg_webhooks")
-}
-
-model FileManager {
-  id        Int      @id @default(autoincrement())
-  uid       String?  @unique @db.VarChar(36)
-  userId    Int      @map("user_id")
-  name      String   @db.VarChar(191)
-  filePath  String?  @map("file_path") @db.VarChar(191)
-  extension String?  @db.VarChar(191)
-  mimeType  String?  @map("mime_type") @db.VarChar(191)
-  size      Int?
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("cg_file_manager")
-}
-
-model Plugin {
-  id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(191)
-  settings  Json?    @db.Json
-  status    String?  @db.VarChar(191)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("cg_plugins")
-}
-
-model ServerNotification {
-  id        Int      @id @default(autoincrement())
-  type      String?  @db.VarChar(191)
+  from      String?
+  to        String?
   message   String?  @db.Text
-  status    String?  @db.VarChar(191)
+  status    String?
+  cost      Decimal? @db.Decimal(15, 4)
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@map("cg_server_notifications")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("sms_reports")
+}
+
+// Countries
+model Country {
+  id        Int      @id @default(autoincrement())
+  name      String
+  code      String   @unique
+  phoneCode String   @map("phone_code")
+  status    String   @default("active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("countries")
+}
+
+// Currencies
+model Currency {
+  id        Int      @id @default(autoincrement())
+  name      String
+  code      String   @unique
+  symbol    String
+  rate      Decimal  @default(1) @db.Decimal(15, 4)
+  status    String   @default("active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("currencies")
+}
+
+// Email Templates
+model EmailTemplate {
+  id        Int      @id @default(autoincrement())
+  name      String
+  subject   String
+  type      String
+  body      String   @db.Text
+  status    String   @default("active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("email_templates")
+}
+
+// Languages
+model Language {
+  id        Int     @id @default(autoincrement())
+  name      String
+  code      String  @unique
+  direction String  @default("LTR")
+  status    String  @default("active")
+  isDefault Boolean @default(false) @map("is_default")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("languages")
 }

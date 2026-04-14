@@ -10,10 +10,10 @@ export async function GET() {
       const db = await getDb();
 
       const users = await db.user.findMany({
-        where: { isCustomer: true },
+        where: { isAdmin: false },
         select: {
           id: true, uid: true, firstName: true, lastName: true,
-          email: true, status: true, smsUnit: true, createdAt: true,
+          email: true, phone: true, status: true, smsBalance: true, createdAt: true,
           subscriptions: { where: { status: 'active' }, include: { plan: true }, take: 1 },
         },
         orderBy: { id: 'asc' },
@@ -22,9 +22,9 @@ export async function GET() {
       const data = users.map((u: any) => ({
         id: u.id, uid: u.uid,
         first_name: u.firstName, last_name: u.lastName,
-        email: u.email, phone: '',
+        email: u.email, phone: u.phone || '',
         plan: u.subscriptions[0]?.plan?.name || 'Starter',
-        sms_balance: parseFloat(u.smsUnit?.toString() || '0'),
+        sms_balance: parseFloat(u.smsBalance?.toString() || '0'),
         status: u.status,
         joined: u.createdAt.toISOString().split('T')[0],
       }));
@@ -55,9 +55,10 @@ export async function POST(request: Request) {
             uid: `c-${Date.now()}`,
             firstName: body.first_name, lastName: body.last_name,
             email: body.email, password: hashedPassword,
-            phone: body.phone || '', smsUnit: body.sms_balance || 0,
-            status: body.status || 'active', isAdmin: false, isCustomer: true,
-            apiToken: `cust-api-${Date.now()}`,
+            phone: body.phone || null,
+            smsBalance: body.sms_balance || 0,
+            status: body.status || 'active',
+            isAdmin: false,
           },
         });
 

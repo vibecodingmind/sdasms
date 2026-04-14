@@ -18,15 +18,15 @@ const demoUsers: Record<string, { password: string; user: any }> = {
   },
   'john@acmecorp.com': {
     password: 'customer123',
-    user: { ...mockCustomers[0], is_admin: false, is_customer: true },
+    user: { ...mockCustomers[0], is_admin: false },
   },
   'sarah@globaltech.com': {
     password: 'customer123',
-    user: { ...mockCustomers[1], is_admin: false, is_customer: true },
+    user: { ...mockCustomers[1], is_admin: false },
   },
   'emma@euromail.com': {
     password: 'customer123',
-    user: { ...mockCustomers[3], is_admin: false, is_customer: true },
+    user: { ...mockCustomers[3], is_admin: false },
   },
 };
 
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
         if (user) {
           const isValid = await compare(password, user.password);
           if (isValid) {
-            const planData = user.isCustomer ? await db.subscription.findFirst({
+            const planData = !user.isAdmin ? await db.subscription.findFirst({
               where: { userId: user.id, status: 'active' },
               include: { plan: true },
             }) : null;
@@ -60,9 +60,9 @@ export async function POST(request: NextRequest) {
               user: {
                 id: user.id, uid: user.uid,
                 first_name: user.firstName, last_name: user.lastName,
-                email: user.email, is_admin: user.isAdmin, is_customer: user.isCustomer,
+                email: user.email, is_admin: user.isAdmin,
                 avatar: user.avatar, status: user.status,
-                sms_unit: parseFloat(user.smsUnit?.toString() || '0'),
+                sms_balance: parseFloat(user.smsBalance?.toString() || '0'),
                 plan: planData?.plan?.name || null,
                 roles: user.roles.map((r: any) => r.role.name),
               },
