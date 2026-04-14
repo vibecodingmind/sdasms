@@ -5,7 +5,7 @@ import { MessageSquare, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useApp } from './app-context';
 
 export function LoginPage() {
-  const { login, theme, toggleTheme } = useApp();
+  const { login, theme, toggleTheme, setAuthMode } = useApp();
   const [email, setEmail] = useState('admin@admin.com');
   const [password, setPassword] = useState('password123');
   const [showPassword, setShowPassword] = useState(false);
@@ -126,8 +126,21 @@ export function LoginPage() {
           </form>
         </div>
 
+        {/* Switch to register */}
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Don&apos;t have an account?{' '}
+            <button
+              onClick={() => setAuthMode('register')}
+              className="text-[#6366F1] hover:underline font-medium"
+            >
+              Create Account
+            </button>
+          </p>
+        </div>
+
         {/* Demo credentials */}
-        <div className="mt-6 text-center">
+        <div className="mt-3 text-center">
           <p className="text-xs text-gray-400 dark:text-gray-500">
             Demo: <span className="text-gray-500 dark:text-gray-400">admin@admin.com</span> / <span className="text-gray-500 dark:text-gray-400">password123</span>
           </p>

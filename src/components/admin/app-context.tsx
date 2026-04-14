@@ -33,6 +33,16 @@ export type ViewId =
   | 'invoices'
   | 'theme-customizer';
 
+interface RegisterData {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  company: string;
+  password: string;
+  password_confirm: string;
+}
+
 interface AdminUser {
   id: number;
   uid: string;
@@ -52,12 +62,15 @@ interface AppContextType {
   sidebarOpen: boolean;
   expandedMenus: string[];
   theme: 'light' | 'dark';
+  authMode: 'login' | 'register';
   login: (email: string, password: string) => Promise<boolean>;
+  register: (data: RegisterData) => Promise<boolean>;
   logout: () => void;
   setCurrentView: (view: ViewId) => void;
   toggleSidebar: () => void;
   toggleMenu: (menu: string) => void;
   toggleTheme: () => void;
+  setAuthMode: (mode: 'login' | 'register') => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -70,6 +83,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['Customer']);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
 
   // Apply dark class to html element on theme change
   useEffect(() => {
@@ -98,6 +112,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return true;
     }
     return false;
+  }, []);
+
+  const register = useCallback(async (data: RegisterData): Promise<boolean> => {
+    // Mock register — accepts any valid data
+    if (data.password !== data.password_confirm) return false;
+    if (!data.first_name || !data.email || !data.password) return false;
+    setUser({
+      id: Date.now(),
+      uid: `user-${Date.now()}`,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      email: data.email,
+      is_admin: false,
+      avatar: null,
+      status: 'active',
+    });
+    setIsAuthenticated(true);
+    return true;
   }, []);
 
   const logout = useCallback(() => {
@@ -130,12 +162,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
         sidebarOpen,
         expandedMenus,
         theme,
+        authMode,
         login,
+        register,
         logout,
         setCurrentView,
         toggleSidebar,
         toggleMenu,
         toggleTheme,
+        setAuthMode,
       }}
     >
       {children}
