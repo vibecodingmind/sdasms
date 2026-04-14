@@ -2,10 +2,11 @@ FROM node:20-alpine AS base
 
 # Install dependencies
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json* prisma/ ./
+COPY prisma ./prisma/
 RUN npm install --legacy-peer-deps
 
 # Build
@@ -13,6 +14,8 @@ FROM base AS builder
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package.json ./
+COPY --from=deps /app/prisma ./prisma/
 COPY . .
 
 RUN npx prisma generate
@@ -32,6 +35,9 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 RUN mkdir .next
 RUN chown nextjs:nodejs .next
@@ -46,4 +52,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+# Run DB migration + seed on startup, then start the app
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss 2>/dev/null && npx tsx prisma/seed.ts 2>/dev/null; node server.js"]
