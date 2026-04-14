@@ -67,6 +67,7 @@ model UserRole {
 
 model Permission {
   id        Int      @id @default(autoincrement())
+  uid       String   @unique
   roleId    Int      @map("role_id")
   name      String
   createdAt DateTime @default(now()) @map("created_at")
@@ -286,6 +287,7 @@ model Announcement {
 // Notifications
 model Notification {
   id        Int      @id @default(autoincrement())
+  uid       String   @unique
   userId    Int      @map("user_id")
   title     String?
   message   String?  @db.Text
@@ -347,6 +349,7 @@ model Currency {
 // Email Templates
 model EmailTemplate {
   id        Int      @id @default(autoincrement())
+  uid       String   @unique
   name      String
   subject   String
   type      String

@@ -129,9 +129,9 @@ async function main() {
       if (!roleId) continue;
       for (const perm of perms) {
         await prisma.permission.upsert({
-          where: { id: -1 * (roleId + perms.indexOf(perm)) },
+          where: { uid: `perm-${roleName}-${perm}`.toLowerCase().replace(/\s+/g, '-') },
           update: {},
-          create: { roleId, name: perm },
+          create: { uid: `perm-${roleName}-${perm}`.toLowerCase().replace(/\s+/g, '-'), roleId, name: perm },
         });
       }
     }
@@ -472,9 +472,10 @@ async function main() {
       const userId = userById[n.email];
       if (!userId) continue;
       await prisma.notification.upsert({
-        where: { id: 9990 + i },
+        where: { uid: `notif-${i + 1}` },
         update: {},
         create: {
+          uid: `notif-${i + 1}`,
           userId,
           title: n.title,
           message: n.message,
@@ -602,10 +603,12 @@ async function main() {
     ];
 
     for (const t of emailTemplates) {
+      const idx = emailTemplates.indexOf(t) + 1;
       await prisma.emailTemplate.upsert({
-        where: { id: -1 * (emailTemplates.indexOf(t) + 1) },
+        where: { uid: `tmpl-${idx}` },
         update: {},
         create: {
+          uid: `tmpl-${idx}`,
           name: t.name,
           subject: t.subject,
           type: t.type,
