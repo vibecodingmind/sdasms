@@ -2,7 +2,7 @@ FROM node:20-alpine AS base
 
 # Install dependencies
 FROM base AS deps
-RUN apk add --no-cache libc6-compat openssl
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
@@ -11,19 +11,11 @@ RUN npm install --legacy-peer-deps
 # Build
 FROM base AS builder
 WORKDIR /app
-RUN apk add --no-cache openssl
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
-
-# Skip prisma generate if no DATABASE_URL set (pure demo mode)
-RUN if [ -n "$DATABASE_URL" ] && [ "$DATABASE_URL" != "mysql://root:password@localhost:3306/sdasms_sdasms" ]; then \
-      npx prisma generate; \
-    else \
-      echo "No database configured — running in demo mode"; \
-    fi
 
 RUN npm run build
 
@@ -38,11 +30,6 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
-
-# Copy Prisma client if it was generated
-RUN mkdir -p node_modules/.prisma node_modules/@prisma 2>/dev/null || true
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma 2>/dev/null || true
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma 2>/dev/null || true
 
 RUN mkdir .next
 RUN chown nextjs:nodejs .next

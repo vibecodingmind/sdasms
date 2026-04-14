@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { isDatabaseConnected, db } from '@/lib/db';
+import { isDatabaseConnected } from '@/lib/db';
 import { mockAdmin, mockCustomers } from '@/lib/mock-data';
 
 // Demo users (works without any database)
-const demoUsers: Record<string, { password: string; user: typeof mockAdmin }> = {
+const demoUsers: Record<string, { password: string; user: any }> = {
   'admin@admin.com': {
     password: 'password123',
     user: mockAdmin,
@@ -38,6 +38,9 @@ export async function POST(request: NextRequest) {
     if (isDatabaseConnected()) {
       try {
         const { compare } = await import('bcryptjs');
+        const { getDb } = await import('@/lib/db');
+        const db = await getDb();
+
         const user = await db.user.findUnique({
           where: { email },
           include: { roles: { include: { role: true } } },
@@ -61,7 +64,7 @@ export async function POST(request: NextRequest) {
                 avatar: user.avatar, status: user.status,
                 sms_unit: parseFloat(user.smsUnit?.toString() || '0'),
                 plan: planData?.plan?.name || null,
-                roles: user.roles.map(r => r.role.name),
+                roles: user.roles.map((r: any) => r.role.name),
               },
             });
           }
