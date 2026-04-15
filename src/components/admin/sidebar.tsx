@@ -49,6 +49,7 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { label: 'Dashboard', icon: <LayoutDashboard className="h-4 w-4" />, view: 'dashboard' },
+  { label: 'Compose SMS', icon: <Send className="h-4 w-4" />, view: 'compose-sms' },
   {
     label: 'Customer',
     icon: <Users className="h-4 w-4" />,

@@ -73,6 +73,7 @@ export const mockSendingServers = [
   { id: 5, uid: "srv-005", name: "MSG91 OTP Server", type: "otp", quota_value: 200000, status: "active", settings: { auth_key: "****" } },
   { id: 6, uid: "srv-006", name: "Plivo HTTP API", type: "http", quota_value: 75000, status: "active", settings: { auth_id: "****", auth_token: "****" } },
   { id: 7, uid: "srv-007", name: "Route Mobile SMPP", type: "smpp", quota_value: 300000, status: "inactive", settings: { host: "smpp.routemobile.com", port: 2776 } },
+  { id: 8, uid: "srv-008", name: "Beem Africa SMS Gateway", type: "beem", quota_value: 500000, status: "active", settings: { api_key: "****", secret_key: "****", sender_id: "SDASMS" } },
 ];
 
 export const mockSenderIds = [
@@ -392,6 +393,10 @@ export const mockSettings = {
   ai_enabled: false,
   ai_api_key: "",
   ai_model: "gpt-3.5-turbo",
+  beem_api_key: "",
+  beem_secret_key: "",
+  beem_sender_id: "SDASMS",
+  beem_enabled: false,
   terms_of_use: "# Terms of Use\n\n## 1. Acceptance of Terms\n\nBy accessing and using SDASMS, you agree to be bound by these Terms of Use...\n\n## 2. Service Description\n\nSDASMS provides bulk SMS and multi-channel messaging services...\n\n## 3. User Responsibilities\n\nUsers are responsible for maintaining the confidentiality of their account...",
   privacy_policy: "# Privacy Policy\n\n## 1. Information Collection\n\nWe collect information you provide directly to us, including name, email, phone number...\n\n## 2. Use of Information\n\nWe use the information we collect to provide, maintain, and improve our services...\n\n## 3. Data Security\n\nWe implement appropriate technical and organizational security measures...",
   current_version: "v3.2.1",

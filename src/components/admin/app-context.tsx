@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, Rea
 
 export type ViewId =
   | 'dashboard'
+  | 'compose-sms'
   | 'customers'
   | 'subscription'
   | 'announcements'
@@ -103,7 +104,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [currentView, setCurrentView] = useState<ViewId>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [expandedMenus, setExpandedMenus] = useState<string[]>(['Customer']);
+  const [expandedMenus, setExpandedMenus] = useState<string[]>(['Customer', 'Sending']);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [impersonatedCustomer, setImpersonatedCustomer] = useState<CustomerUser | null>(null);

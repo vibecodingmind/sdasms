@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Zap } from 'lucide-react';
+import { Plus, Edit, Trash2, Zap, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,23 +20,49 @@ const typeColors: Record<string, string> = {
   whatsapp: 'bg-green-100 text-green-700',
   viber: 'bg-rose-100 text-rose-700',
   otp: 'bg-orange-100 text-orange-700',
+  beem: 'bg-purple-100 text-purple-700',
 };
 
 const typeIcons: Record<string, string> = {
-  http: '🌐', smpp: '🔗', whatsapp: '💬', viber: '📱', otp: '🔑',
+  http: '🌐', smpp: '🔗', whatsapp: '💬', viber: '📱', otp: '🔑', beem: '📡',
 };
 
 export function SendingServersView() {
   const [servers, setServers] = useState<SendingServer[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+  const [testingId, setTestingId] = useState<number | null>(null);
+  const [testResult, setTestResult] = useState<Record<number, 'success' | 'error'>>({});
 
   useEffect(() => {
     fetch('/api/sending-servers').then((r) => r.json()).then((r) => setServers(r.data || [])).catch(() => {});
   }, []);
 
   const filtered = activeTab === 'all' ? servers : servers.filter((s) => s.type === activeTab);
-  const types = ['all', 'http', 'smpp', 'whatsapp', 'viber', 'otp'];
+  const types = ['all', 'http', 'smpp', 'whatsapp', 'viber', 'otp', 'beem'];
+
+  const testConnection = async (server: SendingServer) => {
+    setTestingId(server.id);
+    try {
+      if (server.type === 'beem') {
+        const res = await fetch('/api/sms/balance');
+        const data = await res.json();
+        if (data.success) {
+          setTestResult((prev) => ({ ...prev, [server.id]: 'success' }));
+        } else {
+          setTestResult((prev) => ({ ...prev, [server.id]: 'error' }));
+        }
+      } else {
+        // Simulate test for non-beem servers
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setTestResult((prev) => ({ ...prev, [server.id]: 'success' }));
+      }
+    } catch {
+      setTestResult((prev) => ({ ...prev, [server.id]: 'error' }));
+    } finally {
+      setTestingId(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -62,6 +88,7 @@ export function SendingServersView() {
                     <SelectItem value="whatsapp">WhatsApp</SelectItem>
                     <SelectItem value="viber">Viber</SelectItem>
                     <SelectItem value="otp">OTP</SelectItem>
+                    <SelectItem value="beem">Beem</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -78,7 +105,7 @@ export function SendingServersView() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {types.filter(t => t !== 'all').map((type) => {
           const count = servers.filter(s => s.type === type).length;
           return (
@@ -126,7 +153,24 @@ export function SendingServersView() {
                 <span className={`text-xs font-medium ${server.status === 'active' ? 'text-green-600' : 'text-gray-500'}`}>{server.status}</span>
               </div>
               <div className="flex gap-2 pt-3 border-t border-gray-100">
-                <Button size="sm" variant="outline" className="h-7 text-xs flex-1"><Zap className="h-3 w-3 mr-1" />Test</Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-xs flex-1"
+                  onClick={() => testConnection(server)}
+                  disabled={testingId === server.id}
+                >
+                  {testingId === server.id ? (
+                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                  ) : testResult[server.id] === 'success' ? (
+                    <CheckCircle2 className="h-3 w-3 mr-1 text-green-500" />
+                  ) : testResult[server.id] === 'error' ? (
+                    <XCircle className="h-3 w-3 mr-1 text-red-500" />
+                  ) : (
+                    <Zap className="h-3 w-3 mr-1" />
+                  )}
+                  {testingId === server.id ? 'Testing...' : testResult[server.id] === 'success' ? 'Connected' : testResult[server.id] === 'error' ? 'Failed' : 'Test'}
+                </Button>
                 <Button size="sm" variant="outline" className="h-7 text-xs"><Edit className="h-3 w-3" /></Button>
                 <Button size="sm" variant="outline" className="h-7 text-xs text-red-500"><Trash2 className="h-3 w-3" /></Button>
               </div>

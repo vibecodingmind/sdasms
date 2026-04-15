@@ -15,6 +15,7 @@ const LoadingFallback = () => (
 );
 
 const DashboardView = dynamic(() => import('./views/dashboard-view').then(m => ({ default: m.DashboardView })), { loading: LoadingFallback });
+const ComposeSmsView = dynamic(() => import('./views/compose-sms-view').then(m => ({ default: m.ComposeSmsView })), { loading: LoadingFallback });
 const CustomersView = dynamic(() => import('./views/customers-view').then(m => ({ default: m.CustomersView })), { loading: LoadingFallback });
 const SubscriptionView = dynamic(() => import('./views/subscription-view').then(m => ({ default: m.SubscriptionView })), { loading: LoadingFallback });
 const AnnouncementsView = dynamic(() => import('./views/announcements-view').then(m => ({ default: m.AnnouncementsView })), { loading: LoadingFallback });
@@ -50,6 +51,8 @@ function ViewRouter() {
   switch (currentView) {
     case 'dashboard':
       return <DashboardView />;
+    case 'compose-sms':
+      return <ComposeSmsView />;
     case 'customers':
       return <CustomersView />;
     case 'subscription':
