@@ -1,74 +1,122 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Plus, Unlock, Trash2 } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Plus, Search, Download, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { mockBlockedSenderIds } from '@/lib/mock-data';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+interface BlockedSender { id: number; sender_id: string; reason: string; blocked_date: string; }
 
 export function BlockedSenderIdView() {
-  const [blocked, setBlocked] = useState(mockBlockedSenderIds);
+  const [blocked, setBlocked] = useState<BlockedSender[]>([]);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const unblock = (id: number) => setBlocked(blocked.filter((b) => b.id !== id));
+  useEffect(() => {
+    import('@/lib/mock-data').then(m => setBlocked(m.mockBlockedSenderIds));
+  }, []);
+
+  const filtered = useMemo(() => {
+    if (!search) return blocked;
+    const q = search.toLowerCase();
+    return blocked.filter(b => b.sender_id.toLowerCase().includes(q) || b.reason.toLowerCase().includes(q));
+  }, [blocked, search]);
+
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
+  const paginated = filtered.slice((page - 1) * perPage, page * perPage);
+  const startIdx = (page - 1) * perPage + 1;
+  const endIdx = Math.min(page * perPage, total);
+
+  const deleteEntry = (id: number) => setBlocked(prev => prev.filter(b => b.id !== id));
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-800">Blocked Sender ID</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Manage blocked sender IDs</p>
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" className="bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700">
+            Actions <ChevronLeft className="h-3 w-3 ml-1 rotate-90" />
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-emerald-500 hover:bg-emerald-600 text-white"><Plus className="h-4 w-4 mr-1.5" /> Add New</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Block Sender ID</DialogTitle></DialogHeader>
+              <form className="space-y-4" onSubmit={e => { e.preventDefault(); setDialogOpen(false); }}>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Sender ID</label><Input placeholder="SENDERID" /></div>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Reason</label><Textarea placeholder="Reason for blocking" /></div>
+                <div className="flex justify-end gap-3 pt-2">
+                  <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                  <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-white">Block</Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+          <Button variant="outline" className="bg-teal-500 text-white border-teal-500 hover:bg-teal-600">
+            <Download className="h-4 w-4 mr-1.5" /> Export
+          </Button>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white"><Plus className="h-4 w-4 mr-2" /> Block Sender ID</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>Block Sender ID</DialogTitle></DialogHeader>
-            <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setDialogOpen(false); }}>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">Sender ID</label><Input placeholder="SENDERID" /></div>
-              <div><label className="block text-sm font-medium text-gray-700 mb-1">Reason</label><Textarea placeholder="Reason for blocking" /></div>
-              <div className="flex justify-end gap-3 pt-2">
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-                <Button type="submit" className="bg-[#D72444] hover:bg-[#C01E3A] text-white">Block</Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-56">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input placeholder="Search" className="pl-9" value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
+          </div>
+          <Select value={String(perPage)} onValueChange={v => { setPerPage(Number(v)); setPage(1); }}>
+            <SelectTrigger className="w-[70px]"><SelectValue /></SelectTrigger>
+            <SelectContent><SelectItem value="10">10</SelectItem><SelectItem value="25">25</SelectItem><SelectItem value="50">50</SelectItem></SelectContent>
+          </Select>
+        </div>
       </div>
 
-      <Card className="border-0 shadow-sm">
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-50/50">
-                <TableHead className="text-xs text-gray-500 font-medium">Sender ID</TableHead>
-                <TableHead className="text-xs text-gray-500 font-medium">Reason</TableHead>
-                <TableHead className="text-xs text-gray-500 font-medium">Blocked Date</TableHead>
-                <TableHead className="text-xs text-gray-500 font-medium">Actions</TableHead>
+      <Card className="border-0 shadow-sm"><CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-50/50">
+              <TableHead className="text-xs text-gray-500 font-semibold uppercase">Sender ID</TableHead>
+              <TableHead className="text-xs text-gray-500 font-semibold uppercase">Reason</TableHead>
+              <TableHead className="text-xs text-gray-500 font-semibold uppercase">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginated.length === 0 ? (
+              <TableRow><TableCell colSpan={3} className="text-center py-12 text-gray-400">No results available</TableCell></TableRow>
+            ) : paginated.map(b => (
+              <TableRow key={b.id} className="hover:bg-gray-50/50 border-b border-gray-100">
+                <TableCell className="text-sm font-mono font-semibold text-gray-800">{b.sender_id}</TableCell>
+                <TableCell className="text-sm text-gray-500 max-w-xs truncate">{b.reason}</TableCell>
+                <TableCell>
+                  <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50" onClick={() => deleteEntry(b.id)}>
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {blocked.map((b) => (
-                <TableRow key={b.id} className="hover:bg-gray-50/50">
-                  <TableCell className="text-sm font-mono font-semibold text-red-600">{b.sender_id}</TableCell>
-                  <TableCell className="text-sm text-gray-500 max-w-xs truncate">{b.reason}</TableCell>
-                  <TableCell className="text-sm text-gray-500">{b.blocked_date}</TableCell>
-                  <TableCell>
-                    <Button size="sm" variant="outline" className="h-7 text-xs text-green-600 border-green-200 hover:bg-green-50" onClick={() => unblock(b.id)}>
-                      <Unlock className="h-3 w-3 mr-1" /> Unblock
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent></Card>
+
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-gray-500">
+        <span>Showing {total > 0 ? startIdx : 0} to {endIdx} of {total} entries</span>
+        <div className="flex items-center gap-1">
+          <Button size="icon" variant="outline" className="h-8 w-8" disabled><ChevronsLeft className="h-4 w-4" /></Button>
+          <Button size="icon" variant="outline" className="h-8 w-8" disabled><ChevronLeft className="h-4 w-4" /></Button>
+          <div className="flex items-center gap-1 mx-1">
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => (
+              <Button key={i + 1} size="icon" variant={page === i + 1 ? 'default' : 'outline'} className={`h-8 w-8 text-xs ${page === i + 1 ? 'bg-indigo-600' : ''}`} onClick={() => setPage(i + 1)}>{i + 1}</Button>
+            ))}
+          </div>
+          <Button size="icon" variant="outline" className="h-8 w-8"><ChevronRight className="h-4 w-4" /></Button>
+          <Button size="icon" variant="outline" className="h-8 w-8"><ChevronsRight className="h-4 w-4" /></Button>
+        </div>
+      </div>
     </div>
   );
 }

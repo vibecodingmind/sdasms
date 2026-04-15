@@ -1,92 +1,124 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Plus, X, Tag } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Plus, Search, Download, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { mockSpamWords } from '@/lib/mock-data';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+interface SpamWord { id: number; word: string; category: string; }
 
 export function SpamWordsView() {
-  const [words, setWords] = useState(mockSpamWords);
-  const [newWord, setNewWord] = useState('');
-  const [newCategory, setNewCategory] = useState('spam');
+  const [words, setWords] = useState<SpamWord[]>([]);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  const addWord = () => {
-    if (newWord.trim()) {
-      setWords([...words, { id: words.length + 1, word: newWord.toUpperCase(), category: newCategory }]);
-      setNewWord('');
+  useEffect(() => {
+    import('@/lib/mock-data').then(m => {
+      setWords(m.mockSpamWords.map(w => ({ ...w, word: w.word.toUpperCase() })));
+    });
+  }, []);
+
+  const filtered = useMemo(() => {
+    if (!search) return words;
+    const q = search.toUpperCase();
+    return words.filter(w => w.word.includes(q));
+  }, [words, search]);
+
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / perPage));
+  const paginated = filtered.slice((page - 1) * perPage, page * perPage);
+  const startIdx = (page - 1) * perPage + 1;
+  const endIdx = Math.min(page * perPage, total);
+
+  const deleteWord = (id: number) => setWords(prev => prev.filter(w => w.id !== id));
+  const addWord = (word: string) => {
+    if (word.trim()) {
+      setWords(prev => [...prev, { id: Date.now(), word: word.toUpperCase(), category: 'spam' }]);
     }
   };
 
-  const removeWord = (id: number) => {
-    setWords(words.filter((w) => w.id !== id));
-  };
-
-  const filtered = words.filter((w) => w.word.includes(search.toUpperCase()) || w.category.includes(search.toLowerCase()));
-  const categories = [...new Set(words.map((w) => w.category))];
-
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-gray-800">Spam Words</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Manage spam word filters</p>
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" className="bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700">
+            Actions <ChevronLeft className="h-3 w-3 ml-1 rotate-90" />
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-emerald-500 hover:bg-emerald-600 text-white"><Plus className="h-4 w-4 mr-1.5" /> Add New</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader><DialogTitle>Add Spam Word</DialogTitle></DialogHeader>
+              <form className="space-y-4" onSubmit={e => { e.preventDefault(); const fd = new FormData(e.currentTarget); addWord(fd.get('word') as string); setDialogOpen(false); }}>
+                <div><label className="block text-sm font-medium text-gray-700 mb-1">Spam Word</label><Input name="word" placeholder="Enter spam word" /></div>
+                <div className="flex justify-end gap-3 pt-2">
+                  <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+                  <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600 text-white">Add</Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+          <Button variant="outline" className="bg-teal-500 text-white border-teal-500 hover:bg-teal-600">
+            <Download className="h-4 w-4 mr-1.5" /> Export
+          </Button>
+        </div>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-56">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input placeholder="Search" className="pl-9" value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
+          </div>
+          <Select value={String(perPage)} onValueChange={v => { setPerPage(Number(v)); setPage(1); }}>
+            <SelectTrigger className="w-[70px]"><SelectValue /></SelectTrigger>
+            <SelectContent><SelectItem value="10">10</SelectItem><SelectItem value="25">25</SelectItem><SelectItem value="50">50</SelectItem></SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {/* Add new */}
-      <Card className="border-0 shadow-sm">
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Input placeholder="Enter spam word..." value={newWord} onChange={(e) => setNewWord(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addWord()} className="flex-1" />
-            <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white">
-              <option value="spam">Spam</option>
-              <option value="scam">Scam</option>
-              <option value="phishing">Phishing</option>
-              <option value="financial">Financial</option>
-            </select>
-            <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white shrink-0" onClick={addWord}><Plus className="h-4 w-4 mr-2" /> Add Word</Button>
+      <Card className="border-0 shadow-sm"><CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-50/50">
+              <TableHead className="text-xs text-gray-500 font-semibold uppercase">Spam Word</TableHead>
+              <TableHead className="text-xs text-gray-500 font-semibold uppercase">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginated.length === 0 ? (
+              <TableRow><TableCell colSpan={2} className="text-center py-12 text-gray-400">No results available</TableCell></TableRow>
+            ) : paginated.map(w => (
+              <TableRow key={w.id} className="hover:bg-gray-50/50 border-b border-gray-100">
+                <TableCell className="text-sm font-semibold text-gray-800">{w.word}</TableCell>
+                <TableCell>
+                  <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-red-50" onClick={() => deleteWord(w.id)}>
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent></Card>
+
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-gray-500">
+        <span>Showing {total > 0 ? startIdx : 0} to {endIdx} of {total} entries</span>
+        <div className="flex items-center gap-1">
+          <Button size="icon" variant="outline" className="h-8 w-8" disabled={page <= 1} onClick={() => setPage(1)}><ChevronsLeft className="h-4 w-4" /></Button>
+          <Button size="icon" variant="outline" className="h-8 w-8" disabled={page <= 1} onClick={() => setPage(p => p - 1)}><ChevronLeft className="h-4 w-4" /></Button>
+          <div className="flex items-center gap-1 mx-1">
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => (
+              <Button key={i + 1} size="icon" variant={page === i + 1 ? 'default' : 'outline'} className={`h-8 w-8 text-xs ${page === i + 1 ? 'bg-indigo-600' : ''}`} onClick={() => setPage(i + 1)}>{i + 1}</Button>
+            ))}
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Search */}
-      <Card className="border-0 shadow-sm">
-        <CardContent className="p-4">
-          <Input placeholder="Search spam words..." value={search} onChange={(e) => setSearch(e.target.value)} />
-        </CardContent>
-      </Card>
-
-      {/* Words by category */}
-      <div className="space-y-4">
-        {categories.map((cat) => {
-          const catWords = filtered.filter((w) => w.category === cat);
-          if (catWords.length === 0) return null;
-          return (
-            <Card key={cat} className="border-0 shadow-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-semibold text-gray-700 capitalize flex items-center gap-2">
-                  <Tag className="h-4 w-4 text-[#D72444]" />
-                  {cat}
-                  <Badge variant="secondary" className="text-[10px]">{catWords.length}</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="flex flex-wrap gap-2">
-                  {catWords.map((w) => (
-                    <span key={w.id} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-700 rounded-lg text-sm font-medium border border-red-100">
-                      {w.word}
-                      <button onClick={() => removeWord(w.id)} className="hover:bg-red-200 rounded p-0.5 transition">
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+          <Button size="icon" variant="outline" className="h-8 w-8" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}><ChevronRight className="h-4 w-4" /></Button>
+          <Button size="icon" variant="outline" className="h-8 w-8" disabled={page >= totalPages} onClick={() => setPage(totalPages)}><ChevronsRight className="h-4 w-4" /></Button>
+        </div>
       </div>
     </div>
   );
