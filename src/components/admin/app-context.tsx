@@ -60,6 +60,10 @@ interface AdminUser {
   is_admin: boolean;
   avatar: string | null;
   status: string;
+  // Customer-specific fields (optional, used for customer role)
+  phone?: string;
+  plan?: string;
+  sms_balance?: number;
 }
 
 interface CustomerUser {
@@ -140,6 +144,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
           is_admin: u.is_admin || u.isAdmin,
           avatar: u.avatar || null,
           status: u.status,
+          phone: u.phone || undefined,
+          plan: u.plan || undefined,
+          sms_balance: u.sms_balance ?? undefined,
         });
         setIsAuthenticated(true);
         return true;
