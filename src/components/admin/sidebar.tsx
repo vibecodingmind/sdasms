@@ -73,6 +73,7 @@ const menuItems: MenuItem[] = [
     icon: <Send className="h-4 w-4" />,
     children: [
       { label: 'Sending Servers', view: 'sending-servers', icon: <Server className="h-3.5 w-3.5" /> },
+          { label: 'SMS Templates', view: 'sms-templates', icon: <MessageSquare className="h-3.5 w-3.5" /> },
       { label: 'Sender ID', view: 'sender-id', icon: <Hash className="h-3.5 w-3.5" /> },
     ],
   },

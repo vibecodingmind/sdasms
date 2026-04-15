@@ -57,34 +57,33 @@ export const mockPlans = [
 ];
 
 export const mockCurrencies = [
-  { id: 1, name: "US Dollar", code: "USD", symbol: "$", rate: 1.000, status: "active" },
-  { id: 2, name: "Euro", code: "EUR", symbol: "€", rate: 0.92, status: "active" },
-  { id: 3, name: "British Pound", code: "GBP", symbol: "£", rate: 0.79, status: "active" },
-  { id: 4, name: "Indian Rupee", code: "INR", symbol: "₹", rate: 83.12, status: "active" },
-  { id: 5, name: "Japanese Yen", code: "JPY", symbol: "¥", rate: 149.50, status: "inactive" },
-  { id: 6, name: "Australian Dollar", code: "AUD", symbol: "A$", rate: 1.53, status: "inactive" },
+  { id: 1, name: "Tanzanian Shillings", code: "TZS", symbol: "Sh", format: "Sh{PRICE}", rate: 2500.00, status: "active" },
+  { id: 2, name: "US Dollar", code: "USD", symbol: "$", format: "${PRICE}", rate: 1.000, status: "active" },
+  { id: 3, name: "Euro", code: "EUR", symbol: "€", format: "€{PRICE}", rate: 0.92, status: "active" },
+  { id: 4, name: "British Pound", code: "GBP", symbol: "£", format: "£{PRICE}", rate: 0.79, status: "active" },
+  { id: 5, name: "Indian Rupee", code: "INR", symbol: "₹", format: "₹{PRICE}", rate: 83.12, status: "active" },
+  { id: 6, name: "Kenyan Shilling", code: "KES", symbol: "KSh", format: "KSh{PRICE}", rate: 153.50, status: "inactive" },
 ];
 
 export const mockSendingServers = [
-  { id: 1, uid: "srv-001", name: "Twilio HTTP Gateway", type: "http", quota_value: 100000, status: "active", settings: { url: "https://api.twilio.com", api_key: "****" } },
-  { id: 2, uid: "srv-002", name: "Nexmo SMPP Server", type: "smpp", quota_value: 500000, status: "active", settings: { host: "smpp.nexmo.com", port: 2775 } },
-  { id: 3, uid: "srv-003", name: "WhatsApp Business API", type: "whatsapp", quota_value: 50000, status: "active", settings: { phone_id: "+1234567890", token: "****" } },
-  { id: 4, uid: "srv-004", name: "Viber Business Channel", type: "viber", quota_value: 25000, status: "inactive", settings: { webhook: "https://..." } },
-  { id: 5, uid: "srv-005", name: "MSG91 OTP Server", type: "otp", quota_value: 200000, status: "active", settings: { auth_key: "****" } },
-  { id: 6, uid: "srv-006", name: "Plivo HTTP API", type: "http", quota_value: 75000, status: "active", settings: { auth_id: "****", auth_token: "****" } },
-  { id: 7, uid: "srv-007", name: "Route Mobile SMPP", type: "smpp", quota_value: 300000, status: "inactive", settings: { host: "smpp.routemobile.com", port: 2776 } },
-  { id: 8, uid: "srv-008", name: "Beem Africa SMS Gateway", type: "beem", quota_value: 500000, status: "active", settings: { api_key: "****", secret_key: "****", sender_id: "SDASMS" } },
+  { id: 1, uid: "srv-001", name: "StarLink5G", type: "SMS", types: ["SMS", "SCHEDULE"], quota_value: 5000, quota_unit: "1 min", status: "active", settings: { url: "https://api.twilio.com", api_key: "****" } },
+  { id: 2, uid: "srv-002", name: "Turbo5G", type: "SMS", types: ["SMS", "SCHEDULE"], quota_value: 5000, quota_unit: "1 min", status: "inactive", settings: { host: "smpp.nexmo.com", port: 2775 } },
+  { id: 3, uid: "srv-003", name: "SDASMS WA", type: "WHATSAPP", types: ["SCHEDULE", "WHATSAPP"], quota_value: 500, quota_unit: "1 min", status: "inactive", settings: { phone_id: "+1234567890", token: "****" } },
+  { id: 4, uid: "srv-004", name: "Sat XR", type: "SMS", types: ["SMS", "SCHEDULE", "TWO WAY", "VOICE"], quota_value: 500, quota_unit: "1 min", status: "inactive", settings: { webhook: "https://..." } },
+  { id: 5, uid: "srv-005", name: "TurboXL", type: "SMS", types: [], quota_value: 10000, quota_unit: "1 min", status: "inactive", settings: { auth_key: "****" } },
 ];
 
 export const mockSenderIds = [
-  { id: 1, uid: "sid-001", sender_id: "ACMECORP", customer: "John Smith", status: "active", countries: ["US", "CA", "UK"] },
-  { id: 2, uid: "sid-002", sender_id: "GLOBALTECH", customer: "Sarah Johnson", status: "active", countries: ["US", "UK"] },
-  { id: 3, uid: "sid-003", sender_id: "ASIATICK", customer: "Michael Chen", status: "pending", countries: ["IN", "SG"] },
-  { id: 4, uid: "sid-004", sender_id: "EUROMAIL", customer: "Emma Williams", status: "active", countries: ["DE", "FR", "ES", "IT"] },
-  { id: 5, uid: "sid-005", sender_id: "STARTUP1", customer: "David Brown", status: "inactive", countries: ["US"] },
-  { id: 6, uid: "sid-006", sender_id: "LATAMCO", customer: "Lisa Martinez", status: "pending", countries: ["MX", "CO", "AR"] },
-  { id: 7, uid: "sid-007", sender_id: "TECHFRM", customer: "James Wilson", status: "active", countries: ["US", "CA", "UK", "AU"] },
-  { id: 8, uid: "sid-008", sender_id: "MKTGPRO", customer: "Robert Taylor", status: "active", countries: ["US"] },
+  { id: 1, uid: "sid-001", sender_id: "TAARIFA", customer: "CLAY'S AFRICA INSURANCE AGENCY", customer_email: "claysafrica@gmail.com", price: 24900, price_cycle: "year", status: "active", countries: ["TZ"] },
+  { id: 2, uid: "sid-002", sender_id: "TAARIFA", customer: "Reginald Hendry Shirima", customer_email: "reginald.shirima@gmail.com", price: 24900, price_cycle: "year", status: "active", countries: ["TZ"] },
+  { id: 3, uid: "sid-003", sender_id: "TAARIFA", customer: "SAVIN MEDIA", customer_email: "savinmedia@gmail.com", price: 24900, price_cycle: "year", status: "active", countries: ["TZ"] },
+  { id: 4, uid: "sid-004", sender_id: "MWALIKO", customer: "Nemence Soka", customer_email: "nemence.soka@gmail.com", price: 24900, price_cycle: "year", status: "active", countries: ["TZ"] },
+  { id: 5, uid: "sid-005", sender_id: "KIKAO", customer: "Nemence Soka", customer_email: "nemence.soka@gmail.com", price: 24900, price_cycle: "year", status: "active", countries: ["TZ"] },
+  { id: 6, uid: "sid-006", sender_id: "MCHANGO", customer: "Nemence Soka", customer_email: "nemence.soka@gmail.com", price: 24900, price_cycle: "year", status: "active", countries: ["TZ"] },
+  { id: 7, uid: "sid-007", sender_id: "HARUSI", customer: "Nemence Soka", customer_email: "nemence.soka@gmail.com", price: 24900, price_cycle: "year", status: "active", countries: ["TZ"] },
+  { id: 8, uid: "sid-008", sender_id: "ATAPE", customer: "ATAPE MOROGORO", customer_email: "atapemorogoro@gmail.com", price: 24900, price_cycle: "year", status: "active", countries: ["TZ"] },
+  { id: 9, uid: "sid-009", sender_id: "TAARIFA", customer: "GAVA ENTERPRISES", customer_email: "gavaenterprises@gmail.com", price: 24900, price_cycle: "year", status: "active", countries: ["TZ"] },
+  { id: 10, uid: "sid-010", sender_id: "MWALIKO", customer: "Samwel Mgaya", customer_email: "samwel.mgaya@gmail.com", price: 24900, price_cycle: "year", status: "active", countries: ["TZ"] },
 ];
 
 export const mockBlacklists = [
@@ -378,6 +377,19 @@ export const mockDeliveryBreakdown = [
   { name: "Failed", value: 8630, color: "#EF4444" },
   { name: "Pending", value: 4000, color: "#F59E0B" },
   { name: "Rejected", value: 150, color: "#6B7280" },
+];
+
+export const mockSmsTemplates = [
+  { id: 1, name: "MEJASTAR MEDICAL NEW", customer: "MEJASTAR MEDICAL LIMITED", customer_email: "mejastarmedicallimited@gmail.com", message: "Dear {FIRST_NAME} {LAST_NAME}, your appointment has been confirmed for {DATE} at {TIME}. Please arrive 15 minutes early. For any changes, call our reception.", status: "active" },
+  { id: 2, name: "Moyo wa Tabasamu!", customer: "Dickson Manko", customer_email: "dickson.manko@gmail.com", message: "Hello {FIRST_NAME}, thank you for choosing Moyo wa Tabasamu! Your order {ORDER_ID} has been received and is being processed. Total: {AMOUNT}. Track at {TRACK_URL}", status: "active" },
+  { id: 3, name: "REMINDER F6", customer: "Ikizu High School", customer_email: "ikizuhighschool@gmail.com", message: "Dear Parent/Guardian of {FIRST_NAME}, this is a reminder that Form 6 exams begin on {START_DATE}. Please ensure your child has all necessary materials. School fees balance: {BALANCE}", status: "active" },
+  { id: 4, name: "FORM 1 to 5", customer: "Ikizu High School", customer_email: "ikizuhighschool@gmail.com", message: "Dear {FIRST_NAME} {LAST_NAME}, welcome to Ikizu High School! Your admission number is {ADMISSION_NO}. Classes start on {START_DATE}. Report to the admin office by 8:00 AM.", status: "active" },
+  { id: 5, name: "SEND OFF DEBORA MTUI", customer: "OSWALD STEPHAN KIHAGA", customer_email: "oswald.kihaga@gmail.com", message: "You are warmly invited to the send-off ceremony for Debora Mtui. Date: {DATE}, Time: {TIME}, Venue: {VENUE}. Your presence will be greatly appreciated. RSVP: {PHONE}", status: "active" },
+  { id: 6, name: "Tangazo", customer: "UNYANKINDI SDA", customer_email: "unyankindisda@gmail.com", message: "UNYANKINDI SDA Church invites you to our weekly Sabbath service every Saturday from 9:00 AM. This week's topic: {TOPIC}. Speaker: {SPEAKER}. Everyone is welcome!", status: "active" },
+  { id: 7, name: "STAFF FEB 2026", customer: "Datius Rweyemamu", customer_email: "datius.rweyemamu@gmail.com", message: "Dear {FIRST_NAME}, your salary for February 2026 has been processed. Net pay: TZS {AMOUNT}. Please check your bank account. For queries, contact HR at {HR_PHONE}", status: "active" },
+  { id: 8, name: "Tangazo", customer: "UNYANKINDI SDA", customer_email: "unyankindisda@gmail.com", message: "UMATAKIZO: Mkutano maalum wa wanachama UNYANKINDI SDA utafanyika {DATE}. Tafadhali wasiliana kwa {PHONE} kwa maelezo zaidi. Karibuni sana!", status: "active" },
+  { id: 9, name: "MEJASTAR MEDICAL NEW", customer: "MEJASTAR MEDICAL LIMITED", customer_email: "mejastarmedicallimited@gmail.com", message: "Dear {FIRST_NAME}, your lab results are ready for pickup at Mejastar Medical. Report ID: {REPORT_ID}. For online access, visit: {PORTAL_URL}. Contact {PHONE} for inquiries.", status: "active" },
+  { id: 10, name: "Tangazo", customer: "UNYANKINDI SDA", customer_email: "unyankindisda@gmail.com", message: "UNYANKINDI SDA - Youth Ministry presents a special seminar on {TOPIC}. Date: {DATE}, Venue: {VENUE}. All youth members aged 16-35 are encouraged to attend.", status: "active" },
 ];
 
 export const mockSettings = {

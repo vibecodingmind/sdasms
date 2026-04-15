@@ -32,7 +32,8 @@ export type ViewId =
   | 'sms-history'
   | 'campaigns-report'
   | 'invoices'
-  | 'theme-customizer';
+  | 'theme-customizer'
+  | 'sms-templates';
 
 interface RegisterData {
   account_type: 'personal' | 'organization';

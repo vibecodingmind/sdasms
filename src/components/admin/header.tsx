@@ -15,6 +15,7 @@ const viewLabels: Record<string, string> = {
   'tax-setting': 'Tax Setting',
   'sending-servers': 'Sending Servers',
   'sender-id': 'Sender ID',
+  'sms-templates': 'SMS Templates',
   blacklist: 'Blacklist',
   'spam-words': 'Spam Words',
   'blocked-sender-id': 'Blocked Sender ID',

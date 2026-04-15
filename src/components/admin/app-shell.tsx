@@ -44,6 +44,7 @@ const SmsHistoryView = dynamic(() => import('./views/sms-history-view').then(m =
 const CampaignsReportView = dynamic(() => import('./views/campaigns-report-view').then(m => ({ default: m.CampaignsReportView })), { loading: LoadingFallback });
 const InvoicesView = dynamic(() => import('./views/invoices-view').then(m => ({ default: m.InvoicesView })), { loading: LoadingFallback });
 const ThemeCustomizerView = dynamic(() => import('./views/theme-customizer-view').then(m => ({ default: m.ThemeCustomizerView })), { loading: LoadingFallback });
+const SmsTemplatesView = dynamic(() => import('./views/sms-templates-view').then(m => ({ default: m.SmsTemplatesView })), { loading: LoadingFallback });
 
 function ViewRouter() {
   const { currentView } = useApp();
@@ -109,6 +110,8 @@ function ViewRouter() {
       return <InvoicesView />;
     case 'theme-customizer':
       return <ThemeCustomizerView />;
+    case 'sms-templates':
+      return <SmsTemplatesView />;
     default:
       return <DashboardView />;
   }
