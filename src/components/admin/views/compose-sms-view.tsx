@@ -214,11 +214,7 @@ export function ComposeSmsView() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-800">Compose SMS</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Send SMS messages to your contacts</p>
-        </div>
+      <div className="flex items-center justify-end">
         {sendResult?.success && (
           <Button variant="outline" onClick={resetForm}>
             <Send className="h-4 w-4 mr-2" /> Compose New

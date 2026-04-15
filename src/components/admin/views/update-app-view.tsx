@@ -19,11 +19,6 @@ export function UpdateAppView() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-gray-800">Update Application</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Check for updates and view system information</p>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Current Version */}
         <Card className="border-0 shadow-sm">

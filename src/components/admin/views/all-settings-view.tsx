@@ -288,11 +288,6 @@ export function AllSettingsView() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-xl font-bold text-gray-800">All Settings</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Manage your application configuration</p>
-      </div>
-
       {/* Settings Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="bg-white border border-gray-200 rounded-lg p-0 h-auto flex-wrap gap-0">

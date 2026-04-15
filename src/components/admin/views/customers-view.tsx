@@ -367,15 +367,7 @@ export function CustomersView() {
   if (impersonatedCustomer) {
     return (
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-              Customer Dashboard
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-              Viewing as {impersonatedCustomer.first_name} {impersonatedCustomer.last_name}
-            </p>
-          </div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
           <Button
             variant="outline"
             onClick={handleExitImpersonation}
@@ -471,12 +463,6 @@ export function CustomersView() {
   // ─── Admin view ────────────────────────────────────────────
   return (
     <div className="space-y-6">
-      {/* Page Title */}
-      <div>
-        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Customers</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Manage your platform customers</p>
-      </div>
-
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="border-0 shadow-sm">

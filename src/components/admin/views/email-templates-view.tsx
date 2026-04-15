@@ -23,11 +23,6 @@ export function EmailTemplatesView() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-gray-800">Email Templates</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Manage email notification templates</p>
-      </div>
-
       <Card className="border-0 shadow-sm">
         <CardContent className="p-0">
           <Table>

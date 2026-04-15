@@ -26,19 +26,14 @@ export function PlansView() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-800">Plans</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Manage subscription plans</p>
-        </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white">
-              <Plus className="h-4 w-4 mr-2" /> Add Plan
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader><DialogTitle>Create Plan</DialogTitle></DialogHeader>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogTrigger asChild>
+          <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white">
+            <Plus className="h-4 w-4 mr-2" /> Add Plan
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Create Plan</DialogTitle></DialogHeader>
             <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setDialogOpen(false); }}>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Plan Name</label>
@@ -83,7 +78,6 @@ export function PlansView() {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {plans.map((plan) => (

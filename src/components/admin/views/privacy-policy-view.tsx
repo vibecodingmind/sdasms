@@ -69,10 +69,6 @@ For privacy-related inquiries, contact us at privacy@smspro.com`);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-gray-800">Privacy Policy</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Edit your privacy policy page content</p>
-      </div>
       <Card className="border-0 shadow-sm">
         <CardHeader><CardTitle className="text-base">Privacy Policy Content</CardTitle></CardHeader>
         <CardContent className="space-y-4">

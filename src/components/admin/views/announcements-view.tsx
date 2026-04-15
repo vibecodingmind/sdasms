@@ -199,11 +199,6 @@ export function AnnouncementsView() {
   return (
     <div className="space-y-6">
       {/* Page Title */}
-      <div>
-        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Announcements</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Manage system announcements and communications</p>
-      </div>
-
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="bg-transparent p-0 gap-0 h-auto">

@@ -32,11 +32,7 @@ export function ReportDashboardView() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-gray-800">Report Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Analytics and reporting overview</p>
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-4">
         <div className="flex gap-2">
           <Input type="date" defaultValue="2025-01-01" className="w-36 h-9 text-sm" />
           <Input type="date" defaultValue="2025-01-10" className="w-36 h-9 text-sm" />

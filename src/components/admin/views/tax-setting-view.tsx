@@ -35,10 +35,6 @@ export function TaxSettingView() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-gray-800">Tax Settings</h1>
-      </div>
-
       <Card className="border-0 shadow-sm max-w-3xl">
         <CardContent className="p-6 space-y-6">
           {/* Enable Tax Checkbox */}

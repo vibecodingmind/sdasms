@@ -14,11 +14,6 @@ export function MaintenanceModeView() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-gray-800">Maintenance Mode</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Enable/disable maintenance mode for the platform</p>
-      </div>
-
       <Card className="border-0 shadow-sm max-w-2xl">
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">

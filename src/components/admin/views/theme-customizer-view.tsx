@@ -25,10 +25,6 @@ export function ThemeCustomizerView() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-gray-800">Theme Customizer</h1>
-      </div>
-
       <Card className="border-0 shadow-sm max-w-2xl">
         <CardContent className="p-6 space-y-5">
           {/* Menu Layout */}

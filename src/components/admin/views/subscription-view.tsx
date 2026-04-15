@@ -236,11 +236,6 @@ export function SubscriptionView() {
   return (
     <div className="space-y-6">
       {/* Page Title */}
-      <div>
-        <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Subscriptions</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Manage customer subscriptions</p>
-      </div>
-
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="border-0 shadow-sm">

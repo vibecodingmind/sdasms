@@ -21,11 +21,6 @@ export function CountriesView() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-800">Countries</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Manage supported countries</p>
-        </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white"><Plus className="h-4 w-4 mr-2" /> Add Country</Button>
@@ -46,7 +41,7 @@ export function CountriesView() {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
+
       <Card className="border-0 shadow-sm">
         <CardContent className="p-0">
           <Table>

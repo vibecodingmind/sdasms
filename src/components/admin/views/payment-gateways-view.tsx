@@ -429,14 +429,6 @@ export function PaymentGatewaysView() {
 
   return (
     <div className="space-y-6">
-      {/* Page header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Payment Gateways</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-            Manage Pesapal, PayPal, Stripe, and manual payment methods
-          </p>
-        </div>
         {selectedGateway && (
           <Button
             variant="outline"
@@ -447,7 +439,6 @@ export function PaymentGatewaysView() {
             Back to All Gateways
           </Button>
         )}
-      </div>
 
       {!selectedGateway ? (
         /* ── Gateway overview grid ── */
