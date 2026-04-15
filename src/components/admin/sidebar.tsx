@@ -38,6 +38,7 @@ import {
   Send,
 } from 'lucide-react';
 import { useApp, type ViewId } from './app-context';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
 interface MenuItem {
@@ -124,7 +125,10 @@ const menuItems: MenuItem[] = [
 ];
 
 export function Sidebar() {
-  const { currentView, sidebarOpen, expandedMenus, setCurrentView, toggleSidebar, toggleMenu } = useApp();
+  const { currentView, sidebarOpen, expandedMenus, setCurrentView, toggleSidebar, toggleMenu, user, logout } = useApp();
+
+  const displayName = `${user?.first_name || 'Super'} ${user?.last_name || 'Admin'}`;
+  const initials = `${(user?.first_name || 'S').charAt(0)}${(user?.last_name || 'A').charAt(0)}`;
 
   const isActive = (view?: ViewId) => currentView === view;
   const isParentActive = (children?: { view: ViewId }[]) =>
@@ -285,32 +289,51 @@ export function Sidebar() {
           </div>
         </nav>
 
-        {/* User profile at bottom */}
-        {sidebarOpen && (
-          <div className="border-t border-gray-200 dark:border-gray-700 p-3 shrink-0">
+        {/* User profile pinned to bottom — always visible */}
+        <div className="border-t border-gray-200 dark:border-gray-700 p-3 shrink-0">
+          {sidebarOpen ? (
+            /* Expanded: full user info + logout */
             <div className="flex items-center gap-3 px-2 py-2">
-              <div className="w-8 h-8 rounded-full bg-[#D72444] flex items-center justify-center text-white text-xs font-semibold shrink-0 transition-transform duration-200 hover:scale-110">
-                SA
-              </div>
+              <Avatar className="h-9 w-9 shrink-0">
+                {user?.avatar && <AvatarImage src={user.avatar} alt={displayName} />}
+                <AvatarFallback className="bg-[#D72444] text-white text-xs font-semibold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">Super Admin</p>
+                <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{displayName}</p>
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                   <span className="text-[11px] text-gray-500 dark:text-gray-400">Available</span>
                 </div>
               </div>
               <button
-                onClick={() => {
-                  window.location.reload();
-                }}
-                className="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-all duration-150 hover:scale-110 hover:rotate-12"
+                onClick={logout}
+                className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-all duration-150 hover:scale-110 hover:rotate-12"
                 title="Logout"
               >
                 <LogOut className="h-4 w-4" />
               </button>
             </div>
-          </div>
-        )}
+          ) : (
+            /* Collapsed: just the avatar + logout below */
+            <div className="flex flex-col items-center gap-2">
+              <Avatar className="h-8 w-8">
+                {user?.avatar && <AvatarImage src={user.avatar} alt={displayName} />}
+                <AvatarFallback className="bg-[#D72444] text-white text-[10px] font-semibold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <button
+                onClick={logout}
+                className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-all duration-150"
+                title="Logout"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+        </div>
       </aside>
     </>
   );

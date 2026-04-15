@@ -1,9 +1,19 @@
 'use client';
 
 import React from 'react';
-import { Menu, Search, Bell, ChevronDown, Globe, Sun, Moon, PanelLeftClose, PanelLeft, LogOut, UserCheck, ShieldAlert } from 'lucide-react';
+import { Menu, Search, Bell, ChevronDown, Globe, Sun, Moon, PanelLeftClose, PanelLeft, LogOut, UserCheck, ShieldAlert, User, Settings, LogIn } from 'lucide-react';
 import { useApp } from './app-context';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const viewLabels: Record<string, string> = {
   dashboard: 'Dashboard',
@@ -36,12 +46,13 @@ const viewLabels: Record<string, string> = {
   'campaigns-report': 'Campaigns',
   invoices: 'Invoices',
   'theme-customizer': 'Theme Customizer',
+  'compose-sms': 'Compose SMS',
 };
 
 export function Header() {
   const {
     currentView, sidebarOpen, toggleSidebar, theme, toggleTheme,
-    impersonatedCustomer, exitImpersonation, user
+    impersonatedCustomer, exitImpersonation, user, logout, setCurrentView
   } = useApp();
 
   const displayName = impersonatedCustomer
@@ -52,7 +63,7 @@ export function Header() {
 
   const initials = impersonatedCustomer
     ? `${impersonatedCustomer.first_name.charAt(0)}${impersonatedCustomer.last_name.charAt(0)}`
-    : 'SA';
+    : `${(user?.first_name || 'S').charAt(0)}${(user?.last_name || 'A').charAt(0)}`;
 
   const avatarBg = impersonatedCustomer ? 'bg-orange-500' : 'bg-[#D72444]';
 
@@ -166,18 +177,66 @@ export function Header() {
             <ChevronDown className="h-3 w-3" />
           </Button>
 
-          {/* Profile */}
-          <div className="flex items-center gap-2 ml-1">
-            <div className={`w-8 h-8 rounded-full ${avatarBg} flex items-center justify-center text-white text-xs font-semibold transition-all duration-300 hover:scale-110`}>
-              {initials}
-            </div>
-            <div className="hidden sm:block">
-              <p className="text-sm font-medium text-gray-800 dark:text-gray-100 leading-tight">
-                {displayName}
-              </p>
-              <p className="text-[11px] text-gray-400 dark:text-gray-500">{displayEmail}</p>
-            </div>
-          </div>
+          {/* Profile Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 ml-1 p-1 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
+                <Avatar className="h-8 w-8 transition-transform duration-200 hover:scale-110">
+                  {user?.avatar && <AvatarImage src={user.avatar} alt={displayName} />}
+                  <AvatarFallback className={`${avatarBg} text-white text-xs font-semibold`}>
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="hidden sm:block text-left">
+                  <p className="text-sm font-medium text-gray-800 dark:text-gray-100 leading-tight">
+                    {displayName}
+                  </p>
+                  <p className="text-[11px] text-gray-400 dark:text-gray-500">{displayEmail}</p>
+                </div>
+                <ChevronDown className="h-3.5 w-3.5 text-gray-400 hidden sm:block" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              {/* User Info Header */}
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{displayName}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{displayEmail}</p>
+                </div>
+              </DropdownMenuLabel>
+
+              <DropdownMenuSeparator />
+
+              {/* Actions */}
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => setCurrentView('all-settings')}
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => setCurrentView('all-settings')}
+                >
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+
+              <DropdownMenuSeparator />
+
+              {/* Logout */}
+              <DropdownMenuItem
+                className="cursor-pointer text-red-600 dark:text-red-400 focus:text-red-700 dark:focus:text-red-300 focus:bg-red-50 dark:focus:bg-red-900/20"
+                onClick={logout}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
     </>
