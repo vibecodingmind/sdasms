@@ -6,7 +6,7 @@ import { useApp, type ViewId } from './app-context';
 import { Sidebar } from './sidebar';
 import { Header } from './header';
 import { LoginPage } from './login-page';
-import { Loader2, LayoutDashboard, Users, CreditCard, Bell, Package, DollarSign, Settings, Server, Hash, Shield, Ban, FileText, UserCog, ShieldCheck, Globe, Cpu, Languages, Wallet, Mail, FileCheck, Lock, Wrench, BarChart3, Clock, Megaphone, Receipt, Palette, MessageSquare, AlertTriangle, Send } from 'lucide-react';
+import { Loader2, LayoutDashboard, Users, CreditCard, Bell, Package, DollarSign, Settings, Server, Hash, Shield, Ban, FileText, UserCog, ShieldCheck, Globe, Cpu, Languages, Wallet, Mail, FileCheck, Lock, Wrench, BarChart3, Clock, Megaphone, Receipt, Palette, MessageSquare, AlertTriangle, Send, LifeBuoy, MessageCircle, BookOpen } from 'lucide-react';
 
 // ==================== VIEW METADATA ====================
 interface ViewMeta {
@@ -47,6 +47,8 @@ const viewMeta: Record<ViewId, ViewMeta> = {
   'campaigns-report': { title: 'Campaigns', description: 'View campaign reports and analytics', icon: <Megaphone className="h-5 w-5" /> },
   'invoices': { title: 'Invoices', description: 'Manage billing invoices', icon: <Receipt className="h-5 w-5" /> },
   'theme-customizer': { title: 'Theme Customizer', description: 'Customize the admin panel appearance', icon: <Palette className="h-5 w-5" /> },
+  'support-tickets': { title: 'Support Tickets', description: 'Manage customer support tickets', icon: <MessageCircle className="h-5 w-5" /> },
+  'help-center': { title: 'Help Center', description: 'Manage knowledge base articles and FAQs', icon: <BookOpen className="h-5 w-5" /> },
 };
 
 // ==================== LAZY VIEWS ====================
@@ -87,6 +89,8 @@ const CampaignsReportView = dynamic(() => import('./views/campaigns-report-view'
 const InvoicesView = dynamic(() => import('./views/invoices-view').then(m => ({ default: m.InvoicesView })), { loading: LoadingFallback });
 const ThemeCustomizerView = dynamic(() => import('./views/theme-customizer-view').then(m => ({ default: m.ThemeCustomizerView })), { loading: LoadingFallback });
 const SmsTemplatesView = dynamic(() => import('./views/sms-templates-view').then(m => ({ default: m.SmsTemplatesView })), { loading: LoadingFallback });
+const SupportTicketsView = dynamic(() => import('./views/support-tickets-view').then(m => ({ default: m.SupportTicketsView })), { loading: LoadingFallback });
+const HelpCenterView = dynamic(() => import('./views/help-center-view').then(m => ({ default: m.HelpCenterView })), { loading: LoadingFallback });
 
 // ==================== VIEW ROUTER ====================
 function ViewRouter() {
@@ -124,6 +128,8 @@ function ViewRouter() {
     case 'invoices': return <InvoicesView />;
     case 'theme-customizer': return <ThemeCustomizerView />;
     case 'sms-templates': return <SmsTemplatesView />;
+    case 'support-tickets': return <SupportTicketsView />;
+    case 'help-center': return <HelpCenterView />;
     default: return <DashboardView />;
   }
 }

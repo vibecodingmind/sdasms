@@ -47,6 +47,8 @@ const viewLabels: Record<string, string> = {
   invoices: 'Invoices',
   'theme-customizer': 'Theme Customizer',
   'compose-sms': 'Compose SMS',
+  'support-tickets': 'Support Tickets',
+  'help-center': 'Help Center',
 };
 
 export function Header() {

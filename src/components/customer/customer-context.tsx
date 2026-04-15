@@ -11,6 +11,8 @@ export type CustomerViewId =
   | 'sms-templates'
   | 'sender-ids'
   | 'billing'
+  | 'support'
+  | 'help-center'
   | 'settings';
 
 interface CustomerUserData {

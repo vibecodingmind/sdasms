@@ -33,7 +33,9 @@ export type ViewId =
   | 'campaigns-report'
   | 'invoices'
   | 'theme-customizer'
-  | 'sms-templates';
+  | 'sms-templates'
+  | 'support-tickets'
+  | 'help-center';
 
 interface RegisterData {
   account_type: 'personal' | 'organization';

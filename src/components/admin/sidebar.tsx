@@ -36,6 +36,9 @@ import {
   X,
   LogOut,
   Send,
+  LifeBuoy,
+  MessageCircle,
+  BookOpen,
 } from 'lucide-react';
 import { useApp, type ViewId } from './app-context';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -121,6 +124,14 @@ const menuItems: MenuItem[] = [
     ],
   },
   { label: 'Invoices', icon: <Receipt className="h-4 w-4" />, view: 'invoices' },
+  {
+    label: 'Support',
+    icon: <LifeBuoy className="h-4 w-4" />,
+    children: [
+      { label: 'Support Tickets', view: 'support-tickets', icon: <MessageCircle className="h-3.5 w-3.5" /> },
+      { label: 'Help Center', view: 'help-center', icon: <BookOpen className="h-3.5 w-3.5" /> },
+    ],
+  },
   { label: 'Theme Customizer', icon: <Palette className="h-4 w-4" />, view: 'theme-customizer' },
 ];
 

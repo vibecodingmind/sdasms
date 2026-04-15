@@ -12,6 +12,8 @@ import {
   Hash,
   CreditCard,
   Settings,
+  LifeBuoy,
+  BookOpen,
   X,
   LogOut,
 } from 'lucide-react';
@@ -35,6 +37,8 @@ const menuItems: MenuItem[] = [
   { label: 'SMS Templates', icon: <FileText className="h-4 w-4" />, view: 'sms-templates' },
   { label: 'Sender IDs', icon: <Hash className="h-4 w-4" />, view: 'sender-ids' },
   { label: 'Billing', icon: <CreditCard className="h-4 w-4" />, view: 'billing' },
+  { label: 'Support', icon: <LifeBuoy className="h-4 w-4" />, view: 'support' },
+  { label: 'Help Center', icon: <BookOpen className="h-4 w-4" />, view: 'help-center' },
   { label: 'Settings', icon: <Settings className="h-4 w-4" />, view: 'settings' },
 ];
 

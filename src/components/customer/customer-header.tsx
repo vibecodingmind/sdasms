@@ -25,6 +25,8 @@ const viewLabels: Record<string, string> = {
   'sms-templates': 'SMS Templates',
   'sender-ids': 'Sender IDs',
   'billing': 'Billing',
+  'support': 'Support',
+  'help-center': 'Help Center',
   'settings': 'Settings',
 };
 

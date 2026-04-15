@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Send, Users, Clock, Hash, FileText, CreditCard, Settings, LayoutDashboard, FolderOpen, Loader2 } from 'lucide-react';
+import { Send, Users, Clock, Hash, FileText, CreditCard, Settings, LayoutDashboard, FolderOpen, Loader2, LifeBuoy, BookOpen } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useCustomer, type CustomerViewId } from './customer-context';
 import { CustomerSidebar } from './customer-sidebar';
@@ -23,6 +23,8 @@ const viewMeta: Record<CustomerViewId, ViewMeta> = {
   'sms-templates': { title: 'SMS Templates', description: 'Manage your message templates', icon: <FileText className="h-5 w-5" /> },
   'sender-ids': { title: 'Sender IDs', description: 'Manage your registered sender IDs', icon: <Hash className="h-5 w-5" /> },
   'billing': { title: 'Billing', description: 'Manage subscription and payments', icon: <CreditCard className="h-5 w-5" /> },
+  'support': { title: 'Support', description: 'Get help and manage support tickets', icon: <LifeBuoy className="h-5 w-5" /> },
+  'help-center': { title: 'Help Center', description: 'Browse FAQs and knowledge base', icon: <BookOpen className="h-5 w-5" /> },
   'settings': { title: 'Settings', description: 'Manage your account settings', icon: <Settings className="h-5 w-5" /> },
 };
 
@@ -42,6 +44,8 @@ const SmsTemplatesCustomerView = dynamic(() => import('./views/sms-templates-cus
 const SenderIdsView = dynamic(() => import('./views/sender-ids-view').then(m => ({ default: m.SenderIdsView })), { loading: LoadingFallback });
 const BillingView = dynamic(() => import('./views/billing-view').then(m => ({ default: m.BillingView })), { loading: LoadingFallback });
 const CustomerSettingsView = dynamic(() => import('./views/customer-settings-view').then(m => ({ default: m.CustomerSettingsView })), { loading: LoadingFallback });
+const SupportView = dynamic(() => import('./views/support-view').then(m => ({ default: m.SupportView })), { loading: LoadingFallback });
+const HelpCenterCustomerView = dynamic(() => import('./views/help-center-customer-view').then(m => ({ default: m.HelpCenterCustomerView })), { loading: LoadingFallback });
 
 // ==================== VIEW ROUTER ====================
 function CustomerViewRouter() {
@@ -56,6 +60,8 @@ function CustomerViewRouter() {
     case 'sms-templates': return <SmsTemplatesCustomerView />;
     case 'sender-ids': return <SenderIdsView />;
     case 'billing': return <BillingView />;
+    case 'support': return <SupportView />;
+    case 'help-center': return <HelpCenterCustomerView />;
     case 'settings': return <CustomerSettingsView />;
     default: return <CustomerDashboardView />;
   }
