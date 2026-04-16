@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import { UserRole, RoleMeta, canAccessCustomerView } from '@/lib/rbac';
 
 export type CustomerViewId =
   | 'customer-dashboard'
@@ -21,7 +22,8 @@ export type CustomerViewId =
   | 'blacklist'
   | 'automations'
   | 'developers'
-  | 'reports';
+  | 'reports'
+  | 'team';
 
 interface CustomerUserData {
   id: number;
@@ -34,6 +36,8 @@ interface CustomerUserData {
   sms_balance: number;
   status: string;
   avatar: string | null;
+  role: UserRole;
+  parentCustomerId?: number; // for sub-users
 }
 
 interface CustomerContextType {
@@ -44,6 +48,12 @@ interface CustomerContextType {
   setCurrentView: (view: CustomerViewId) => void;
   toggleSidebar: () => void;
   toggleTheme: () => void;
+  // RBAC additions
+  canAccessView: (viewId: CustomerViewId) => boolean;
+  getRoleMeta: () => { label: string; description: string; color: string };
+  isOwner: () => boolean;
+  canManageTeam: () => boolean;
+  canManageBilling: () => boolean;
 }
 
 const CustomerContext = createContext<CustomerContextType | undefined>(undefined);
@@ -55,7 +65,7 @@ export function CustomerProvider({
   toggleTheme: inheritedToggleTheme,
 }: {
   children: ReactNode;
-  user: { id: number; uid: string; first_name: string; last_name: string; email: string; is_admin: boolean; avatar: string | null; status: string; sms_balance?: number; plan?: string; phone?: string } | null;
+  user: { id: number; uid: string; first_name: string; last_name: string; email: string; is_admin: boolean; avatar: string | null; status: string; sms_balance?: number; plan?: string; phone?: string; role?: UserRole } | null;
   theme: 'light' | 'dark';
   toggleTheme: () => void;
 }) {
@@ -73,11 +83,35 @@ export function CustomerProvider({
     sms_balance: user.sms_balance || 0,
     status: user.status,
     avatar: user.avatar,
+    role: user.role || 'customer_owner',
   } : null;
 
   const toggleSidebar = useCallback(() => {
     setSidebarOpen((prev) => !prev);
   }, []);
+
+  // RBAC: Check if current customer role can access a view
+  const canAccessView = useCallback((viewId: CustomerViewId): boolean => {
+    if (!customerUser) return false;
+    return canAccessCustomerView(customerUser.role, viewId);
+  }, [customerUser]);
+
+  const getRoleMeta = useCallback(() => {
+    if (!customerUser) return RoleMeta['customer_member'];
+    return RoleMeta[customerUser.role] || RoleMeta['customer_member'];
+  }, [customerUser]);
+
+  const isOwner = useCallback(() => {
+    return customerUser?.role === 'customer_owner';
+  }, [customerUser]);
+
+  const canManageTeam = useCallback(() => {
+    return customerUser?.role === 'customer_owner' || customerUser?.role === 'customer_admin';
+  }, [customerUser]);
+
+  const canManageBilling = useCallback(() => {
+    return customerUser?.role === 'customer_owner';
+  }, [customerUser]);
 
   return (
     <CustomerContext.Provider
@@ -89,6 +123,11 @@ export function CustomerProvider({
         setCurrentView,
         toggleSidebar,
         toggleTheme: inheritedToggleTheme,
+        canAccessView,
+        getRoleMeta,
+        isOwner,
+        canManageTeam,
+        canManageBilling,
       }}
     >
       {children}

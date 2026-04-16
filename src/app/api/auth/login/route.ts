@@ -2,31 +2,44 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isDatabaseConnected } from '@/lib/db';
 import { mockAdmin, mockCustomers } from '@/lib/mock-data';
 
+// Role mapping for demo users
+const emailRoleMap: Record<string, string> = {
+  'admin@admin.com': 'super_admin',
+  'support@admin.com': 'support_admin',
+  'billing@admin.com': 'billing_admin',
+  'tech@admin.com': 'technical_admin',
+  'viewer@admin.com': 'viewer',
+};
+
 // Demo users (works without any database)
 const demoUsers: Record<string, { password: string; user: any }> = {
   'admin@admin.com': {
     password: 'password123',
-    user: mockAdmin,
+    user: { ...mockAdmin, role: 'super_admin', roles: ['super_admin'] },
   },
   'support@admin.com': {
     password: 'password123',
-    user: { ...mockAdmin, id: 2, uid: 'admin-002', first_name: 'Support', last_name: 'Manager', email: 'support@admin.com' },
+    user: { ...mockAdmin, id: 2, uid: 'admin-002', first_name: 'Support', last_name: 'Manager', email: 'support@admin.com', role: 'support_admin', roles: ['support_admin'] },
   },
   'billing@admin.com': {
     password: 'password123',
-    user: { ...mockAdmin, id: 3, uid: 'admin-003', first_name: 'Billing', last_name: 'Admin', email: 'billing@admin.com' },
+    user: { ...mockAdmin, id: 3, uid: 'admin-003', first_name: 'Billing', last_name: 'Admin', email: 'billing@admin.com', role: 'billing_admin', roles: ['billing_admin'] },
+  },
+  'tech@admin.com': {
+    password: 'password123',
+    user: { ...mockAdmin, id: 4, uid: 'admin-004', first_name: 'Tech', last_name: 'Lead', email: 'tech@admin.com', role: 'technical_admin', roles: ['technical_admin'], status: 'inactive' },
   },
   'john@acmecorp.com': {
     password: 'customer123',
-    user: { ...mockCustomers[0], is_admin: false },
+    user: { ...mockCustomers[0], is_admin: false, role: 'customer_owner', roles: ['customer_owner'] },
   },
   'sarah@globaltech.com': {
     password: 'customer123',
-    user: { ...mockCustomers[1], is_admin: false },
+    user: { ...mockCustomers[1], is_admin: false, role: 'customer_owner', roles: ['customer_owner'] },
   },
   'emma@euromail.com': {
     password: 'customer123',
-    user: { ...mockCustomers[3], is_admin: false },
+    user: { ...mockCustomers[3], is_admin: false, role: 'customer_admin', roles: ['customer_admin'] },
   },
 };
 
@@ -54,9 +67,12 @@ export async function POST(request: NextRequest) {
               include: { plan: true },
             }) : null;
 
+            const userRoles = user.roles.map((r: any) => r.role.name);
+            const primaryRole = userRoles[0] || (user.isAdmin ? 'admin' : 'customer_owner');
+
             return NextResponse.json({
               success: true,
-              token: `jwt-${user.uid}-${Date.now()}`,
+              token: `sdasms_${user.uid}_${Date.now()}`,
               user: {
                 id: user.id, uid: user.uid,
                 first_name: user.firstName, last_name: user.lastName,
@@ -64,7 +80,8 @@ export async function POST(request: NextRequest) {
                 avatar: user.avatar, status: user.status,
                 sms_balance: parseFloat(user.smsBalance?.toString() || '0'),
                 plan: planData?.plan?.name || null,
-                roles: user.roles.map((r: any) => r.role.name),
+                role: primaryRole,
+                roles: userRoles,
               },
             });
           }
@@ -77,9 +94,17 @@ export async function POST(request: NextRequest) {
     // Demo mode - check against local user list
     const demoUser = demoUsers[email];
     if (demoUser && demoUser.password === password) {
+      // Check if user status is active
+      if (demoUser.user.status === 'inactive') {
+        return NextResponse.json(
+          { success: false, message: 'Account is inactive. Contact administrator.' },
+          { status: 403 }
+        );
+      }
+
       return NextResponse.json({
         success: true,
-        token: `demo-token-${demoUser.user.uid}-${Date.now()}`,
+        token: `sdasms_${demoUser.user.uid}_${Date.now()}`,
         user: demoUser.user,
       });
     }

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Send, Users, Clock, Hash, FileText, CreditCard, Settings, LayoutDashboard, FolderOpen, Loader2, LifeBuoy, BookOpen, UserCircle, Ban, Zap, Code2, BarChart3, Rocket, Construction, MessageSquare } from 'lucide-react';
+import { Send, Users, Clock, Hash, FileText, CreditCard, Settings, LayoutDashboard, FolderOpen, Loader2, LifeBuoy, BookOpen, UserCircle, Ban, Zap, Code2, BarChart3, Rocket, Construction, MessageSquare, UsersRound } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useCustomer, type CustomerViewId } from './customer-context';
 import { CustomerSidebar } from './customer-sidebar';
@@ -34,6 +34,7 @@ const viewMeta: Record<CustomerViewId, ViewMeta> = {
   'automations': { title: 'Automations', description: 'Set up automated SMS workflows', icon: <Zap className="h-5 w-5" /> },
   'developers': { title: 'Developers', description: 'API documentation and integration', icon: <Code2 className="h-5 w-5" /> },
   'reports': { title: 'Reports', description: 'View analytics and reports', icon: <BarChart3 className="h-5 w-5" /> },
+  'team': { title: 'Team', description: 'Manage team members and roles', icon: <UsersRound className="h-5 w-5" /> },
 };
 
 // ==================== LAZY VIEWS ====================
@@ -58,6 +59,7 @@ const HelpCenterCustomerView = dynamic(() => import('./views/help-center-custome
 const CampaignBuilderView = dynamic(() => import('./views/campaign-builder-view').then(m => ({ default: m.CampaignBuilderView })), { loading: LoadingFallback });
 const CampaignsView = dynamic(() => import('./views/campaigns-view').then(m => ({ default: m.CampaignsView })), { loading: LoadingFallback });
 const DevelopersView = dynamic(() => import('./views/developers-view').then(m => ({ default: m.DevelopersView })), { loading: LoadingFallback });
+const TeamView = dynamic(() => import('./views/team-view').then(m => ({ default: m.TeamView })), { loading: LoadingFallback });
 
 // ==================== PLACEHOLDER VIEW ====================
 function ComingSoonView({ title }: { title: string }) {
@@ -98,6 +100,7 @@ function CustomerViewRouter() {
     case 'automations': return <ComingSoonView title="Automations" />;
     case 'developers': return <DevelopersView />;
     case 'reports': return <ComingSoonView title="Reports" />;
+    case 'team': return <TeamView />;
     default: return <CustomerDashboardView />;
   }
 }

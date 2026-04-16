@@ -136,14 +136,29 @@ const menuItems: MenuItem[] = [
 ];
 
 export function Sidebar() {
-  const { currentView, sidebarOpen, expandedMenus, setCurrentView, toggleSidebar, toggleMenu, user, logout } = useApp();
+  const { currentView, sidebarOpen, expandedMenus, setCurrentView, toggleSidebar, toggleMenu, user, logout, canAccessView, getRoleMeta } = useApp();
 
   const displayName = `${user?.first_name || 'Super'} ${user?.last_name || 'Admin'}`;
   const initials = `${(user?.first_name || 'S').charAt(0)}${(user?.last_name || 'A').charAt(0)}`;
+  const roleMeta = getRoleMeta();
 
   const isActive = (view?: ViewId) => currentView === view;
   const isParentActive = (children?: { view: ViewId }[]) =>
     children ? children.some((c) => c.view === currentView) : false;
+
+  // Filter menu items based on role permissions
+  const filteredMenuItems = menuItems
+    .map((item) => {
+      if (item.view && !item.children) {
+        return canAccessView(item.view) ? item : null;
+      }
+      if (item.children) {
+        const accessibleChildren = item.children.filter((child) => canAccessView(child.view));
+        return accessibleChildren.length > 0 ? { ...item, children: accessibleChildren } : null;
+      }
+      return item;
+    })
+    .filter(Boolean) as typeof menuItems;
 
   return (
     <>
@@ -183,13 +198,13 @@ export function Sidebar() {
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-3 px-3">
           <div className="space-y-0.5">
-            {menuItems.map((item) => {
+            {filteredMenuItems.map((item) => {
               if (item.view && !item.children) {
                 const active = isActive(item.view);
                 return (
                   <button
                     key={item.view}
-                    onClick={() => setCurrentView(item.view)}
+                    onClick={() => item.view && setCurrentView(item.view)}
                     className={cn(
                       'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium cursor-pointer',
                       'transition-all duration-200 ease-out',
@@ -315,7 +330,7 @@ export function Sidebar() {
                 <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{displayName}</p>
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-[11px] text-gray-500 dark:text-gray-400">Available</span>
+                  <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${roleMeta.color}`}>{roleMeta.label}</span>
                 </div>
               </div>
               <button

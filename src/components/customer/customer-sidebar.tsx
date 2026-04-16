@@ -19,6 +19,7 @@ import {
   Rocket,
   MessageSquare,
   List,
+  UsersRound,
   type LucideIcon,
 } from 'lucide-react';
 import { useCustomer, type CustomerViewId } from './customer-context';
@@ -76,16 +77,18 @@ const navGroups: NavGroup[] = [
     view: 'reports',
   },
   { id: 'developers', label: 'Developers', icon: Code2, view: 'developers' },
+  { id: 'team', label: 'Team', icon: UsersRound, view: 'team' },
 ];
 
 // ==================== SIDEBAR COMPONENT ====================
 
 export function CustomerSidebar() {
-  const { currentView, sidebarOpen, setCurrentView, toggleSidebar, customerUser } = useCustomer();
+  const { currentView, sidebarOpen, setCurrentView, toggleSidebar, customerUser, canAccessView, getRoleMeta } = useCustomer();
   const { logout } = useApp();
 
+  const roleMeta = getRoleMeta();
+
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
-    // Auto-expand groups that contain the current view
     const initial = new Set<string>();
     for (const group of navGroups) {
       if (group.children) {
@@ -103,6 +106,20 @@ export function CustomerSidebar() {
   const initials = customerUser
     ? `${customerUser.first_name.charAt(0)}${customerUser.last_name.charAt(0)}`
     : 'C';
+
+  // Filter nav groups based on role permissions
+  const filteredNavGroups = navGroups
+    .map((group) => {
+      if (group.view && !group.children) {
+        return canAccessView(group.view) ? group : null;
+      }
+      if (group.children) {
+        const accessibleChildren = group.children.filter((child) => canAccessView(child.view));
+        return accessibleChildren.length > 0 ? { ...group, children: accessibleChildren } : null;
+      }
+      return group;
+    })
+    .filter(Boolean) as typeof navGroups;
 
   const toggleGroup = (groupId: string) => {
     setExpandedGroups((prev) => {
@@ -178,7 +195,7 @@ export function CustomerSidebar() {
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-3 px-3">
           <div className="space-y-0.5">
-            {navGroups.map((group) => {
+            {filteredNavGroups.map((group) => {
               const active = isGroupActive(group);
               const hasChildren = !!group.children;
               const isExpanded = expandedGroups.has(group.id);
@@ -294,7 +311,7 @@ export function CustomerSidebar() {
                 <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{displayName}</p>
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-[11px] text-gray-500 dark:text-gray-400">Customer</span>
+                  <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${roleMeta.color}`}>{roleMeta.label}</span>
                 </div>
               </div>
               <button
@@ -307,7 +324,7 @@ export function CustomerSidebar() {
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-8 h-8">
                 {customerUser?.avatar && <AvatarImage src={customerUser.avatar} alt={displayName} />}
                 <AvatarFallback className="bg-[#D72444] text-white text-[10px] font-semibold">
                   {initials}
