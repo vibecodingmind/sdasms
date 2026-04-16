@@ -17,6 +17,8 @@ import {
   ChevronDown,
   ChevronRight,
   Rocket,
+  MessageSquare,
+  List,
   type LucideIcon,
 } from 'lucide-react';
 import { useCustomer, type CustomerViewId } from './customer-context';
@@ -63,6 +65,8 @@ const navGroups: NavGroup[] = [
       { label: 'Campaign Builder', icon: Zap, view: 'campaign-builder' },
     ],
   },
+  { id: 'all-messages', label: 'All Messages', icon: MessageSquare, view: 'all-messages' },
+  { id: 'campaigns', label: 'Campaigns', icon: List, view: 'campaigns' },
   { id: 'blacklist', label: 'Blacklist', icon: Ban, view: 'blacklist' },
   { id: 'automations', label: 'Automations', icon: Zap, view: 'automations' },
   {

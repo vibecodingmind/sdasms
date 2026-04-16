@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Send, Users, Clock, Hash, FileText, CreditCard, Settings, LayoutDashboard, FolderOpen, Loader2, LifeBuoy, BookOpen, UserCircle, Ban, Zap, Code2, BarChart3, Rocket, Construction } from 'lucide-react';
+import { Send, Users, Clock, Hash, FileText, CreditCard, Settings, LayoutDashboard, FolderOpen, Loader2, LifeBuoy, BookOpen, UserCircle, Ban, Zap, Code2, BarChart3, Rocket, Construction, MessageSquare } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useCustomer, type CustomerViewId } from './customer-context';
 import { CustomerSidebar } from './customer-sidebar';
@@ -20,6 +20,7 @@ const viewMeta: Record<CustomerViewId, ViewMeta> = {
   'compose-sms': { title: 'Compose SMS', description: 'Send SMS messages to your contacts', icon: <Send className="h-5 w-5" /> },
   'contacts': { title: 'Contacts', description: 'Manage your contact list', icon: <Users className="h-5 w-5" /> },
   'contact-groups': { title: 'Contact Groups', description: 'Organize contacts into groups', icon: <FolderOpen className="h-5 w-5" /> },
+  'all-messages': { title: 'All Messages', description: 'View all SMS messages with advanced filters', icon: <MessageSquare className="h-5 w-5" /> },
   'sms-history': { title: 'SMS History', description: 'View SMS delivery history', icon: <Clock className="h-5 w-5" /> },
   'sms-templates': { title: 'SMS Templates', description: 'Manage your message templates', icon: <FileText className="h-5 w-5" /> },
   'sender-ids': { title: 'Sender IDs', description: 'Manage your registered sender IDs', icon: <Hash className="h-5 w-5" /> },
@@ -28,6 +29,7 @@ const viewMeta: Record<CustomerViewId, ViewMeta> = {
   'help-center': { title: 'Help Center', description: 'Browse FAQs and knowledge base', icon: <BookOpen className="h-5 w-5" /> },
   'settings': { title: 'Settings', description: 'Manage your account settings', icon: <Settings className="h-5 w-5" /> },
   'campaign-builder': { title: 'Campaign Builder', description: 'Create and manage SMS campaigns', icon: <Zap className="h-5 w-5" /> },
+  'campaigns': { title: 'Campaigns', description: 'View and manage campaign history', icon: <Rocket className="h-5 w-5" /> },
   'blacklist': { title: 'Blacklist', description: 'Manage blocked numbers', icon: <Ban className="h-5 w-5" /> },
   'automations': { title: 'Automations', description: 'Set up automated SMS workflows', icon: <Zap className="h-5 w-5" /> },
   'developers': { title: 'Developers', description: 'API documentation and integration', icon: <Code2 className="h-5 w-5" /> },
@@ -54,6 +56,8 @@ const CustomerSettingsView = dynamic(() => import('./views/customer-settings-vie
 const SupportView = dynamic(() => import('./views/support-view').then(m => ({ default: m.SupportView })), { loading: LoadingFallback });
 const HelpCenterCustomerView = dynamic(() => import('./views/help-center-customer-view').then(m => ({ default: m.HelpCenterCustomerView })), { loading: LoadingFallback });
 const CampaignBuilderView = dynamic(() => import('./views/campaign-builder-view').then(m => ({ default: m.CampaignBuilderView })), { loading: LoadingFallback });
+const CampaignsView = dynamic(() => import('./views/campaigns-view').then(m => ({ default: m.CampaignsView })), { loading: LoadingFallback });
+const DevelopersView = dynamic(() => import('./views/developers-view').then(m => ({ default: m.DevelopersView })), { loading: LoadingFallback });
 
 // ==================== PLACEHOLDER VIEW ====================
 function ComingSoonView({ title }: { title: string }) {
@@ -87,10 +91,12 @@ function CustomerViewRouter() {
     case 'support': return <SupportView />;
     case 'help-center': return <HelpCenterCustomerView />;
     case 'settings': return <CustomerSettingsView />;
+    case 'all-messages': return <SmsHistoryCustomerView />;
     case 'campaign-builder': return <CampaignBuilderView />;
+    case 'campaigns': return <CampaignsView />;
     case 'blacklist': return <ComingSoonView title="Blacklist" />;
     case 'automations': return <ComingSoonView title="Automations" />;
-    case 'developers': return <ComingSoonView title="Developers" />;
+    case 'developers': return <DevelopersView />;
     case 'reports': return <ComingSoonView title="Reports" />;
     default: return <CustomerDashboardView />;
   }
