@@ -392,6 +392,52 @@ export const mockSmsTemplates = [
   { id: 10, name: "Tangazo", customer: "UNYANKINDI SDA", customer_email: "unyankindisda@gmail.com", message: "UNYANKINDI SDA - Youth Ministry presents a special seminar on {TOPIC}. Date: {DATE}, Venue: {VENUE}. All youth members aged 16-35 are encouraged to attend.", status: "active" },
 ];
 
+export const mockNotifications = [
+  { id: 1, type: 'Senderid', message: 'New Sender ID request from Right Winners', is_read: false, created_at: '2026-04-16 22:30:00' },
+  { id: 2, type: 'Senderid', message: 'New Sender ID request from Right Winners', is_read: false, created_at: '2026-04-16 21:15:00' },
+  { id: 3, type: 'Topup', message: 'SMS Unit 1429 Purchased By MEJASTAR MEDICAL LIMITED', is_read: false, created_at: '2026-04-16 20:45:00' },
+  { id: 4, type: 'Topup', message: 'SMS Unit 1933 Purchased By ZAKAYO JOHN SHUSHU', is_read: false, created_at: '2026-04-16 19:30:00' },
+  { id: 5, type: 'Topup', message: 'SMS Unit 133 Purchased By SAVIN MEDIA', is_read: false, created_at: '2026-04-16 18:20:00' },
+  { id: 6, type: 'Topup', message: 'SMS Unit 200 Purchased By AMANI MWAIPAJA', is_read: false, created_at: '2026-04-16 17:10:00' },
+  { id: 7, type: 'Senderid', message: 'New Sender ID request from SAVIN MEDIA', is_read: false, created_at: '2026-04-16 16:00:00' },
+  { id: 8, type: 'Topup', message: 'SMS Unit 3571 Purchased By Mazinde Union', is_read: false, created_at: '2026-04-16 15:45:00' },
+  { id: 9, type: 'Topup', message: 'SMS Unit 3571 Purchased By Mazinde Union', is_read: false, created_at: '2026-04-16 14:30:00' },
+  { id: 10, type: 'Topup', message: 'SMS Unit 3571 Purchased By Mazinde Union', is_read: false, created_at: '2026-04-16 13:15:00' },
+  { id: 11, type: 'Senderid', message: 'New Sender ID request from CLAY\'S AFRICA INSURANCE AGENCY', is_read: true, created_at: '2026-04-15 22:30:00' },
+  { id: 12, type: 'Topup', message: 'SMS Unit 500 Purchased By Nemence Soka', is_read: true, created_at: '2026-04-15 20:00:00' },
+  { id: 13, type: 'Senderid', message: 'New Sender ID request from GAVA ENTERPRISES', is_read: true, created_at: '2026-04-15 18:30:00' },
+  { id: 14, type: 'Topup', message: 'SMS Unit 2500 Purchased By Reginald Hendry Shirima', is_read: true, created_at: '2026-04-15 16:00:00' },
+  { id: 15, type: 'Senderid', message: 'New Sender ID request from ATAPE MOROGORO', is_read: true, created_at: '2026-04-15 14:00:00' },
+  { id: 16, type: 'Topup', message: 'SMS Unit 800 Purchased By Samwel Mgaya', is_read: true, created_at: '2026-04-15 12:00:00' },
+  { id: 17, type: 'Senderid', message: 'New Sender ID request from Dickson Manko', is_read: true, created_at: '2026-04-14 22:00:00' },
+  { id: 18, type: 'Topup', message: 'SMS Unit 1750 Purchased By Ikizu High School', is_read: true, created_at: '2026-04-14 18:30:00' },
+  { id: 19, type: 'Senderid', message: 'New Sender ID request from Datius Rweyemamu', is_read: true, created_at: '2026-04-14 15:00:00' },
+  { id: 20, type: 'Topup', message: 'SMS Unit 600 Purchased By UNYANKINDI SDA', is_read: true, created_at: '2026-04-14 12:00:00' },
+  { id: 21, type: 'Topup', message: 'SMS Unit 900 Purchased By Oswald Stephan Kihaga', is_read: true, created_at: '2026-04-13 20:00:00' },
+  { id: 22, type: 'Senderid', message: 'New Sender ID request from OSWALD STEPHAN KIHAGA', is_read: true, created_at: '2026-04-13 16:00:00' },
+  { id: 23, type: 'Topup', message: 'SMS Unit 4200 Purchased By MEJASTAR MEDICAL LIMITED', is_read: true, created_at: '2026-04-13 10:00:00' },
+  { id: 24, type: 'Senderid', message: 'New Sender ID request from SAVIN MEDIA', is_read: true, created_at: '2026-04-12 22:00:00' },
+  { id: 25, type: 'Topup', message: 'SMS Unit 330 Purchased By Right Winners', is_read: true, created_at: '2026-04-12 14:00:00' },
+  { id: 26, type: 'Topup', message: 'SMS Unit 1500 Purchased By ZAKAYO JOHN SHUSHU', is_read: true, created_at: '2026-04-12 10:00:00' },
+  { id: 27, type: 'Senderid', message: 'New Sender ID request from AMANI MWAIPAJA', is_read: true, created_at: '2026-04-11 20:00:00' },
+  { id: 28, type: 'Topup', message: 'SMS Unit 2100 Purchased By Mazinde Union', is_read: true, created_at: '2026-04-11 16:00:00' },
+  { id: 29, type: 'Senderid', message: 'New Sender ID request from CLAY\'S AFRICA INSURANCE AGENCY', is_read: true, created_at: '2026-04-11 12:00:00' },
+  { id: 30, type: 'Topup', message: 'SMS Unit 700 Purchased By GAVA ENTERPRISES', is_read: true, created_at: '2026-04-11 08:00:00' },
+];
+
+export const mockTimezones = [
+  { label: '(GMT+03:00) Africa/Dar_es_Salaam', value: 'Africa/Dar_es_Salaam' },
+  { label: '(GMT+00:00) UTC', value: 'UTC' },
+  { label: '(GMT+01:00) Europe/London', value: 'Europe/London' },
+  { label: '(GMT+02:00) Africa/Cairo', value: 'Africa/Cairo' },
+  { label: '(GMT+03:00) Europe/Moscow', value: 'Europe/Moscow' },
+  { label: '(GMT+05:30) Asia/Kolkata', value: 'Asia/Kolkata' },
+  { label: '(GMT+08:00) Asia/Shanghai', value: 'Asia/Shanghai' },
+  { label: '(GMT+09:00) Asia/Tokyo', value: 'Asia/Tokyo' },
+  { label: '(GMT-05:00) America/New_York', value: 'America/New_York' },
+  { label: '(GMT-08:00) America/Los_Angeles', value: 'America/Los_Angeles' },
+];
+
 export const mockSettings = {
   app_name: "SDASMS",
   logo_url: "/logo.png",

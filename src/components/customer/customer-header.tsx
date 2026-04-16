@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Menu, Search, Bell, ChevronDown, Globe, Sun, Moon, PanelLeftClose, PanelLeft, LogOut, User, Settings } from 'lucide-react';
+import { Menu, Search, Bell, ChevronDown, Globe, Sun, Moon, PanelLeftClose, PanelLeft, LogOut, User, Settings, Plus } from 'lucide-react';
 import { useCustomer } from './customer-context';
 import { useApp } from '@/components/admin/app-context';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ import {
 
 const viewLabels: Record<string, string> = {
   'customer-dashboard': 'Dashboard',
+  'account': 'Account',
   'compose-sms': 'Compose SMS',
   'contacts': 'Contacts',
   'contact-groups': 'Contact Groups',
@@ -28,6 +29,11 @@ const viewLabels: Record<string, string> = {
   'support': 'Support',
   'help-center': 'Help Center',
   'settings': 'Settings',
+  'campaign-builder': 'Campaign Builder',
+  'blacklist': 'Blacklist',
+  'automations': 'Automations',
+  'developers': 'Developers',
+  'reports': 'Reports',
 };
 
 export function CustomerHeader() {
@@ -116,6 +122,21 @@ export function CustomerHeader() {
           <ChevronDown className="h-3 w-3" />
         </Button>
 
+        {/* SMS Unit Counter + Top Up */}
+        <div className="hidden md:flex items-center gap-2">
+          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+            SMS UNIT {customerUser?.sms_balance?.toLocaleString() || '0'}
+          </span>
+          <Button
+            size="sm"
+            className="bg-green-600 hover:bg-green-700 text-white text-xs h-7 px-2.5"
+            onClick={() => setCurrentView('billing')}
+          >
+            <Plus className="h-3 w-3 mr-1" />
+            Top up
+          </Button>
+        </div>
+
         {/* Profile Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -130,7 +151,7 @@ export function CustomerHeader() {
                 <p className="text-sm font-medium text-gray-800 dark:text-gray-100 leading-tight">
                   {displayName}
                 </p>
-                <p className="text-[11px] text-gray-400 dark:text-gray-500">{displayEmail}</p>
+                <p className="text-[11px] text-gray-400 dark:text-gray-500">Available</p>
               </div>
               <ChevronDown className="h-3.5 w-3.5 text-gray-400 hidden sm:block" />
             </button>
@@ -148,10 +169,10 @@ export function CustomerHeader() {
             <DropdownMenuGroup>
               <DropdownMenuItem
                 className="cursor-pointer"
-                onClick={() => setCurrentView('settings')}
+                onClick={() => setCurrentView('account')}
               >
                 <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+                <span>Account</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer"

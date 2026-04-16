@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, Rea
 
 export type CustomerViewId =
   | 'customer-dashboard'
+  | 'account'
   | 'compose-sms'
   | 'contacts'
   | 'contact-groups'
@@ -13,7 +14,12 @@ export type CustomerViewId =
   | 'billing'
   | 'support'
   | 'help-center'
-  | 'settings';
+  | 'settings'
+  | 'campaign-builder'
+  | 'blacklist'
+  | 'automations'
+  | 'developers'
+  | 'reports';
 
 interface CustomerUserData {
   id: number;
