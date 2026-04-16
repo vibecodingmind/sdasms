@@ -43,6 +43,19 @@ const demoUsers: Record<string, { password: string; user: any }> = {
   },
 };
 
+function createSessionCookie(userData: any) {
+  const session = {
+    userId: userData.id,
+    uid: userData.uid,
+    email: userData.email,
+    is_admin: userData.is_admin || false,
+    role: userData.role || (userData.is_admin ? 'admin' : 'customer_owner'),
+    roles: userData.roles || [],
+    expiresAt: Date.now() + 24 * 60 * 60 * 1000,
+  };
+  return session;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
@@ -70,20 +83,34 @@ export async function POST(request: NextRequest) {
             const userRoles = user.roles.map((r: any) => r.role.name);
             const primaryRole = userRoles[0] || (user.isAdmin ? 'admin' : 'customer_owner');
 
-            return NextResponse.json({
+            const userData = {
+              id: user.id, uid: user.uid,
+              first_name: user.firstName, last_name: user.lastName,
+              email: user.email, is_admin: user.isAdmin,
+              avatar: user.avatar, status: user.status,
+              sms_balance: parseFloat(user.smsBalance?.toString() || '0'),
+              plan: planData?.plan?.name || null,
+              role: primaryRole,
+              roles: userRoles,
+            };
+
+            const session = createSessionCookie(userData);
+            const response = NextResponse.json({
               success: true,
               token: `sdasms_${user.uid}_${Date.now()}`,
-              user: {
-                id: user.id, uid: user.uid,
-                first_name: user.firstName, last_name: user.lastName,
-                email: user.email, is_admin: user.isAdmin,
-                avatar: user.avatar, status: user.status,
-                sms_balance: parseFloat(user.smsBalance?.toString() || '0'),
-                plan: planData?.plan?.name || null,
-                role: primaryRole,
-                roles: userRoles,
-              },
+              user: userData,
             });
+
+            // Set HTTP-only session cookie for middleware auth
+            response.cookies.set('sdasms_session', JSON.stringify(session), {
+              httpOnly: true,
+              secure: process.env.NODE_ENV === 'production',
+              sameSite: 'lax',
+              maxAge: 60 * 60 * 24,
+              path: '/',
+            });
+
+            return response;
           }
         }
       } catch (dbError) {
@@ -102,11 +129,23 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      return NextResponse.json({
+      const session = createSessionCookie(demoUser.user);
+      const response = NextResponse.json({
         success: true,
         token: `sdasms_${demoUser.user.uid}_${Date.now()}`,
         user: demoUser.user,
       });
+
+      // Set HTTP-only session cookie for middleware auth
+      response.cookies.set('sdasms_session', JSON.stringify(session), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24,
+        path: '/',
+      });
+
+      return response;
     }
 
     return NextResponse.json(

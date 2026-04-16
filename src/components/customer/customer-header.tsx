@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Menu, Search, Bell, ChevronDown, Globe, Sun, Moon, PanelLeftClose, PanelLeft, LogOut, User, Settings, Plus } from 'lucide-react';
+import { Menu, Search, Bell, ChevronDown, Globe, Sun, Moon, PanelLeftClose, PanelLeft, LogOut, User, Settings, Plus, UserCheck, ShieldAlert } from 'lucide-react';
 import { useCustomer } from './customer-context';
 import { useApp } from '@/components/admin/app-context';
 import { Button } from '@/components/ui/button';
@@ -41,7 +41,9 @@ export function CustomerHeader() {
     currentView, sidebarOpen, toggleSidebar, theme, toggleTheme,
     customerUser, setCurrentView,
   } = useCustomer();
-  const { logout } = useApp();
+  const { logout, impersonatedCustomer, exitImpersonation } = useApp();
+
+  const isImpersonating = !!impersonatedCustomer;
 
   const displayName = customerUser
     ? `${customerUser.first_name} ${customerUser.last_name}`
@@ -52,7 +54,43 @@ export function CustomerHeader() {
     : 'C';
 
   return (
-    <header className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 lg:px-6 shrink-0 transition-colors duration-300">
+    <>
+      {/* Impersonation Banner */}
+      {isImpersonating && (
+        <div className="bg-amber-50 dark:bg-amber-900/30 border-b border-amber-200 dark:border-amber-700/50 px-4 py-2.5 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center w-7 h-7 rounded-full bg-amber-100 dark:bg-amber-800/60">
+              <UserCheck className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div className="flex items-center gap-1.5 text-sm">
+              <span className="text-amber-800 dark:text-amber-200 font-medium">Viewing as customer:</span>
+              <span className="text-amber-900 dark:text-amber-100 font-semibold">
+                {customerUser?.first_name} {customerUser?.last_name}
+              </span>
+              <span className="text-amber-600 dark:text-amber-400 hidden sm:inline">
+                ({customerUser?.email})
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="hidden sm:inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-800/40 px-2 py-1 rounded-full">
+              <ShieldAlert className="h-3 w-3" />
+              {customerUser?.plan} Plan
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exitImpersonation}
+              className="bg-amber-100 dark:bg-amber-800/40 border-amber-300 dark:border-amber-600 text-amber-800 dark:text-amber-200 hover:bg-amber-200 dark:hover:bg-amber-700/50 text-xs gap-1.5 shrink-0"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              Exit Impersonation
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <header className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4 lg:px-6 shrink-0 transition-colors duration-300">
       <div className="flex items-center gap-3">
         {/* Mobile menu toggle */}
         <button
@@ -196,5 +234,6 @@ export function CustomerHeader() {
         </DropdownMenu>
       </div>
     </header>
+    </>
   );
 }

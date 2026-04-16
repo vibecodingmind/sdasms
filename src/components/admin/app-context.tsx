@@ -322,7 +322,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return true;
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    // Clear server-side session cookie
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {
+      // Ignore errors - client session will still be cleared
+    }
     setUser(null);
     setImpersonatedCustomer(null);
     setIsAuthenticated(false);

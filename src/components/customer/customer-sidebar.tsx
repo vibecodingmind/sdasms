@@ -20,6 +20,10 @@ import {
   MessageSquare,
   List,
   UsersRound,
+  UserCircle,
+  CreditCard,
+  LifeBuoy,
+  BookOpen,
   type LucideIcon,
 } from 'lucide-react';
 import { useCustomer, type CustomerViewId } from './customer-context';
@@ -48,36 +52,47 @@ interface NavGroup {
 const navGroups: NavGroup[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, view: 'customer-dashboard' },
   {
-    id: 'sending',
-    label: 'Sending',
-    icon: Send,
-    children: [
-      { label: 'Sender ID', icon: Hash, view: 'sender-ids' },
-      { label: 'SMS Template', icon: FileText, view: 'sms-templates' },
-    ],
-  },
-  { id: 'contacts', label: 'Contacts', icon: Users, view: 'contacts' },
-  {
     id: 'sms',
     label: 'SMS',
     icon: Send,
     children: [
       { label: 'Quick Send', icon: Rocket, view: 'compose-sms' },
       { label: 'Campaign Builder', icon: Zap, view: 'campaign-builder' },
+      { label: 'All Messages', icon: MessageSquare, view: 'all-messages' },
+      { label: 'Campaigns', icon: List, view: 'campaigns' },
     ],
   },
-  { id: 'all-messages', label: 'All Messages', icon: MessageSquare, view: 'all-messages' },
-  { id: 'campaigns', label: 'Campaigns', icon: List, view: 'campaigns' },
+  { id: 'contacts', label: 'Contacts', icon: Users, view: 'contacts' },
+  {
+    id: 'sending',
+    label: 'Sending',
+    icon: Hash,
+    children: [
+      { label: 'Sender IDs', icon: Hash, view: 'sender-ids' },
+      { label: 'SMS Templates', icon: FileText, view: 'sms-templates' },
+    ],
+  },
   { id: 'blacklist', label: 'Blacklist', icon: Ban, view: 'blacklist' },
   { id: 'automations', label: 'Automations', icon: Zap, view: 'automations' },
+  { id: 'developers', label: 'Developers', icon: Code2, view: 'developers' },
   {
     id: 'reports',
     label: 'Reports',
     icon: BarChart3,
     view: 'reports',
   },
-  { id: 'developers', label: 'Developers', icon: Code2, view: 'developers' },
+  { id: 'billing', label: 'Billing', icon: CreditCard, view: 'billing' },
   { id: 'team', label: 'Team', icon: UsersRound, view: 'team' },
+  { id: 'account', label: 'Account', icon: UserCircle, view: 'account' },
+  {
+    id: 'support',
+    label: 'Support',
+    icon: LifeBuoy,
+    children: [
+      { label: 'Support Tickets', icon: LifeBuoy, view: 'support' },
+      { label: 'Help Center', icon: BookOpen, view: 'help-center' },
+    ],
+  },
 ];
 
 // ==================== SIDEBAR COMPONENT ====================
