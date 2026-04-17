@@ -18,7 +18,7 @@ interface DashboardData {
   revenueData: { month: string; revenue: number }[];
   recentOrders: { id: number; customer: string; plan: string; amount: string; date: string; status: string }[];
   topCustomers: { name: string; email: string; sent: number; revenue: string }[];
-  systemOverview: { totalUsers: number; messagesQueued: number; serverStatus: string; uptime: string; dbSize: string; lastBackup: string };
+  systemOverview: Record<string, any>;
 }
 
 export function DashboardView() {
@@ -27,9 +27,18 @@ export function DashboardView() {
   useEffect(() => {
     fetch('/api/dashboard')
       .then((r) => r.json())
-      .then((r) => setData(r.data))
+      .then((r) => {
+        if (r.data) setData(r.data);
+      })
       .catch(() => {});
   }, []);
+
+  // Safe defaults for nested data
+  const stats = data?.stats ?? { totalCustomers: 0, customersGrowth: 0, smsSentToday: 0, smsGrowth: 0, revenue: 0, revenueGrowth: 0, activeSubscriptions: 0, subscriptionsGrowth: 0 };
+  const revenueData = data?.revenueData ?? [];
+  const recentOrders = data?.recentOrders ?? [];
+  const topCustomers = data?.topCustomers ?? [];
+  const systemOverview = data?.systemOverview ?? {};
 
   if (!data) {
     return (
@@ -42,32 +51,32 @@ export function DashboardView() {
   const statCards = [
     {
       title: 'Total Customers',
-      value: data.stats.totalCustomers.toLocaleString(),
-      growth: data.stats.customersGrowth,
+      value: stats.totalCustomers.toLocaleString(),
+      growth: stats.customersGrowth,
       icon: <Users className="h-5 w-5" />,
       color: 'bg-[#D72444]',
       lightColor: 'bg-[#FEF2F2]',
     },
     {
       title: 'SMS Sent Today',
-      value: data.stats.smsSentToday.toLocaleString(),
-      growth: data.stats.smsGrowth,
+      value: stats.smsSentToday.toLocaleString(),
+      growth: stats.smsGrowth,
       icon: <MessageSquare className="h-5 w-5" />,
       color: 'bg-[#3B82F6]',
       lightColor: 'bg-[#EFF6FF]',
     },
     {
       title: 'Revenue',
-      value: `$${data.stats.revenue.toLocaleString()}`,
-      growth: data.stats.revenueGrowth,
+      value: `$${stats.revenue.toLocaleString()}`,
+      growth: stats.revenueGrowth,
       icon: <DollarSign className="h-5 w-5" />,
       color: 'bg-[#10B981]',
       lightColor: 'bg-[#ECFDF5]',
     },
     {
       title: 'Active Subscriptions',
-      value: data.stats.activeSubscriptions.toLocaleString(),
-      growth: data.stats.subscriptionsGrowth,
+      value: stats.activeSubscriptions.toLocaleString(),
+      growth: stats.subscriptionsGrowth,
       icon: <CreditCard className="h-5 w-5" />,
       color: 'bg-[#F97316]',
       lightColor: 'bg-[#FFF7ED]',
@@ -133,7 +142,7 @@ export function DashboardView() {
           <CardContent className="pt-0">
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data.revenueData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
+                <AreaChart data={revenueData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
                   <defs>
                     <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#D72444" stopOpacity={0.15} />
@@ -167,12 +176,12 @@ export function DashboardView() {
           </CardHeader>
           <CardContent className="pt-0 space-y-4">
             {[
-              { label: 'Total Users', value: data.systemOverview.totalUsers.toLocaleString(), color: 'text-[#D72444]' },
-              { label: 'Messages Queued', value: data.systemOverview.messagesQueued.toLocaleString(), color: 'text-[#3B82F6]' },
-              { label: 'Server Status', value: data.systemOverview.serverStatus, color: 'text-[#10B981]' },
-              { label: 'Uptime', value: data.systemOverview.uptime, color: 'text-[#10B981]' },
-              { label: 'DB Size', value: data.systemOverview.dbSize, color: 'text-[#F97316]' },
-              { label: 'Last Backup', value: data.systemOverview.lastBackup, color: 'text-gray-700' },
+              { label: 'Total Users', value: typeof systemOverview.totalUsers === 'number' ? systemOverview.totalUsers.toLocaleString() : String(systemOverview.totalUsers ?? '—'), color: 'text-[#D72444]' },
+              { label: 'Total SMS Sent', value: typeof systemOverview.totalSmsSent === 'number' ? systemOverview.totalSmsSent.toLocaleString() : String(systemOverview.totalSmsSent ?? systemOverview.messagesQueued ?? '—'), color: 'text-[#3B82F6]' },
+              { label: 'Delivery Rate', value: systemOverview.deliveryRate ? `${systemOverview.deliveryRate}%` : systemOverview.serverStatus ?? '—', color: 'text-[#10B981]' },
+              { label: 'Active Campaigns', value: typeof systemOverview.activeCampaigns === 'number' ? systemOverview.activeCampaigns.toLocaleString() : String(systemOverview.activeCampaigns ?? '—'), color: 'text-[#10B981]' },
+              { label: 'Total Revenue', value: typeof systemOverview.totalRevenue === 'number' ? `$${systemOverview.totalRevenue.toLocaleString()}` : String(systemOverview.totalRevenue ?? systemOverview.dbSize ?? '—'), color: 'text-[#F97316]' },
+              { label: 'Total Payments', value: typeof systemOverview.totalPayments === 'number' ? systemOverview.totalPayments.toLocaleString() : String(systemOverview.totalPayments ?? systemOverview.lastBackup ?? '—'), color: 'text-gray-700' },
             ].map((item) => (
               <div key={item.label} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
                 <span className="text-sm text-gray-500">{item.label}</span>
@@ -205,7 +214,7 @@ export function DashboardView() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.recentOrders.map((order) => (
+                {recentOrders.map((order) => (
                   <TableRow key={order.id} className="border-gray-50">
                     <TableCell className="text-sm text-gray-700 font-medium">{order.customer}</TableCell>
                     <TableCell className="text-sm text-gray-500">{order.plan}</TableCell>
@@ -232,7 +241,7 @@ export function DashboardView() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.topCustomers.map((c, i) => (
+                {topCustomers.map((c, i) => (
                   <TableRow key={i} className="border-gray-50">
                     <TableCell>
                       <div>
@@ -240,7 +249,7 @@ export function DashboardView() {
                         <p className="text-xs text-gray-400">{c.email}</p>
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm text-gray-600">{c.sent.toLocaleString()}</TableCell>
+                    <TableCell className="text-sm text-gray-600">{(c.sent ?? 0).toLocaleString()}</TableCell>
                     <TableCell className="text-sm font-semibold text-[#10B981]">{c.revenue}</TableCell>
                   </TableRow>
                 ))}

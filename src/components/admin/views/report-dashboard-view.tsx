@@ -16,7 +16,15 @@ export function ReportDashboardView() {
   } | null>(null);
 
   useEffect(() => {
-    fetch('/api/reports').then((r) => r.json()).then((r) => setData(r.data)).catch(() => {});
+    fetch('/api/reports').then((r) => r.json()).then((r) => {
+      if (r.data) {
+        setData({
+          stats: r.data.stats ?? { totalSent: 0, delivered: 0, failed: 0, pending: 0 },
+          smsTrend: r.data.smsTrend ?? [],
+          deliveryBreakdown: r.data.deliveryBreakdown ?? [],
+        });
+      }
+    }).catch(() => {});
   }, []);
 
   if (!data) {
@@ -24,10 +32,10 @@ export function ReportDashboardView() {
   }
 
   const statCards = [
-    { title: 'Total SMS Sent', value: data.stats.totalSent.toLocaleString(), icon: <MessageSquare className="h-5 w-5" />, color: 'bg-[#D72444]', light: 'bg-[#FEF2F2]' },
-    { title: 'Delivered', value: data.stats.delivered.toLocaleString(), icon: <CheckCircle2 className="h-5 w-5" />, color: 'bg-[#10B981]', light: 'bg-[#ECFDF5]' },
-    { title: 'Failed', value: data.stats.failed.toLocaleString(), icon: <XCircle className="h-5 w-5" />, color: 'bg-[#EF4444]', light: 'bg-[#FEF2F2]' },
-    { title: 'Pending', value: data.stats.pending.toLocaleString(), icon: <Clock className="h-5 w-5" />, color: 'bg-[#F59E0B]', light: 'bg-[#FFFBEB]' },
+    { title: 'Total SMS Sent', value: (data.stats?.totalSent ?? 0).toLocaleString(), icon: <MessageSquare className="h-5 w-5" />, color: 'bg-[#D72444]', light: 'bg-[#FEF2F2]' },
+    { title: 'Delivered', value: (data.stats?.delivered ?? 0).toLocaleString(), icon: <CheckCircle2 className="h-5 w-5" />, color: 'bg-[#10B981]', light: 'bg-[#ECFDF5]' },
+    { title: 'Failed', value: (data.stats?.failed ?? 0).toLocaleString(), icon: <XCircle className="h-5 w-5" />, color: 'bg-[#EF4444]', light: 'bg-[#FEF2F2]' },
+    { title: 'Pending', value: (data.stats?.pending ?? 0).toLocaleString(), icon: <Clock className="h-5 w-5" />, color: 'bg-[#F59E0B]', light: 'bg-[#FFFBEB]' },
   ];
 
   return (
@@ -68,7 +76,7 @@ export function ReportDashboardView() {
           <CardContent className="pt-0">
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data.smsTrend} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
+                <AreaChart data={data.smsTrend ?? []} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
                   <defs>
                     <linearGradient id="colorSms" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.15} />
@@ -94,8 +102,8 @@ export function ReportDashboardView() {
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={data.deliveryBreakdown} cx="50%" cy="50%" innerRadius={55} outerRadius={80} dataKey="value" strokeWidth={2} stroke="#fff">
-                    {data.deliveryBreakdown.map((entry, i) => (
+                  <Pie data={data.deliveryBreakdown ?? []} cx="50%" cy="50%" innerRadius={55} outerRadius={80} dataKey="value" strokeWidth={2} stroke="#fff">
+                    {(data.deliveryBreakdown ?? []).map((entry, i) => (
                       <Cell key={i} fill={entry.color} />
                     ))}
                   </Pie>
@@ -104,13 +112,13 @@ export function ReportDashboardView() {
               </ResponsiveContainer>
             </div>
             <div className="space-y-2 mt-2">
-              {data.deliveryBreakdown.map((item) => (
+              {(data.deliveryBreakdown ?? []).map((item) => (
                 <div key={item.name} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <span className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
                     <span className="text-gray-500">{item.name}</span>
                   </div>
-                  <span className="font-medium text-gray-700">{item.value.toLocaleString()}</span>
+                  <span className="font-medium text-gray-700">{(item.value ?? 0).toLocaleString()}</span>
                 </div>
               ))}
             </div>

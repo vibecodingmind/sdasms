@@ -195,7 +195,7 @@ export function CustomersView() {
 
   const activeCount = customers.filter((c) => c.status === 'active').length;
   const inactiveCount = customers.filter((c) => c.status === 'inactive').length;
-  const totalBalance = customers.reduce((sum, c) => sum + c.sms_balance, 0);
+  const totalBalance = customers.reduce((sum, c) => sum + (c.sms_balance ?? 0), 0);
 
   // ─── Selection logic ───────────────────────────────────────
   const allOnPageSelected = paged.length > 0 && paged.every((c) => selectedIds.has(c.id));
@@ -620,7 +620,7 @@ export function CustomersView() {
                         </span>
                       </TableCell>
                       <TableCell className="text-sm text-gray-600 dark:text-gray-300 hidden sm:table-cell">
-                        {c.sms_balance.toLocaleString()}
+                        {(c.sms_balance ?? 0).toLocaleString()}
                       </TableCell>
                       <TableCell>
                         <Badge

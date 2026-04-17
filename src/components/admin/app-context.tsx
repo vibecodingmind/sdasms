@@ -179,16 +179,28 @@ const emailRoleMap: Record<string, UserRole> = {
 };
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const initialSession = loadSession();
-  const [isAuthenticated, setIsAuthenticated] = useState(initialSession !== null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useState<AdminUser | null>(initialSession);
+  // Start with loading=true to avoid hydration mismatch.
+  // On the server, loadSession() returns null. On the client it may return a session.
+  // We use useEffect to check localStorage only after mount.
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<AdminUser | null>(null);
   const [currentView, setCurrentView] = useState<ViewId>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['Customer', 'Sending']);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [impersonatedCustomer, setImpersonatedCustomer] = useState<CustomerUser | null>(null);
+
+  // Restore session from localStorage on mount (client-only)
+  useEffect(() => {
+    const session = loadSession();
+    if (session) {
+      setUser(session);
+      setIsAuthenticated(true);
+    }
+    setIsLoading(false);
+  }, []);
 
   // Apply dark class to html element on theme change
   useEffect(() => {
