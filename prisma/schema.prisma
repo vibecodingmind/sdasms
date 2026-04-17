@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 // Users (admins + customers in one table)
@@ -18,7 +18,7 @@ model User {
   phone        String?
   isAdmin      Boolean   @default(false) @map("is_admin")
   status       String    @default("active")
-  smsBalance   Decimal   @default(0) @map("sms_balance") @db.Decimal(15, 2)
+  smsBalance   Float     @default(0) @map("sms_balance")
   avatar       String?
   createdAt    DateTime  @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
@@ -36,6 +36,8 @@ model User {
   notifications   Notification[]
   smsReports      SmsReport[]
   announcements   Announcement[] @relation("AuthorAnnouncements")
+  tickets         Ticket[]
+  smsTemplates    SmsTemplate[]
 
   @@map("users")
 }
@@ -84,11 +86,11 @@ model Plan {
   id           Int      @id @default(autoincrement())
   uid          String   @unique
   name         String
-  price        Decimal  @db.Decimal(15, 2)
+  price        Float
   billingCycle String   @map("billing_cycle")
-  features     Json     @default("{}")
+  features     String   @default("{}")
   status       String   @default("active")
-  creditPrice  Decimal? @map("credit_price") @db.Decimal(15, 4)
+  creditPrice  Float?   @map("credit_price")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -122,7 +124,7 @@ model Campaign {
   userId       Int      @map("user_id")
   name         String
   type         String   @default("sms")
-  message      String?  @db.Text
+  message      String?
   status       String   @default("pending")
   contacts     Int      @default(0)
   delivered    Int      @default(0)
@@ -163,7 +165,7 @@ model ContactGroup {
   uid         String   @unique
   userId      Int      @map("user_id")
   name        String
-  description String?  @db.Text
+  description String?
   status      String   @default("active")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -183,7 +185,7 @@ model SendingServer {
   name       String
   type       String
   quotaValue Int?     @map("quota_value")
-  settings   Json     @default("{}")
+  settings   String   @default("{}")
   status     String   @default("active")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
@@ -201,7 +203,7 @@ model SenderId {
   userId              Int      @map("user_id")
   senderId            String   @map("sender_id")
   status              String   @default("pending")
-  supportingCountries Json?    @map("supporting_countries")
+  supportingCountries String?  @map("supporting_countries")
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 
@@ -217,7 +219,7 @@ model Blacklist {
   uid       String   @unique
   userId    Int      @map("user_id")
   number    String
-  reason    String?  @db.Text
+  reason    String?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -234,7 +236,7 @@ model Payment {
   userId        Int      @map("user_id")
   gateway       String
   transactionId String   @map("transaction_id")
-  amount        Decimal  @db.Decimal(15, 2)
+  amount        Float
   currency      String
   paymentMethod String   @map("payment_method")
   status        String   @default("pending")
@@ -255,7 +257,7 @@ model Invoice {
   uid       String   @unique
   userId    Int      @map("user_id")
   invoiceNo String   @unique @map("invoice_no")
-  amount    Decimal  @db.Decimal(15, 2)
+  amount    Float
   currency  String   @default("USD")
   status    String   @default("unpaid")
   type      String   @default("subscription")
@@ -274,7 +276,7 @@ model Announcement {
   uid       String   @unique
   userId    Int?     @map("user_id")
   title     String
-  message   String   @db.Text
+  message   String
   status    String   @default("active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -290,7 +292,7 @@ model Notification {
   uid       String   @unique
   userId    Int      @map("user_id")
   title     String?
-  message   String?  @db.Text
+  message   String?
   type      String?
   status    String   @default("unread")
   createdAt DateTime @default(now()) @map("created_at")
@@ -307,9 +309,9 @@ model SmsReport {
   userId    Int      @map("user_id")
   from      String?
   to        String?
-  message   String?  @db.Text
+  message   String?
   status    String?
-  cost      Decimal? @db.Decimal(15, 4)
+  cost      Float?
   createdAt DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -338,7 +340,7 @@ model Currency {
   name      String
   code      String   @unique
   symbol    String
-  rate      Decimal  @default(1) @db.Decimal(15, 4)
+  rate      Float    @default(1)
   status    String   @default("active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -353,7 +355,7 @@ model EmailTemplate {
   name      String
   subject   String
   type      String
-  body      String   @db.Text
+  body      String
   status    String   @default("active")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -363,14 +365,81 @@ model EmailTemplate {
 
 // Languages
 model Language {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   name      String
-  code      String  @unique
-  direction String  @default("LTR")
-  status    String  @default("active")
-  isDefault Boolean @default(false) @map("is_default")
+  code      String   @unique
+  direction String   @default("LTR")
+  status    String   @default("active")
+  isDefault Boolean  @default(false) @map("is_default")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("languages")
+}
+
+// System Settings (key-value store)
+model Setting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String   @default("")
+  category  String   @default("general")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
+
+// Support Tickets
+model Ticket {
+  id           Int      @id @default(autoincrement())
+  uid          String   @unique
+  userId       Int      @map("user_id")
+  subject      String
+  customer     String
+  customerEmail String  @map("customer_email")
+  priority     String   @default("medium")
+  category     String   @default("general")
+  status       String   @default("open")
+  assignedTo   String?  @map("assigned_to")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  messages     TicketMessage[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("tickets")
+}
+
+model TicketMessage {
+  id        Int      @id @default(autoincrement())
+  uid       String   @unique
+  ticketId  Int      @map("ticket_id")
+  sender    String
+  message   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("ticket_messages")
+}
+
+// SMS Templates
+model SmsTemplate {
+  id        Int      @id @default(autoincrement())
+  uid       String   @unique
+  userId    Int      @map("user_id")
+  title     String
+  message   String
+  status    String   @default("active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sms_templates")
 }

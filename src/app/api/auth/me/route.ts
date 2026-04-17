@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
+// Return full user data from database based on session
 export async function GET(request: NextRequest) {
   // Check session cookie first
   const sessionCookie = request.cookies.get('sdasms_session');
@@ -9,6 +11,42 @@ export async function GET(request: NextRequest) {
       if (session.expiresAt && Date.now() > session.expiresAt) {
         return NextResponse.json({ success: false, message: 'Session expired' }, { status: 401 });
       }
+
+      // Look up full user from DB
+      const user = await prisma.user.findUnique({
+        where: { id: session.userId },
+        include: {
+          roles: { include: { role: true } },
+          subscriptions: { where: { status: 'active' }, include: { plan: true }, take: 1 },
+        },
+      });
+
+      if (user) {
+        const userRoles = user.roles.map((r: any) => r.role.name);
+        const primaryRole = userRoles[0] || (user.isAdmin ? 'super_admin' : 'customer_owner');
+
+        return NextResponse.json({
+          success: true,
+          message: 'Session is valid',
+          user: {
+            id: user.id,
+            uid: user.uid,
+            first_name: user.firstName,
+            last_name: user.lastName,
+            email: user.email,
+            phone: user.phone || '',
+            is_admin: user.isAdmin,
+            avatar: user.avatar,
+            status: user.status,
+            role: primaryRole,
+            roles: userRoles,
+            plan: user.subscriptions[0]?.plan?.name || null,
+            sms_balance: parseFloat((user.smsBalance || 0).toString()),
+          },
+        });
+      }
+
+      // DB user not found (e.g., demo user) - return session data as-is
       return NextResponse.json({
         success: true,
         message: 'Session is valid',
@@ -41,5 +79,34 @@ export async function GET(request: NextRequest) {
   if (Date.now() - timestamp > twentyFourHours) {
     return NextResponse.json({ success: false, message: 'Token expired' }, { status: 401 });
   }
+
+  // Try to look up user from DB by uid
+  const uid = parts[1];
+  const user = await prisma.user.findUnique({
+    where: { uid },
+    include: {
+      roles: { include: { role: true } },
+      subscriptions: { where: { status: 'active' }, include: { plan: true }, take: 1 },
+    },
+  });
+
+  if (user) {
+    const userRoles = user.roles.map((r: any) => r.role.name);
+    const primaryRole = userRoles[0] || (user.isAdmin ? 'super_admin' : 'customer_owner');
+    return NextResponse.json({
+      success: true,
+      message: 'Session is valid',
+      user: {
+        id: user.id, uid: user.uid,
+        first_name: user.firstName, last_name: user.lastName,
+        email: user.email, phone: user.phone || '',
+        is_admin: user.isAdmin, avatar: user.avatar,
+        status: user.status, role: primaryRole, roles: userRoles,
+        plan: user.subscriptions[0]?.plan?.name || null,
+        sms_balance: parseFloat((user.smsBalance || 0).toString()),
+      },
+    });
+  }
+
   return NextResponse.json({ success: true, message: 'Token is valid' });
 }

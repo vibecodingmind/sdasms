@@ -1,85 +1,177 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-// ─── In-memory ticket store ───────────────────────────────────────
-interface Ticket {
-  id: string;
-  uid: string;
-  subject: string;
-  customer: string;
-  customer_email: string;
-  priority: string;
-  category: string;
-  status: string;
-  assigned_to: string | null;
-  created: string;
-  last_reply: string;
-  messages: number;
-}
-
-const mockTickets: Ticket[] = [
-  { id: 'TKT-001', uid: 'tkt-001', subject: 'Unable to send SMS to Tanzania numbers', customer: 'John Smith', customer_email: 'john@acmecorp.com', priority: 'high', category: 'SMS', status: 'open', assigned_to: 'Support Manager', created: '2025-01-15 09:30', last_reply: '2025-01-15 10:15', messages: 3 },
-  { id: 'TKT-002', uid: 'tkt-002', subject: 'Billing discrepancy on last invoice', customer: 'Emma Williams', customer_email: 'emma@euromail.com', priority: 'medium', category: 'Billing', status: 'in_progress', assigned_to: 'Billing Admin', created: '2025-01-14 14:20', last_reply: '2025-01-15 08:45', messages: 5 },
-  { id: 'TKT-003', uid: 'tkt-003', subject: 'API integration returning 503 errors', customer: 'James Wilson', customer_email: 'james@techfirm.com', priority: 'critical', category: 'Technical', status: 'open', assigned_to: 'Support Manager', created: '2025-01-15 11:00', last_reply: '2025-01-15 11:00', messages: 1 },
-  { id: 'TKT-004', uid: 'tkt-004', subject: 'Request to increase SMS sending limit', customer: 'Tom Anderson', customer_email: 'tom@nordic.se', priority: 'low', category: 'Account', status: 'pending', assigned_to: null, created: '2025-01-13 16:30', last_reply: '2025-01-14 09:00', messages: 2 },
-  { id: 'TKT-005', uid: 'tkt-005', subject: 'Sender ID verification pending for 2 weeks', customer: 'Sarah Johnson', customer_email: 'sarah@globaltech.com', priority: 'high', category: 'SMS', status: 'in_progress', assigned_to: 'Support Manager', created: '2025-01-10 08:00', last_reply: '2025-01-14 15:30', messages: 7 },
-  { id: 'TKT-006', uid: 'tkt-006', subject: 'Account locked after multiple login attempts', customer: 'Michael Chen', customer_email: 'michael@asiainc.com', priority: 'critical', category: 'Account', status: 'resolved', assigned_to: 'Support Manager', created: '2025-01-12 22:15', last_reply: '2025-01-13 01:30', messages: 4 },
-  { id: 'TKT-007', uid: 'tkt-007', subject: 'Payment via PayPal not reflecting in balance', customer: 'Maria Garcia', customer_email: 'maria@bizlat.com', priority: 'high', category: 'Billing', status: 'open', assigned_to: 'Billing Admin', created: '2025-01-15 07:45', last_reply: '2025-01-15 07:45', messages: 1 },
-  { id: 'TKT-008', uid: 'tkt-008', subject: 'Contact group import failing with CSV upload', customer: 'David Brown', customer_email: 'david@startup.io', priority: 'medium', category: 'Technical', status: 'closed', assigned_to: 'Support Manager', created: '2025-01-08 11:00', last_reply: '2025-01-10 16:00', messages: 6 },
-  { id: 'TKT-009', uid: 'tkt-009', subject: 'How to set up webhook for delivery reports', customer: 'Aisha Patel', customer_email: 'aisha@indiatech.in', priority: 'low', category: 'Integration', status: 'resolved', assigned_to: 'Support Manager', created: '2025-01-09 13:30', last_reply: '2025-01-11 10:00', messages: 3 },
-  { id: 'TKT-010', uid: 'tkt-010', subject: 'Duplicate SMS messages being sent', customer: 'Lisa Martinez', customer_email: 'lisa@latamco.com', priority: 'high', category: 'SMS', status: 'in_progress', assigned_to: 'Support Manager', created: '2025-01-14 09:00', last_reply: '2025-01-15 07:00', messages: 8 },
-  { id: 'TKT-011', uid: 'tkt-011', subject: 'Request for dedicated sending server', customer: 'Robert Taylor', customer_email: 'robert@mktgpro.com', priority: 'medium', category: 'General', status: 'pending', assigned_to: null, created: '2025-01-11 10:30', last_reply: '2025-01-12 14:00', messages: 2 },
-  { id: 'TKT-012', uid: 'tkt-012', subject: 'Dark mode not saving preference', customer: 'Nina Kowalski', customer_email: 'nina@polandtel.pl', priority: 'low', category: 'Technical', status: 'open', assigned_to: 'Support Manager', created: '2025-01-14 16:00', last_reply: '2025-01-14 16:00', messages: 1 },
-  { id: 'TKT-013', uid: 'tkt-013', subject: 'Subscription auto-renewal failed', customer: 'John Smith', customer_email: 'john@acmecorp.com', priority: 'high', category: 'Billing', status: 'resolved', assigned_to: 'Billing Admin', created: '2025-01-07 09:00', last_reply: '2025-01-08 11:30', messages: 4 },
-  { id: 'TKT-014', uid: 'tkt-014', subject: 'SMS delivery reports delayed by 24 hours', customer: 'Emma Williams', customer_email: 'emma@euromail.com', priority: 'medium', category: 'Integration', status: 'open', assigned_to: 'Support Manager', created: '2025-01-15 08:00', last_reply: '2025-01-15 08:00', messages: 1 },
-  { id: 'TKT-015', uid: 'tkt-015', subject: 'Feature request: bulk contact import via API', customer: 'James Wilson', customer_email: 'james@techfirm.com', priority: 'low', category: 'General', status: 'pending', assigned_to: null, created: '2025-01-13 15:00', last_reply: '2025-01-13 15:00', messages: 1 },
-];
-
-let ticketStore = [...mockTickets];
-
-// ─── GET: Return all tickets ──────────────────────────────────────
+// GET: Return all tickets with messages, ordered by newest first
 export async function GET() {
-  return NextResponse.json({
-    success: true,
-    data: ticketStore,
-  });
+  try {
+    const tickets = await prisma.ticket.findMany({
+      include: {
+        messages: { orderBy: { createdAt: 'asc' } },
+        user: { select: { firstName: true, lastName: true, email: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Map to match existing frontend format
+    const data = tickets.map((t) => {
+      const lastMsg = t.messages[t.messages.length - 1];
+      return {
+        id: `TKT-${String(t.id).padStart(3, '0')}`,
+        uid: t.uid,
+        subject: t.subject,
+        customer: t.customer,
+        customer_email: t.customerEmail,
+        priority: t.priority,
+        category: t.category,
+        status: t.status,
+        assigned_to: t.assignedTo,
+        created: t.createdAt.toISOString().replace('T', ' ').slice(0, 16),
+        last_reply: lastMsg
+          ? lastMsg.createdAt.toISOString().replace('T', ' ').slice(0, 16)
+          : t.createdAt.toISOString().replace('T', ' ').slice(0, 16),
+        messages: t.messages.length,
+        // Include full message details for ticket detail view
+        message_list: t.messages.map((m) => ({
+          id: m.id,
+          uid: m.uid,
+          sender: m.sender,
+          message: m.message,
+          created_at: m.createdAt.toISOString(),
+        })),
+        user: t.user
+          ? {
+              first_name: t.user.firstName,
+              last_name: t.user.lastName,
+              email: t.user.email,
+            }
+          : null,
+      };
+    });
+
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    console.error('Failed to fetch tickets:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch tickets' },
+      { status: 500 }
+    );
+  }
 }
 
-// ─── POST: Create a new ticket ───────────────────────────────────
-export async function POST(request: Request) {
+// POST: Create a new ticket with first message
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { subject, customer, customer_email, priority, category, message } = body;
+    const { subject, message, priority, category } = body;
 
-    if (!subject || !customer || !message) {
+    if (!subject || !message) {
       return NextResponse.json(
-        { success: false, error: 'Subject, customer, and message are required' },
+        { success: false, error: 'Subject and message are required' },
         { status: 400 }
       );
     }
 
-    const newId = `TKT-${String(ticketStore.length + 1).padStart(3, '0')}`;
-    const newTicket: Ticket = {
-      id: newId,
-      uid: `tkt-${ticketStore.length + 1}`,
-      subject,
-      customer,
-      customer_email: customer_email || '',
-      priority: priority || 'medium',
-      category: category || 'General',
-      status: 'open',
-      assigned_to: null,
-      created: new Date().toISOString().replace('T', ' ').slice(0, 16),
-      last_reply: new Date().toISOString().replace('T', ' ').slice(0, 16),
-      messages: 1,
+    // Read userId from session cookie
+    const sessionCookie = request.cookies.get('sdasms_session');
+    let userId: number | undefined;
+
+    if (sessionCookie?.value) {
+      try {
+        const session = JSON.parse(sessionCookie.value);
+        if (!session.expiresAt || Date.now() <= session.expiresAt) {
+          userId = session.userId;
+        }
+      } catch {
+        // Ignore cookie parse errors
+      }
+    }
+
+    // Look up user to get name/email for the ticket
+    let customerName = 'Unknown User';
+    let customerEmail = '';
+
+    if (userId) {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { firstName: true, lastName: true, email: true },
+      });
+      if (user) {
+        customerName = `${user.firstName} ${user.lastName}`;
+        customerEmail = user.email;
+      }
+    }
+
+    // Create ticket + first message in a transaction
+    const newTicket = await prisma.$transaction(async (tx) => {
+      // Determine next ticket ID for display
+      const ticketCount = await tx.ticket.count();
+      const ticketId = ticketCount + 1;
+
+      const ticket = await tx.ticket.create({
+        data: {
+          uid: `tkt-${ticketId}`,
+          userId: userId || 0,
+          subject,
+          customer: customerName,
+          customerEmail: customerEmail,
+          priority: priority || 'medium',
+          category: category || 'general',
+          status: 'open',
+        },
+        include: {
+          messages: true,
+          user: { select: { firstName: true, lastName: true, email: true } },
+        },
+      });
+
+      const msg = await tx.ticketMessage.create({
+        data: {
+          uid: `tkt-msg-${ticketId}-${Date.now()}`,
+          ticketId: ticket.id,
+          sender: customerName,
+          message,
+        },
+      });
+
+      return {
+        ...ticket,
+        messages: [msg],
+      };
+    });
+
+    // Format response to match frontend format
+    const data = {
+      id: `TKT-${String(newTicket.id).padStart(3, '0')}`,
+      uid: newTicket.uid,
+      subject: newTicket.subject,
+      customer: newTicket.customer,
+      customer_email: newTicket.customerEmail,
+      priority: newTicket.priority,
+      category: newTicket.category,
+      status: newTicket.status,
+      assigned_to: newTicket.assignedTo,
+      created: newTicket.createdAt.toISOString().replace('T', ' ').slice(0, 16),
+      last_reply: newTicket.createdAt.toISOString().replace('T', ' ').slice(0, 16),
+      messages: newTicket.messages.length,
+      message_list: newTicket.messages.map((m) => ({
+        id: m.id,
+        uid: m.uid,
+        sender: m.sender,
+        message: m.message,
+        created_at: m.createdAt.toISOString(),
+      })),
+      user: newTicket.user
+        ? {
+            first_name: newTicket.user.firstName,
+            last_name: newTicket.user.lastName,
+            email: newTicket.user.email,
+          }
+        : null,
     };
 
-    ticketStore = [newTicket, ...ticketStore];
-
-    return NextResponse.json({
-      success: true,
-      data: newTicket,
-    });
-  } catch {
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
+    console.error('Failed to create ticket:', error);
     return NextResponse.json(
       { success: false, error: 'Invalid request body' },
       { status: 400 }

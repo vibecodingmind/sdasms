@@ -143,11 +143,11 @@ async function main() {
     console.log('  Creating plans...');
 
     const plans = [
-      { uid: 'plan-001', name: 'Starter', price: 49.99, billingCycle: 'monthly', features: { sms: '5,000', contacts: '1,000', groups: '5', sender_ids: '1', templates: '10' }, status: 'active', creditPrice: 0.01 },
-      { uid: 'plan-002', name: 'Business', price: 199.99, billingCycle: 'monthly', features: { sms: '50,000', contacts: '25,000', groups: '25', sender_ids: '5', templates: '50', api_access: true }, status: 'active', creditPrice: 0.008 },
-      { uid: 'plan-003', name: 'Enterprise', price: 499.99, billingCycle: 'monthly', features: { sms: 'Unlimited', contacts: 'Unlimited', groups: 'Unlimited', sender_ids: '25', templates: 'Unlimited', api_access: true, priority_support: true, dedicated_server: true }, status: 'active', creditPrice: 0.005 },
-      { uid: 'plan-004', name: 'Starter Annual', price: 499.00, billingCycle: 'yearly', features: { sms: '5,000/mo', contacts: '1,000', groups: '5', sender_ids: '1', templates: '10' }, status: 'active', creditPrice: 0.009 },
-      { uid: 'plan-005', name: 'Business Annual', price: 1999.00, billingCycle: 'yearly', features: { sms: '50,000/mo', contacts: '25,000', groups: '25', sender_ids: '5', templates: '50', api_access: true }, status: 'active', creditPrice: 0.007 },
+      { uid: 'plan-001', name: 'Starter', price: 49.99, billingCycle: 'monthly', features: JSON.stringify({ sms: '5,000', contacts: '1,000', groups: '5', sender_ids: '1', templates: '10' }), status: 'active', creditPrice: 0.01 },
+      { uid: 'plan-002', name: 'Business', price: 199.99, billingCycle: 'monthly', features: JSON.stringify({ sms: '50,000', contacts: '25,000', groups: '25', sender_ids: '5', templates: '50', api_access: true }), status: 'active', creditPrice: 0.008 },
+      { uid: 'plan-003', name: 'Enterprise', price: 499.99, billingCycle: 'monthly', features: JSON.stringify({ sms: 'Unlimited', contacts: 'Unlimited', groups: 'Unlimited', sender_ids: '25', templates: 'Unlimited', api_access: true, priority_support: true, dedicated_server: true }), status: 'active', creditPrice: 0.005 },
+      { uid: 'plan-004', name: 'Starter Annual', price: 499.00, billingCycle: 'yearly', features: JSON.stringify({ sms: '5,000/mo', contacts: '1,000', groups: '5', sender_ids: '1', templates: '10' }), status: 'active', creditPrice: 0.009 },
+      { uid: 'plan-005', name: 'Business Annual', price: 1999.00, billingCycle: 'yearly', features: JSON.stringify({ sms: '50,000/mo', contacts: '25,000', groups: '25', sender_ids: '5', templates: '50', api_access: true }), status: 'active', creditPrice: 0.007 },
     ];
 
     const planIds: Record<string, number> = {};
@@ -267,7 +267,7 @@ async function main() {
           type: s.type,
           quotaValue: s.quotaValue,
           status: s.status,
-          settings: s.settings as any,
+          settings: JSON.stringify(s.settings),
         },
       });
     }
@@ -300,7 +300,7 @@ async function main() {
           userId,
           senderId: s.senderId,
           status: s.status,
-          supportingCountries: s.countries as any,
+          supportingCountries: JSON.stringify(s.countries),
         },
       });
     }
@@ -649,6 +649,140 @@ async function main() {
       });
     }
     console.log(`    ✅ Created ${languages.length} languages`);
+
+    // ──────────────────────────────────────────────
+    // 18. SYSTEM SETTINGS
+    // ──────────────────────────────────────────────
+    console.log('  Creating system settings...');
+
+    const settings = [
+      { key: 'app_name', value: 'SDASMS', category: 'general' },
+      { key: 'app_url', value: 'http://localhost:3000', category: 'general' },
+      { key: 'app_logo', value: '/logo.png', category: 'general' },
+      { key: 'default_currency', value: 'USD', category: 'general' },
+      { key: 'default_language', value: 'en', category: 'general' },
+      { key: 'date_format', value: 'YYYY-MM-DD', category: 'general' },
+      { key: 'timezone', value: 'UTC', category: 'general' },
+      { key: 'sms_enabled', value: 'true', category: 'sms' },
+      { key: 'sms_default_sender', value: 'SDASMS', category: 'sms' },
+      { key: 'sms_unicode_support', value: 'true', category: 'sms' },
+      { key: 'sms_max_length', value: '1600', category: 'sms' },
+      { key: 'sms_cost_per_unit', value: '0.01', category: 'sms' },
+      { key: 'beem_api_key', value: '', category: 'sms' },
+      { key: 'beem_secret_key', value: '', category: 'sms' },
+      { key: 'ai_enabled', value: 'false', category: 'ai' },
+      { key: 'ai_model', value: 'gpt-4', category: 'ai' },
+      { key: 'ai_api_key', value: '', category: 'ai' },
+      { key: 'registration_enabled', value: 'true', category: 'auth' },
+      { key: 'email_verification', value: 'false', category: 'auth' },
+      { key: 'terms_url', value: '/terms', category: 'legal' },
+      { key: 'privacy_url', value: '/privacy', category: 'legal' },
+    ];
+
+    for (const s of settings) {
+      await prisma.setting.upsert({
+        where: { key: s.key },
+        update: {},
+        create: {
+          key: s.key,
+          value: s.value,
+          category: s.category,
+        },
+      });
+    }
+    console.log(`    ✅ Created ${settings.length} settings`);
+
+    // ──────────────────────────────────────────────
+    // 19. SUPPORT TICKETS (15)
+    // ──────────────────────────────────────────────
+    console.log('  Creating support tickets...');
+
+    const tickets = [
+      { email: 'john@acmecorp.com', subject: 'Cannot send SMS to UK numbers', priority: 'high', category: 'technical', status: 'open', message: 'I have been unable to send SMS to UK numbers since yesterday. Getting delivery failures.' },
+      { email: 'sarah@globaltech.com', subject: 'Billing overcharge on last invoice', priority: 'high', category: 'billing', status: 'in_progress', message: 'Invoice INV-2024-002 shows $249.99 but my plan is $199.99. Please review.' },
+      { email: 'emma@euromail.com', subject: 'Request for additional sender IDs', priority: 'medium', category: 'general', status: 'open', message: 'We need to register 3 more sender IDs for our EU campaigns. How do we proceed?' },
+      { email: 'james@techfirm.com', subject: 'API rate limiting issue', priority: 'high', category: 'technical', status: 'resolved', message: 'Getting 429 errors when sending more than 100 requests per minute.' },
+      { email: 'lisa@latamco.com', subject: 'How to create contact groups?', priority: 'low', category: 'general', status: 'resolved', message: 'I am new to the platform and need help organizing contacts into groups.' },
+      { email: 'michael@asiainc.com', subject: 'Account reactivation request', priority: 'medium', category: 'account', status: 'in_progress', message: 'My account was suspended. I believe this was in error. Please reactivate.' },
+      { email: 'aisha@indiatech.in', subject: 'Delivery reports not showing', priority: 'medium', category: 'technical', status: 'open', message: 'Delivery reports for campaigns sent last week are not appearing in the dashboard.' },
+      { email: 'david@startup.io', subject: 'Plan upgrade from Starter to Business', priority: 'low', category: 'billing', status: 'open', message: 'I would like to upgrade my plan. What is the process for this?' },
+      { email: 'tom@nordic.se', subject: 'WhatsApp channel setup help', priority: 'medium', category: 'technical', status: 'in_progress', message: 'Need assistance setting up the WhatsApp Business channel for our account.' },
+      { email: 'robert@mktgpro.com', subject: 'Export contacts to CSV', priority: 'low', category: 'general', status: 'resolved', message: 'Is there a way to export our contact list to CSV format?' },
+      { email: 'maria@bizlat.com', subject: 'Campaign scheduling not working', priority: 'high', category: 'technical', status: 'open', message: 'Scheduled campaigns are not being sent at the specified time.' },
+      { email: 'nina@polandtel.pl', subject: 'Refund for failed SMS credits', priority: 'medium', category: 'billing', status: 'open', message: 'I was charged for 500 SMS that all failed. Requesting a refund.' },
+      { email: 'john@acmecorp.com', subject: 'Two-factor authentication setup', priority: 'low', category: 'security', status: 'resolved', message: 'How do I enable 2FA for my account?' },
+      { email: 'sarah@globaltech.com', subject: 'Custom SMS template variables', priority: 'medium', category: 'technical', status: 'open', message: 'Can we use custom variables like {{company_name}} in templates?' },
+      { email: 'emma@euromail.com', subject: 'Integration with CRM system', priority: 'medium', category: 'technical', status: 'in_progress', message: 'We want to integrate SDASMS with our Salesforce CRM. Is there documentation?' },
+    ];
+
+    for (let i = 0; i < tickets.length; i++) {
+      const t = tickets[i];
+      const userId = userById[t.email];
+      if (!userId) continue;
+      const user = dbUsers.find(u => u.id === userId)!;
+      const ticket = await prisma.ticket.upsert({
+        where: { uid: `tkt-${i + 1}` },
+        update: {},
+        create: {
+          uid: `tkt-${i + 1}`,
+          userId,
+          subject: t.subject,
+          customer: `${user.firstName} ${user.lastName}`,
+          customerEmail: user.email,
+          priority: t.priority,
+          category: t.category,
+          status: t.status,
+        },
+      });
+      // Create initial message
+      await prisma.ticketMessage.upsert({
+        where: { uid: `tkt-msg-${i + 1}` },
+        update: {},
+        create: {
+          uid: `tkt-msg-${i + 1}`,
+          ticketId: ticket.id,
+          sender: `${user.firstName} ${user.lastName}`,
+          message: t.message,
+        },
+      });
+    }
+    console.log(`    ✅ Created ${tickets.length} tickets`);
+
+    // ──────────────────────────────────────────────
+    // 20. SMS TEMPLATES (10)
+    // ──────────────────────────────────────────────
+    console.log('  Creating SMS templates...');
+
+    const smsTemplates = [
+      { email: 'john@acmecorp.com', title: 'Order Confirmation', message: 'Hi {{name}}, your order #{{order_id}} has been confirmed. Expected delivery: {{delivery_date}}.' },
+      { email: 'john@acmecorp.com', title: 'Appointment Reminder', message: 'Reminder: You have an appointment on {{date}} at {{time}}. Reply CANCEL to reschedule.' },
+      { email: 'sarah@globaltech.com', title: 'Flash Sale Alert', message: 'Flash Sale! {{discount}}% off everything. Use code {{code}} at checkout. Ends {{end_time}}.' },
+      { email: 'sarah@globaltech.com', title: 'Meeting Reminder', message: 'Hi {{name}}, reminder: {{meeting_title}} tomorrow at {{time}}. Join link: {{link}}' },
+      { email: 'emma@euromail.com', title: 'Welcome Message', message: 'Welcome to {{company}}! Explore our latest features and get started today.' },
+      { email: 'emma@euromail.com', title: 'Password Reset', message: 'Your {{company}} password reset code is {{code}}. Valid for {{duration}} minutes.' },
+      { email: 'james@techfirm.com', title: 'Subscription Renewal', message: 'Your {{plan}} subscription renews on {{date}}. Current rate: ${{amount}}/mo.' },
+      { email: 'lisa@latamco.com', title: 'Delivery Notification', message: 'Your package has been delivered! Track at {{tracking_url}}. Questions? Reply HELP.' },
+      { email: 'tom@nordic.se', title: 'Weekly Newsletter', message: 'Hi {{name}}, your weekly update: {{headline}}. Read more: {{link}}' },
+      { email: 'maria@bizlat.com', title: 'Abandoned Cart', message: 'You left items in your cart! Complete your purchase: {{cart_url}}. Use code {{code}} for {{discount}}% off.' },
+    ];
+
+    for (let i = 0; i < smsTemplates.length; i++) {
+      const t = smsTemplates[i];
+      const userId = userById[t.email];
+      if (!userId) continue;
+      await prisma.smsTemplate.upsert({
+        where: { uid: `smstmpl-${i + 1}` },
+        update: {},
+        create: {
+          uid: `smstmpl-${i + 1}`,
+          userId,
+          title: t.title,
+          message: t.message,
+          status: 'active',
+        },
+      });
+    }
+    console.log(`    ✅ Created ${smsTemplates.length} SMS templates`);
 
     console.log('\n✅ Seed completed successfully!');
   } catch (error) {
