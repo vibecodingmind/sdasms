@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   CreditCard, CheckCircle2, XCircle, Settings, Eye, EyeOff,
   ExternalLink, ArrowRightLeft, TrendingUp, Clock, AlertTriangle,
   Check, Ban, RefreshCw, ChevronDown, ChevronUp, DollarSign,
-  Globe, Shield, Smartphone, Building2, Copy, Info
+  Globe, Shield, Smartphone, Building2, Copy, Info, Loader2, AlertCircle,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,35 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { mockPaymentGateways, mockPaymentTransactions } from '@/lib/mock-data';
+
+// ─── Types ────────────────────────────────────────────────────────
+interface PaymentGateway {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  status: string;
+  mode: string;
+  supported_currencies: string[];
+  supported_methods: string[];
+  total_transactions: number;
+  total_revenue: number;
+  fields: Record<string, string>;
+}
+
+interface PaymentTransaction {
+  id: number;
+  transaction_id: string;
+  gateway: string;
+  customer: string;
+  customer_email: string;
+  description: string;
+  method: string;
+  currency: string;
+  amount: number;
+  status: string;
+  created_at: string;
+}
 
 // ── Gateway logo component ──────────────────────────────────
 function GatewayLogo({ name }: { name: string }) {
@@ -49,7 +77,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 // ── Gateway Card ─────────────────────────────────────────────
-function GatewayCard({ gw, onSelect }: { gw: typeof mockPaymentGateways[0]; onSelect: () => void }) {
+function GatewayCard({ gw, onSelect }: { gw: PaymentGateway; onSelect: () => void }) {
   const [enabled, setEnabled] = useState(gw.status === 'active');
   const isActive = enabled;
 
@@ -92,14 +120,11 @@ function GatewayCard({ gw, onSelect }: { gw: typeof mockPaymentGateways[0]; onSe
             <p className="text-sm font-bold text-gray-800 dark:text-gray-200 capitalize">{gw.mode}</p>
           </div>
         </div>
-        {/* Supported currencies */}
+        {/* Supported methods */}
         <div className="flex items-center gap-1 flex-wrap mb-3">
-          {gw.supported_currencies.slice(0, 4).map((c) => (
-            <Badge key={c} variant="outline" className="text-[10px] px-1.5 py-0 font-mono">{c}</Badge>
+          {(gw.supported_methods || gw.supported_currencies || []).slice(0, 4).map((m) => (
+            <Badge key={m} variant="outline" className="text-[10px] px-1.5 py-0 font-mono">{m}</Badge>
           ))}
-          {gw.supported_currencies.length > 4 && (
-            <span className="text-[10px] text-gray-400">+{gw.supported_currencies.length - 4}</span>
-          )}
         </div>
         <Button
           variant="outline"
@@ -115,7 +140,7 @@ function GatewayCard({ gw, onSelect }: { gw: typeof mockPaymentGateways[0]; onSe
 }
 
 // ── Configuration Form ───────────────────────────────────────
-function ConfigPanel({ gw }: { gw: typeof mockPaymentGateways[0] }) {
+function ConfigPanel({ gw }: { gw: PaymentGateway }) {
   const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({});
   const [mode, setMode] = useState<'test' | 'live'>(gw.mode === 'live' ? 'live' : 'test');
   const [saved, setSaved] = useState(false);
@@ -197,43 +222,47 @@ function ConfigPanel({ gw }: { gw: typeof mockPaymentGateways[0] }) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {Object.entries(gw.fields).map(([key, value]) => (
-            <div key={key}>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                {fieldLabels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
-              </label>
-              {key === 'payment_instructions' ? (
-                <textarea
-                  defaultValue={value as string}
-                  className="w-full min-h-[80px] text-xs p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#D72444]/30 resize-none"
-                />
-              ) : (
-                <div className="relative">
-                  <Input
-                    type={(isPassword(key) && !showSecrets[key]) ? 'password' : 'text'}
+          {Object.keys(gw.fields).length > 0 ? (
+            Object.entries(gw.fields).map(([key, value]) => (
+              <div key={key}>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                  {fieldLabels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+                </label>
+                {key === 'payment_instructions' ? (
+                  <textarea
                     defaultValue={value as string}
-                    className="h-9 text-xs pr-20 bg-white dark:bg-gray-800"
+                    className="w-full min-h-[80px] text-xs p-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#D72444]/30 resize-none"
                   />
-                  {isPassword(key) && (
-                    <button
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                      onClick={() => toggleSecret(key)}
-                    >
-                      {showSecrets[key] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                    </button>
-                  )}
-                  {!isPassword(key) && (
-                    <button
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                      onClick={() => navigator.clipboard?.writeText(value as string)}
-                    >
-                      <Copy className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
+                ) : (
+                  <div className="relative">
+                    <Input
+                      type={(isPassword(key) && !showSecrets[key]) ? 'password' : 'text'}
+                      defaultValue={value as string}
+                      className="h-9 text-xs pr-20 bg-white dark:bg-gray-800"
+                    />
+                    {isPassword(key) && (
+                      <button
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        onClick={() => toggleSecret(key)}
+                      >
+                        {showSecrets[key] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                      </button>
+                    )}
+                    {!isPassword(key) && (
+                      <button
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        onClick={() => navigator.clipboard?.writeText(value as string)}
+                      >
+                        <Copy className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-gray-400 text-center py-6">No configuration fields available for this gateway.</p>
+          )}
 
           <Button
             onClick={handleSave}
@@ -289,10 +318,8 @@ function Key(props: React.SVGProps<SVGSVGElement>) {
 }
 
 // ── Transaction Table ────────────────────────────────────────
-function TransactionTable({ gateway }: { gateway: string }) {
-  const transactions = mockPaymentTransactions.filter((t) => t.gateway === gateway);
+function TransactionTable({ transactions }: { transactions: PaymentTransaction[] }) {
   const [filter, setFilter] = useState<string>('all');
-
   const filtered = filter === 'all' ? transactions : transactions.filter((t) => t.status === filter);
 
   return (
@@ -422,10 +449,71 @@ function TransactionTable({ gateway }: { gateway: string }) {
 
 // ── Main View ────────────────────────────────────────────────
 export function PaymentGatewaysView() {
+  const [gateways, setGateways] = useState<PaymentGateway[]>([]);
+  const [transactions, setTransactions] = useState<PaymentTransaction[]>([]);
   const [selectedGateway, setSelectedGateway] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('config');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const selected = mockPaymentGateways.find((g) => g.name === selectedGateway);
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/payment-gateways');
+      const json = await res.json();
+      if (json.data) {
+        const mapped = json.data.map((g: Record<string, unknown>) => ({
+          id: g.id as string,
+          name: (g.name as string) || (g.id as string),
+          description: (g.description as string) || '',
+          type: g.id === 'manual' ? 'manual' : 'online',
+          status: (g.status as string) || 'active',
+          mode: (g.mode as string) || 'live',
+          supported_currencies: (g.supported_currencies as string[]) || (g.supported_methods as string[]) || [],
+          supported_methods: (g.supported_methods as string[]) || [],
+          total_transactions: (g.total_transactions as number) || 0,
+          total_revenue: (g.total_revenue as number) || 0,
+          fields: (g.fields as Record<string, string>) || {},
+        }));
+        setGateways(mapped);
+      } else {
+        setGateways([]);
+      }
+      setTransactions([]);
+    } catch {
+      setError('Failed to load payment gateways');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const selected = gateways.find((g) => g.name === selectedGateway);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <p className="text-sm text-gray-500">Loading payment gateways...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <AlertCircle className="h-6 w-6 text-red-400" />
+        <p className="text-sm text-gray-500">{error}</p>
+        <Button variant="outline" size="sm" onClick={fetchData} className="gap-2">
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -454,7 +542,7 @@ export function PaymentGatewaysView() {
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Active Gateways</p>
                     <p className="text-lg font-bold text-gray-800 dark:text-gray-200">
-                      {mockPaymentGateways.filter((g) => g.status === 'active').length}/{mockPaymentGateways.length}
+                      {gateways.filter((g) => g.status === 'active').length}/{gateways.length}
                     </p>
                   </div>
                 </div>
@@ -469,7 +557,7 @@ export function PaymentGatewaysView() {
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Total Transactions</p>
                     <p className="text-lg font-bold text-gray-800 dark:text-gray-200">
-                      {mockPaymentGateways.reduce((s, g) => s + g.total_transactions, 0).toLocaleString()}
+                      {gateways.reduce((s, g) => s + g.total_transactions, 0).toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -484,7 +572,7 @@ export function PaymentGatewaysView() {
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Total Revenue</p>
                     <p className="text-lg font-bold text-gray-800 dark:text-gray-200">
-                      ${mockPaymentGateways.reduce((s, g) => s + g.total_revenue, 0).toLocaleString()}
+                      ${gateways.reduce((s, g) => s + g.total_revenue, 0).toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -499,7 +587,7 @@ export function PaymentGatewaysView() {
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">Pending Payments</p>
                     <p className="text-lg font-bold text-gray-800 dark:text-gray-200">
-                      {mockPaymentTransactions.filter((t) => t.status === 'pending').length}
+                      {transactions.filter((t) => t.status === 'pending').length}
                     </p>
                   </div>
                 </div>
@@ -509,7 +597,7 @@ export function PaymentGatewaysView() {
 
           {/* Gateway cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-            {mockPaymentGateways.map((gw) => (
+            {gateways.map((gw) => (
               <GatewayCard
                 key={gw.id}
                 gw={gw}
@@ -527,49 +615,44 @@ export function PaymentGatewaysView() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
-                        <th className="text-left py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-400">ID</th>
-                        <th className="text-left py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-400">Gateway</th>
-                        <th className="text-left py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-400">Customer</th>
-                        <th className="text-right py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-400">Amount</th>
-                        <th className="text-center py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-400">Status</th>
-                        <th className="text-left py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-400">Date</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                      {mockPaymentTransactions.slice(0, 8).map((tx) => (
-                        <tr key={tx.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30">
-                          <td className="py-2 px-3 font-mono font-medium text-[#D72444]">{tx.transaction_id}</td>
-                          <td className="py-2 px-3">
-                            <Badge
-                              variant="outline"
-                              className="text-[10px]"
-                              style={{
-                                borderColor: tx.gateway === 'Pesapal' ? '#F59E0B' : tx.gateway === 'PayPal' ? '#003087' : tx.gateway === 'Stripe' ? '#635BFF' : '#059669',
-                                color: tx.gateway === 'Pesapal' ? '#F59E0B' : tx.gateway === 'PayPal' ? '#003087' : tx.gateway === 'Stripe' ? '#635BFF' : '#059669',
-                              }}
-                            >
-                              {tx.gateway}
-                            </Badge>
-                          </td>
-                          <td className="py-2 px-3 text-gray-800 dark:text-gray-200 font-medium">{tx.customer}</td>
-                          <td className="py-2 px-3 text-right font-semibold text-gray-800 dark:text-gray-200">
-                            {tx.currency} {tx.amount.toFixed(2)}
-                          </td>
-                          <td className="py-2 px-3 text-center"><StatusBadge status={tx.status} /></td>
-                          <td className="py-2 px-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                            {tx.created_at.replace(/:\d{2}$/, '')}
-                          </td>
+              {transactions.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-8">No transactions recorded yet.</p>
+              ) : (
+                <div className="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
+                          <th className="text-left py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-400">ID</th>
+                          <th className="text-left py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-400">Gateway</th>
+                          <th className="text-left py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-400">Customer</th>
+                          <th className="text-right py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-400">Amount</th>
+                          <th className="text-center py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-400">Status</th>
+                          <th className="text-left py-2.5 px-3 font-semibold text-gray-600 dark:text-gray-400">Date</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                        {transactions.slice(0, 8).map((tx) => (
+                          <tr key={tx.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30">
+                            <td className="py-2 px-3 font-mono font-medium text-[#D72444]">{tx.transaction_id}</td>
+                            <td className="py-2 px-3">
+                              <Badge variant="outline" className="text-[10px]">{tx.gateway}</Badge>
+                            </td>
+                            <td className="py-2 px-3 text-gray-800 dark:text-gray-200 font-medium">{tx.customer}</td>
+                            <td className="py-2 px-3 text-right font-semibold text-gray-800 dark:text-gray-200">
+                              {tx.currency} {tx.amount.toFixed(2)}
+                            </td>
+                            <td className="py-2 px-3 text-center"><StatusBadge status={tx.status} /></td>
+                            <td className="py-2 px-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                              {tx.created_at.replace(/:\d{2}$/, '')}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </>
@@ -586,7 +669,7 @@ export function PaymentGatewaysView() {
             <div className="ml-auto flex items-center gap-3">
               <Badge variant="outline" className="text-xs">
                 <Globe className="h-3 w-3 mr-1" />
-                {selected.supported_currencies.join(', ')}
+                {(selected.supported_currencies || selected.supported_methods || []).join(', ')}
               </Badge>
               <Badge className={`${selected.status === 'active' ? 'bg-emerald-500' : 'bg-gray-400'} text-white text-xs`}>
                 {selected.status === 'active' ? 'Active' : 'Disabled'}
@@ -608,7 +691,7 @@ export function PaymentGatewaysView() {
               <ConfigPanel gw={selected} />
             </TabsContent>
             <TabsContent value="transactions" className="mt-4">
-              <TransactionTable gateway={selected.name} />
+              <TransactionTable transactions={transactions.filter((t) => t.gateway === selected.name)} />
             </TabsContent>
           </Tabs>
         </>

@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   Search, Plus, AlertCircle, Clock, CheckCircle, MessageCircle,
-  Send, XCircle, Eye,
+  Send, XCircle, Eye, Loader2, RefreshCw,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,18 +27,19 @@ import { cn } from '@/lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────
 interface Ticket {
-  id: string;
-  uid: string;
+  id: number;
+  uid?: string;
   subject: string;
-  customer: string;
-  customer_email: string;
-  priority: 'critical' | 'high' | 'medium' | 'low';
-  category: string;
-  status: 'open' | 'in_progress' | 'pending' | 'resolved' | 'closed';
-  assigned_to: string | null;
-  created: string;
-  last_reply: string;
-  messages: number;
+  customer?: string;
+  customer_email?: string;
+  priority?: string;
+  category?: string;
+  status?: string;
+  assigned_to?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  messages?: number;
+  [key: string]: unknown;
 }
 
 interface ConversationMessage {
@@ -49,48 +50,6 @@ interface ConversationMessage {
   time: string;
   avatar: string | null;
 }
-
-// ─── Mock Data ────────────────────────────────────────────────────
-const allMockTickets: Ticket[] = [
-  { id: 'TKT-001', uid: 'tkt-001', subject: 'Unable to send SMS to Tanzania numbers', customer: 'John Smith', customer_email: 'john@acmecorp.com', priority: 'high', category: 'SMS', status: 'open', assigned_to: 'Support Manager', created: '2025-01-15 09:30', last_reply: '2025-01-15 10:15', messages: 3 },
-  { id: 'TKT-002', uid: 'tkt-002', subject: 'Billing discrepancy on last invoice', customer: 'Emma Williams', customer_email: 'emma@euromail.com', priority: 'medium', category: 'Billing', status: 'in_progress', assigned_to: 'Billing Admin', created: '2025-01-14 14:20', last_reply: '2025-01-15 08:45', messages: 5 },
-  { id: 'TKT-005', uid: 'tkt-005', subject: 'Sender ID verification pending for 2 weeks', customer: 'John Smith', customer_email: 'john@acmecorp.com', priority: 'high', category: 'SMS', status: 'in_progress', assigned_to: 'Support Manager', created: '2025-01-10 08:00', last_reply: '2025-01-14 15:30', messages: 7 },
-  { id: 'TKT-013', uid: 'tkt-013', subject: 'Subscription auto-renewal failed', customer: 'John Smith', customer_email: 'john@acmecorp.com', priority: 'high', category: 'Billing', status: 'resolved', assigned_to: 'Billing Admin', created: '2025-01-07 09:00', last_reply: '2025-01-08 11:30', messages: 4 },
-  { id: 'TKT-014', uid: 'tkt-014', subject: 'SMS delivery reports delayed by 24 hours', customer: 'Emma Williams', customer_email: 'emma@euromail.com', priority: 'medium', category: 'Integration', status: 'open', assigned_to: 'Support Manager', created: '2025-01-15 08:00', last_reply: '2025-01-15 08:00', messages: 1 },
-  { id: 'TKT-003', uid: 'tkt-003', subject: 'API integration returning 503 errors', customer: 'James Wilson', customer_email: 'james@techfirm.com', priority: 'critical', category: 'Technical', status: 'open', assigned_to: 'Support Manager', created: '2025-01-15 11:00', last_reply: '2025-01-15 11:00', messages: 1 },
-  { id: 'TKT-004', uid: 'tkt-004', subject: 'Request to increase SMS sending limit', customer: 'Tom Anderson', customer_email: 'tom@nordic.se', priority: 'low', category: 'Account', status: 'pending', assigned_to: null, created: '2025-01-13 16:30', last_reply: '2025-01-14 09:00', messages: 2 },
-  { id: 'TKT-006', uid: 'tkt-006', subject: 'Account locked after multiple login attempts', customer: 'Michael Chen', customer_email: 'michael@asiainc.com', priority: 'critical', category: 'Account', status: 'resolved', assigned_to: 'Support Manager', created: '2025-01-12 22:15', last_reply: '2025-01-13 01:30', messages: 4 },
-  { id: 'TKT-007', uid: 'tkt-007', subject: 'Payment via PayPal not reflecting in balance', customer: 'Maria Garcia', customer_email: 'maria@bizlat.com', priority: 'high', category: 'Billing', status: 'open', assigned_to: 'Billing Admin', created: '2025-01-15 07:45', last_reply: '2025-01-15 07:45', messages: 1 },
-  { id: 'TKT-008', uid: 'tkt-008', subject: 'Contact group import failing with CSV upload', customer: 'David Brown', customer_email: 'david@startup.io', priority: 'medium', category: 'Technical', status: 'closed', assigned_to: 'Support Manager', created: '2025-01-08 11:00', last_reply: '2025-01-10 16:00', messages: 6 },
-  { id: 'TKT-009', uid: 'tkt-009', subject: 'How to set up webhook for delivery reports', customer: 'Aisha Patel', customer_email: 'aisha@indiatech.in', priority: 'low', category: 'Integration', status: 'resolved', assigned_to: 'Support Manager', created: '2025-01-09 13:30', last_reply: '2025-01-11 10:00', messages: 3 },
-  { id: 'TKT-010', uid: 'tkt-010', subject: 'Duplicate SMS messages being sent', customer: 'Lisa Martinez', customer_email: 'lisa@latamco.com', priority: 'high', category: 'SMS', status: 'in_progress', assigned_to: 'Support Manager', created: '2025-01-14 09:00', last_reply: '2025-01-15 07:00', messages: 8 },
-  { id: 'TKT-011', uid: 'tkt-011', subject: 'Request for dedicated sending server', customer: 'Robert Taylor', customer_email: 'robert@mktgpro.com', priority: 'medium', category: 'General', status: 'pending', assigned_to: null, created: '2025-01-11 10:30', last_reply: '2025-01-12 14:00', messages: 2 },
-  { id: 'TKT-012', uid: 'tkt-012', subject: 'Dark mode not saving preference', customer: 'Nina Kowalski', customer_email: 'nina@polandtel.pl', priority: 'low', category: 'Technical', status: 'open', assigned_to: 'Support Manager', created: '2025-01-14 16:00', last_reply: '2025-01-14 16:00', messages: 1 },
-  { id: 'TKT-015', uid: 'tkt-015', subject: 'Feature request: bulk contact import via API', customer: 'James Wilson', customer_email: 'james@techfirm.com', priority: 'low', category: 'General', status: 'pending', assigned_to: null, created: '2025-01-13 15:00', last_reply: '2025-01-13 15:00', messages: 1 },
-];
-
-const mockConversation: Record<string, ConversationMessage[]> = {
-  'tkt-001': [
-    { id: 1, sender: 'John Smith', sender_type: 'customer', message: "Hi, I've been trying to send SMS messages to Tanzania numbers (+255...) but they keep failing with a \"Destination unavailable\" error. This started happening about 2 hours ago. My sender ID is ACMECORP and I'm on the Enterprise plan.", time: '2025-01-15 09:30', avatar: null },
-    { id: 2, sender: 'Support Manager', sender_type: 'admin', message: "Hi John, thank you for reaching out. I can see your account and I'm checking the Beem gateway logs now. It looks like there might be a temporary issue with the Tanzania routing. Let me investigate further.", time: '2025-01-15 10:00', avatar: null },
-    { id: 3, sender: 'Support Manager', sender_type: 'admin', message: "Update: We've identified the issue. The Beem gateway is experiencing a temporary outage for Tanzania DNO routing. Our team has escalated this to Beem's support team. Estimated resolution time is 2-4 hours. I'll keep you updated.", time: '2025-01-15 10:15', avatar: null },
-  ],
-  'tkt-005': [
-    { id: 1, sender: 'John Smith', sender_type: 'customer', message: 'I submitted a Sender ID verification request for "ACMECORP" two weeks ago but it still shows as pending. Can you check the status?', time: '2025-01-10 08:00', avatar: null },
-    { id: 2, sender: 'Support Manager', sender_type: 'admin', message: 'Hi John, I checked and your request is in the verification queue. Tanzania telecom requires additional documentation. We sent you an email about this on January 8th.', time: '2025-01-10 10:30', avatar: null },
-    { id: 3, sender: 'John Smith', sender_type: 'customer', message: 'I just checked and I did receive the email. I\'ll send the documents today.', time: '2025-01-10 12:00', avatar: null },
-    { id: 4, sender: 'Support Manager', sender_type: 'admin', message: 'Great, once we receive the documents, verification typically takes 1-2 business days.', time: '2025-01-10 14:00', avatar: null },
-    { id: 5, sender: 'John Smith', sender_type: 'customer', message: 'Documents sent. Please confirm receipt.', time: '2025-01-11 09:00', avatar: null },
-    { id: 6, sender: 'Support Manager', sender_type: 'admin', message: 'Received and submitted to the telecom. Currently pending their review.', time: '2025-01-12 10:00', avatar: null },
-    { id: 7, sender: 'Support Manager', sender_type: 'admin', message: 'Update: The telecom has approved your Sender ID. It should be active within 24 hours.', time: '2025-01-14 15:30', avatar: null },
-  ],
-  'tkt-013': [
-    { id: 1, sender: 'John Smith', sender_type: 'customer', message: 'My subscription auto-renewal failed this month. The payment method on file should be valid.', time: '2025-01-07 09:00', avatar: null },
-    { id: 2, sender: 'Billing Admin', sender_type: 'admin', message: 'Hi John, I checked your account. The card ending in 4242 expired in December 2024. Please update your payment method.', time: '2025-01-07 14:00', avatar: null },
-    { id: 3, sender: 'John Smith', sender_type: 'customer', message: 'Updated my card details. Can you retry the payment?', time: '2025-01-08 09:00', avatar: null },
-    { id: 4, sender: 'Billing Admin', sender_type: 'admin', message: 'Payment successful! Your Enterprise plan is active until February 15th, 2025.', time: '2025-01-08 11:30', avatar: null },
-  ],
-};
 
 // ─── Badge Helpers ────────────────────────────────────────────────
 const priorityConfig: Record<string, string> = {
@@ -129,7 +88,9 @@ const statusLabel: Record<string, string> = {
 export function SupportView() {
   const { customerUser } = useCustomer();
 
-  const [tickets, setTickets] = useState<Ticket[]>(allMockTickets);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
@@ -141,35 +102,48 @@ export function SupportView() {
   const [newCategory, setNewCategory] = useState('');
   const [newPriority, setNewPriority] = useState('medium');
   const [newMessage, setNewMessage] = useState('');
+  const [creating, setCreating] = useState(false);
 
   // Ticket detail dialog
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [replyText, setReplyText] = useState('');
 
-  // Get current customer name
-  const customerName = customerUser
-    ? `${customerUser.first_name} ${customerUser.last_name}`
-    : 'John Smith';
+  const fetchTickets = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch('/api/support/tickets');
+      const json = await res.json();
+      if (json.success) {
+        setTickets(json.data || []);
+      } else {
+        setError('Failed to load tickets');
+      }
+    } catch {
+      setError('Failed to load tickets');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  // Filter tickets for current customer
-  const customerTickets = useMemo(() => {
-    return tickets.filter((t) => t.customer === customerName);
-  }, [tickets, customerName]);
+  useEffect(() => {
+    fetchTickets();
+  }, [fetchTickets]);
 
   // Stats
-  const openCount = customerTickets.filter((t) => t.status === 'open').length;
-  const inProgressCount = customerTickets.filter((t) => t.status === 'in_progress').length;
-  const resolvedCount = customerTickets.filter((t) => t.status === 'resolved' || t.status === 'closed').length;
+  const openCount = tickets.filter((t) => t.status === 'open').length;
+  const inProgressCount = tickets.filter((t) => t.status === 'in_progress').length;
+  const resolvedCount = tickets.filter((t) => t.status === 'resolved' || t.status === 'closed').length;
 
   // Filtered
   const filtered = useMemo(() => {
-    return customerTickets.filter((t) => {
+    return tickets.filter((t) => {
       const matchSearch = `${t.id} ${t.subject} ${t.category}`.toLowerCase().includes(search.toLowerCase());
       const matchStatus = statusFilter === 'all' || t.status === statusFilter;
       return matchSearch && matchStatus;
     });
-  }, [customerTickets, search, statusFilter]);
+  }, [tickets, search, statusFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const paged = filtered.slice((page - 1) * perPage, page * perPage);
@@ -199,7 +173,7 @@ export function SupportView() {
     setDetailOpen(true);
   };
 
-  const handleCreateTicket = () => {
+  const handleCreateTicket = async () => {
     if (!newSubject.trim()) {
       toast.error('Subject is required');
       return;
@@ -213,28 +187,35 @@ export function SupportView() {
       return;
     }
 
-    const newId = `TKT-${String(tickets.length + 1).padStart(3, '0')}`;
-    const newTicket: Ticket = {
-      id: newId,
-      uid: `tkt-${tickets.length + 1}`,
-      subject: newSubject,
-      customer: customerName,
-      customer_email: customerUser?.email || 'john@acmecorp.com',
-      priority: newPriority as Ticket['priority'],
-      category: newCategory,
-      status: 'open',
-      assigned_to: null,
-      created: new Date().toISOString().replace('T', ' ').slice(0, 16),
-      last_reply: new Date().toISOString().replace('T', ' ').slice(0, 16),
-      messages: 1,
-    };
-    setTickets((prev) => [newTicket, ...prev]);
-    toast.success('Ticket created successfully');
-    setCreateDialogOpen(false);
-    setNewSubject('');
-    setNewCategory('');
-    setNewPriority('medium');
-    setNewMessage('');
+    try {
+      setCreating(true);
+      const res = await fetch('/api/support/tickets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: newSubject.trim(),
+          message: newMessage.trim(),
+          priority: newPriority,
+          category: newCategory,
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        toast.success('Ticket created successfully');
+        setCreateDialogOpen(false);
+        setNewSubject('');
+        setNewCategory('');
+        setNewPriority('medium');
+        setNewMessage('');
+        fetchTickets();
+      } else {
+        toast.error(json.error || 'Failed to create ticket');
+      }
+    } catch {
+      toast.error('Failed to create ticket');
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handleSendReply = () => {
@@ -246,18 +227,31 @@ export function SupportView() {
   const handleCloseTicket = () => {
     if (!selectedTicket) return;
     setTickets((prev) =>
-      prev.map((t) => (t.uid === selectedTicket.uid ? { ...t, status: 'closed' as const } : t))
+      prev.map((t) => (t.id === selectedTicket.id ? { ...t, status: 'closed' as const } : t))
     );
     setSelectedTicket((prev) => prev ? { ...prev, status: 'closed' as const } : null);
     toast.success('Ticket closed');
     setDetailOpen(false);
   };
 
-  const conversation = selectedTicket
-    ? mockConversation[selectedTicket.uid] || [
-        { id: 1, sender: selectedTicket.customer, sender_type: 'customer' as const, message: selectedTicket.subject, time: selectedTicket.created, avatar: null },
-      ]
-    : [];
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-[#D72444]" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <p className="text-sm text-red-500">{error}</p>
+        <Button variant="outline" onClick={fetchTickets}>
+          <RefreshCw className="h-4 w-4 mr-2" /> Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -303,7 +297,7 @@ export function SupportView() {
             </div>
             <div>
               <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Tickets</p>
-              <p className="text-xl font-bold text-gray-800 dark:text-gray-100">{customerTickets.length}</p>
+              <p className="text-xl font-bold text-gray-800 dark:text-gray-100">{tickets.length}</p>
             </div>
           </CardContent>
         </Card>
@@ -364,26 +358,25 @@ export function SupportView() {
                   <TableHead className="text-xs text-gray-500 dark:text-gray-400 font-medium hidden md:table-cell">Priority</TableHead>
                   <TableHead className="text-xs text-gray-500 dark:text-gray-400 font-medium">Status</TableHead>
                   <TableHead className="text-xs text-gray-500 dark:text-gray-400 font-medium hidden lg:table-cell">Created</TableHead>
-                  <TableHead className="text-xs text-gray-500 dark:text-gray-400 font-medium hidden lg:table-cell">Last Reply</TableHead>
                   <TableHead className="text-xs text-gray-500 dark:text-gray-400 font-medium w-16">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paged.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-12 text-gray-400">
+                    <TableCell colSpan={7} className="text-center py-12 text-gray-400">
                       No tickets found
                     </TableCell>
                   </TableRow>
                 ) : (
                   paged.map((t) => (
                     <TableRow
-                      key={t.uid}
+                      key={t.id}
                       className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 cursor-pointer"
                       onClick={() => openTicketDetail(t)}
                     >
                       <TableCell>
-                        <span className="text-xs font-mono text-gray-600 dark:text-gray-300">{t.id}</span>
+                        <span className="text-xs font-mono text-gray-600 dark:text-gray-300">{t.uid || `TKT-${t.id}`}</span>
                       </TableCell>
                       <TableCell>
                         <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate max-w-[200px]">
@@ -391,25 +384,24 @@ export function SupportView() {
                         </p>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">
-                        <Badge className={cn('text-[10px] hover:bg-transparent', categoryConfig[t.category] || '')}>
-                          {t.category}
+                        <Badge className={cn('text-[10px] hover:bg-transparent', categoryConfig[t.category || ''] || '')}>
+                          {t.category || 'General'}
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
-                        <Badge className={cn('text-[10px] hover:bg-transparent', priorityConfig[t.priority])}>
-                          {t.priority.charAt(0).toUpperCase() + t.priority.slice(1)}
+                        <Badge className={cn('text-[10px] hover:bg-transparent', priorityConfig[t.priority || 'medium'])}>
+                          {(t.priority || 'medium').charAt(0).toUpperCase() + (t.priority || 'medium').slice(1)}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge className={cn('text-[10px] hover:bg-transparent', statusConfig[t.status])}>
-                          {statusLabel[t.status]}
+                        <Badge className={cn('text-[10px] hover:bg-transparent', statusConfig[t.status || 'open'])}>
+                          {statusLabel[t.status || 'open'] || (t.status || 'open')}
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{t.created}</span>
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{t.last_reply}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {t.created_at ? new Date(t.created_at).toLocaleString() : '—'}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <Button
@@ -478,7 +470,7 @@ export function SupportView() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Create New Ticket</DialogTitle>
-            <DialogDescription>Describe your issue and we'll get back to you as soon as possible.</DialogDescription>
+            <DialogDescription>Describe your issue and we&apos;ll get back to you as soon as possible.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
@@ -538,7 +530,9 @@ export function SupportView() {
             <Button
               className="bg-[#D72444] hover:bg-[#B91E3A] text-white gap-2"
               onClick={handleCreateTicket}
+              disabled={creating}
             >
+              {creating && <Loader2 className="h-4 w-4 animate-spin" />}
               <Send className="h-4 w-4" />
               Submit Ticket
             </Button>
@@ -555,59 +549,53 @@ export function SupportView() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className="text-xs font-mono text-gray-500">{selectedTicket.id}</span>
-                      <Badge className={cn('text-[10px] hover:bg-transparent', priorityConfig[selectedTicket.priority])}>
-                        {selectedTicket.priority.charAt(0).toUpperCase() + selectedTicket.priority.slice(1)}
+                      <span className="text-xs font-mono text-gray-500">{selectedTicket.uid || `TKT-${selectedTicket.id}`}</span>
+                      <Badge className={cn('text-[10px] hover:bg-transparent', priorityConfig[selectedTicket.priority || 'medium'])}>
+                        {(selectedTicket.priority || 'medium').charAt(0).toUpperCase() + (selectedTicket.priority || 'medium').slice(1)}
                       </Badge>
-                      <Badge className={cn('text-[10px] hover:bg-transparent', statusConfig[selectedTicket.status])}>
-                        {statusLabel[selectedTicket.status]}
+                      <Badge className={cn('text-[10px] hover:bg-transparent', statusConfig[selectedTicket.status || 'open'])}>
+                        {statusLabel[selectedTicket.status || 'open'] || (selectedTicket.status || 'open')}
                       </Badge>
-                      <Badge className={cn('text-[10px] hover:bg-transparent', categoryConfig[selectedTicket.category] || '')}>
-                        {selectedTicket.category}
+                      <Badge className={cn('text-[10px] hover:bg-transparent', categoryConfig[selectedTicket.category || ''] || '')}>
+                        {selectedTicket.category || 'General'}
                       </Badge>
                     </div>
                     <DialogTitle className="text-lg font-bold text-gray-800 dark:text-gray-100 leading-tight">
                       {selectedTicket.subject}
                     </DialogTitle>
                     <DialogDescription className="mt-1">
-                      Opened {selectedTicket.created}
+                      Opened {selectedTicket.created_at ? new Date(selectedTicket.created_at).toLocaleString() : '—'}
                     </DialogDescription>
                   </div>
                 </div>
               </DialogHeader>
 
-              {/* Conversation */}
-              <div className="px-6 py-4 max-h-80 overflow-y-auto space-y-4">
-                {conversation.map((msg) => (
-                  <div key={msg.id} className={cn('flex gap-3', msg.sender_type === 'admin' && 'flex-row-reverse')}>
-                    <div className={cn(
-                      'w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold shrink-0',
-                      msg.sender_type === 'admin'
-                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                        : 'bg-[#FEF2F2] dark:bg-[#D72444]/20 text-[#D72444]'
-                    )}>
-                      {msg.sender_type === 'admin' ? 'SA' : msg.sender.split(' ').map((n) => n.charAt(0)).join('')}
+              {/* Conversation - placeholder since we don't have a conversation endpoint */}
+              <div className="px-6 py-4">
+                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#FEF2F2] dark:bg-[#D72444]/20 text-[#D72444] flex items-center justify-center text-xs font-semibold shrink-0">
+                      {(customerUser?.first_name?.charAt(0) || 'U')}{(customerUser?.last_name?.charAt(0) || '')}
                     </div>
-                    <div className={cn('flex-1 min-w-0', msg.sender_type === 'admin' && 'flex flex-col items-end')}>
+                    <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">{msg.sender}</span>
-                        <span className="text-[10px] text-gray-400">{msg.time}</span>
+                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                          {customerUser?.first_name || 'User'} {customerUser?.last_name || ''}
+                        </span>
+                        <span className="text-[10px] text-gray-400">
+                          {selectedTicket.created_at ? new Date(selectedTicket.created_at).toLocaleString() : '—'}
+                        </span>
                       </div>
-                      <div className={cn(
-                        'rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-300 max-w-[85%]',
-                        msg.sender_type === 'admin'
-                          ? 'bg-blue-50 dark:bg-blue-900/20'
-                          : 'bg-gray-100 dark:bg-gray-800'
-                      )}>
-                        {msg.message}
-                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Ticket created with subject: {selectedTicket.subject}
+                      </p>
                     </div>
                   </div>
-                ))}
+                </div>
               </div>
 
               {/* Reply */}
-              {selectedTicket.status !== 'closed' && (
+              {(selectedTicket.status || 'open') !== 'closed' && (
                 <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
                   <Textarea
                     placeholder="Type your reply..."

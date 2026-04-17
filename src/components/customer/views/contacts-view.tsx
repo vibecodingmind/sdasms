@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Plus, Search, Edit2, Trash2, Upload, Users, MoreHorizontal, Phone, Mail } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Plus, Search, Edit2, Trash2, Upload, Users, MoreHorizontal, Phone, Mail, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,103 +19,213 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 
-interface Contact {
+interface ContactGroup {
   id: number;
   name: string;
-  phone: string;
-  email: string;
-  group: string;
-  status: 'active' | 'inactive';
+  [key: string]: unknown;
 }
 
-const mockContacts: Contact[] = [
-  { id: 1, name: 'Alice Johnson', phone: '+1 555-0201', email: 'alice@example.com', group: 'VIP Customers', status: 'active' },
-  { id: 2, name: 'Bob Martinez', phone: '+1 555-0301', email: 'bob@example.com', group: 'Newsletter', status: 'active' },
-  { id: 3, name: 'Carol White', phone: '+44 7700-0401', email: 'carol@example.com', group: 'VIP Customers', status: 'active' },
-  { id: 4, name: 'David Lee', phone: '+86 138-0001', email: 'david@example.com', group: 'Newsletter', status: 'inactive' },
-  { id: 5, name: 'Eva Schmidt', phone: '+49 151-0801', email: 'eva@example.com', group: 'Promotions', status: 'active' },
-  { id: 6, name: 'Frank Brown', phone: '+1 555-0601', email: 'frank@example.com', group: 'Staff', status: 'active' },
-  { id: 7, name: 'Grace Kim', phone: '+82 10-7001', email: 'grace@example.com', group: 'VIP Customers', status: 'active' },
-  { id: 8, name: 'Henry Davis', phone: '+1 555-0801', email: 'henry@example.com', group: 'Newsletter', status: 'active' },
-];
-
-const groupOptions = ['VIP Customers', 'Newsletter', 'Promotions', 'Staff', 'Partners'];
+interface Contact {
+  id: number;
+  first_name?: string;
+  last_name?: string;
+  name?: string;
+  phone: string;
+  email?: string;
+  group_id?: number | null;
+  group?: ContactGroup | null;
+  status?: string;
+  created_at?: string;
+  [key: string]: unknown;
+}
 
 export function ContactsView() {
-  const [contacts, setContacts] = useState<Contact[]>(mockContacts);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [groups, setGroups] = useState<ContactGroup[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [filterGroup, setFilterGroup] = useState('all');
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
-  const [formName, setFormName] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [formFirstName, setFormFirstName] = useState('');
+  const [formLastName, setFormLastName] = useState('');
   const [formPhone, setFormPhone] = useState('');
   const [formEmail, setFormEmail] = useState('');
-  const [formGroup, setFormGroup] = useState('Newsletter');
+  const [formGroupId, setFormGroupId] = useState<string>('');
+
+  const fetchContacts = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
+      if (filterGroup !== 'all') params.set('group_id', filterGroup);
+      const res = await fetch(`/api/contacts?${params.toString()}`);
+      const json = await res.json();
+      if (json.success) {
+        setContacts(json.data || []);
+      } else {
+        setError('Failed to load contacts');
+      }
+    } catch {
+      setError('Failed to load contacts');
+    } finally {
+      setLoading(false);
+    }
+  }, [search, filterGroup]);
+
+  const fetchGroups = useCallback(async () => {
+    try {
+      const res = await fetch('/api/contact-groups');
+      const json = await res.json();
+      if (json.success) {
+        setGroups(json.data || []);
+      }
+    } catch {
+      // groups are secondary, don't block
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchContacts();
+  }, [fetchContacts]);
+
+  useEffect(() => {
+    fetchGroups();
+  }, [fetchGroups]);
+
+  const getContactName = (c: Contact) => {
+    if (c.name) return c.name;
+    return [c.first_name, c.last_name].filter(Boolean).join(' ') || 'Unknown';
+  };
+
+  const getGroupName = (c: Contact) => {
+    if (c.group && typeof c.group === 'object') return c.group.name;
+    return 'None';
+  };
+
+  const getGroupId = (c: Contact) => {
+    if (c.group_id) return String(c.group_id);
+    return '';
+  };
 
   const filteredContacts = contacts.filter((c) => {
-    const matchSearch = c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.phone.includes(search) || c.email.toLowerCase().includes(search.toLowerCase());
-    const matchGroup = filterGroup === 'all' || c.group === filterGroup;
-    return matchSearch && matchGroup;
+    const name = getContactName(c).toLowerCase();
+    const phone = (c.phone || '').toLowerCase();
+    const email = (c.email || '').toLowerCase();
+    const q = search.toLowerCase();
+    return name.includes(q) || phone.includes(q) || email.includes(q);
   });
 
   const openAddDialog = () => {
     setEditingContact(null);
-    setFormName('');
+    setFormFirstName('');
+    setFormLastName('');
     setFormPhone('');
     setFormEmail('');
-    setFormGroup('Newsletter');
+    setFormGroupId(groups.length > 0 ? String(groups[0].id) : '');
     setDialogOpen(true);
   };
 
   const openEditDialog = (contact: Contact) => {
     setEditingContact(contact);
-    setFormName(contact.name);
-    setFormPhone(contact.phone);
-    setFormEmail(contact.email);
-    setFormGroup(contact.group);
+    setFormFirstName(contact.first_name || '');
+    setFormLastName(contact.last_name || '');
+    setFormPhone(contact.phone || '');
+    setFormEmail(contact.email || '');
+    setFormGroupId(getGroupId(contact));
     setDialogOpen(true);
   };
 
-  const handleSave = () => {
-    if (!formName.trim() || !formPhone.trim()) {
-      toast.error('Name and phone are required');
+  const handleSave = async () => {
+    if (!formFirstName.trim() || !formPhone.trim()) {
+      toast.error('First name and phone are required');
       return;
     }
-    if (editingContact) {
-      setContacts((prev) =>
-        prev.map((c) =>
-          c.id === editingContact.id
-            ? { ...c, name: formName, phone: formPhone, email: formEmail, group: formGroup }
-            : c
-        )
-      );
-      toast.success('Contact updated');
-    } else {
-      const newContact: Contact = {
-        id: Date.now(),
-        name: formName,
-        phone: formPhone,
-        email: formEmail,
-        group: formGroup,
-        status: 'active',
-      };
-      setContacts((prev) => [newContact, ...prev]);
-      toast.success('Contact added');
+    try {
+      setSaving(true);
+      if (editingContact) {
+        const res = await fetch(`/api/contacts/${editingContact.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            first_name: formFirstName.trim(),
+            last_name: formLastName.trim(),
+            phone: formPhone.trim(),
+            email: formEmail.trim(),
+            group_id: formGroupId ? Number(formGroupId) : null,
+          }),
+        });
+        const json = await res.json();
+        if (json.success) {
+          toast.success('Contact updated');
+          setDialogOpen(false);
+          fetchContacts();
+        } else {
+          toast.error(json.error || 'Failed to update contact');
+        }
+      } else {
+        const res = await fetch('/api/contacts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            first_name: formFirstName.trim(),
+            last_name: formLastName.trim(),
+            phone: formPhone.trim(),
+            email: formEmail.trim(),
+            group_id: formGroupId ? Number(formGroupId) : null,
+          }),
+        });
+        const json = await res.json();
+        if (json.success) {
+          toast.success('Contact added');
+          setDialogOpen(false);
+          fetchContacts();
+        } else {
+          toast.error(json.error || 'Failed to create contact');
+        }
+      }
+    } catch {
+      toast.error(editingContact ? 'Failed to update contact' : 'Failed to create contact');
+    } finally {
+      setSaving(false);
     }
-    setDialogOpen(false);
   };
 
-  const handleDelete = (id: number) => {
-    setContacts((prev) => prev.filter((c) => c.id !== id));
-    toast.success('Contact deleted');
+  const handleDelete = async (id: number) => {
+    try {
+      const res = await fetch(`/api/contacts/${id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.success) {
+        setContacts((prev) => prev.filter((c) => c.id !== id));
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+        toast.success('Contact deleted');
+      } else {
+        toast.error('Failed to delete contact');
+      }
+    } catch {
+      toast.error('Failed to delete contact');
+    }
   };
 
-  const handleBulkDelete = () => {
-    setContacts((prev) => prev.filter((c) => !selectedIds.has(c.id)));
-    setSelectedIds(new Set());
-    toast.success(`${selectedIds.size} contacts deleted`);
+  const handleBulkDelete = async () => {
+    try {
+      for (const id of selectedIds) {
+        await fetch(`/api/contacts/${id}`, { method: 'DELETE' });
+      }
+      setContacts((prev) => prev.filter((c) => !selectedIds.has(c.id)));
+      toast.success(`${selectedIds.size} contacts deleted`);
+      setSelectedIds(new Set());
+    } catch {
+      toast.error('Failed to delete some contacts');
+    }
   };
 
   const toggleSelect = (id: number) => {
@@ -134,6 +244,25 @@ export function ContactsView() {
       setSelectedIds(new Set(filteredContacts.map((c) => c.id)));
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-[#D72444]" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <p className="text-sm text-red-500">{error}</p>
+        <Button variant="outline" onClick={fetchContacts}>
+          <Users className="h-4 w-4 mr-2" /> Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -155,8 +284,8 @@ export function ContactsView() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Groups</SelectItem>
-              {groupOptions.map((g) => (
-                <SelectItem key={g} value={g}>{g}</SelectItem>
+              {groups.map((g) => (
+                <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -193,7 +322,6 @@ export function ContactsView() {
                   <th className="text-left text-[11px] font-medium text-gray-500 uppercase tracking-wide px-4 py-3 hidden md:table-cell">Phone</th>
                   <th className="text-left text-[11px] font-medium text-gray-500 uppercase tracking-wide px-4 py-3 hidden lg:table-cell">Email</th>
                   <th className="text-left text-[11px] font-medium text-gray-500 uppercase tracking-wide px-4 py-3">Group</th>
-                  <th className="text-left text-[11px] font-medium text-gray-500 uppercase tracking-wide px-4 py-3 hidden sm:table-cell">Status</th>
                   <th className="text-right text-[11px] font-medium text-gray-500 uppercase tracking-wide px-4 py-3">Actions</th>
                 </tr>
               </thead>
@@ -209,24 +337,19 @@ export function ContactsView() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-full bg-[#D72444]/10 flex items-center justify-center text-[#D72444] text-xs font-semibold shrink-0">
-                          {contact.name.charAt(0)}
+                          {getContactName(contact).charAt(0)}
                         </div>
-                        <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{contact.name}</span>
+                        <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{getContactName(contact)}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
                       <span className="text-sm text-gray-500 dark:text-gray-400">{contact.phone}</span>
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">{contact.email}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{contact.email || '—'}</span>
                     </td>
                     <td className="px-4 py-3">
-                      <Badge variant="outline" className="text-xs">{contact.group}</Badge>
-                    </td>
-                    <td className="px-4 py-3 hidden sm:table-cell">
-                      <Badge className={`text-[10px] ${contact.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                        {contact.status}
-                      </Badge>
+                      <Badge variant="outline" className="text-xs">{getGroupName(contact)}</Badge>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <DropdownMenu>
@@ -266,9 +389,15 @@ export function ContactsView() {
             <DialogTitle>{editingContact ? 'Edit Contact' : 'Add Contact'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <div>
-              <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Name *</Label>
-              <Input placeholder="John Doe" value={formName} onChange={(e) => setFormName(e.target.value)} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">First Name *</Label>
+                <Input placeholder="John" value={formFirstName} onChange={(e) => setFormFirstName(e.target.value)} />
+              </div>
+              <div>
+                <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Last Name</Label>
+                <Input placeholder="Doe" value={formLastName} onChange={(e) => setFormLastName(e.target.value)} />
+              </div>
             </div>
             <div>
               <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Phone *</Label>
@@ -280,13 +409,14 @@ export function ContactsView() {
             </div>
             <div>
               <Label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Group</Label>
-              <Select value={formGroup} onValueChange={setFormGroup}>
+              <Select value={formGroupId} onValueChange={setFormGroupId}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select group" />
                 </SelectTrigger>
                 <SelectContent>
-                  {groupOptions.map((g) => (
-                    <SelectItem key={g} value={g}>{g}</SelectItem>
+                  <SelectItem value="">No Group</SelectItem>
+                  {groups.map((g) => (
+                    <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -294,7 +424,8 @@ export function ContactsView() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white" onClick={handleSave}>
+            <Button className="bg-[#D72444] hover:bg-[#C01E3A] text-white" onClick={handleSave} disabled={saving}>
+              {saving && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}
               {editingContact ? 'Update' : 'Add'} Contact
             </Button>
           </DialogFooter>

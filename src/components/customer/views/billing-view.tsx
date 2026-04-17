@@ -1,41 +1,137 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   CreditCard, DollarSign, Zap, Check, Plus, Download,
-  CalendarDays, CreditCard as CreditIcon,
+  CalendarDays, CreditCard as CreditIcon, Loader2, RefreshCw,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useCustomer } from '../customer-context';
+import { toast } from 'sonner';
 
-const currentPlan = {
-  name: 'Enterprise',
-  price: '$499.99/month',
-  smsIncluded: 'Unlimited',
-  contactsLimit: 'Unlimited',
-  features: ['API Access', 'Priority Support', 'Custom Sender IDs', 'Advanced Analytics', 'Dedicated Account Manager'],
-  renewalDate: '2025-02-15',
-};
+interface Invoice {
+  id: number;
+  invoice_no?: string;
+  uid?: string;
+  amount?: number;
+  status?: string;
+  date?: string;
+  created_at?: string;
+  description?: string;
+  type?: string;
+  [key: string]: unknown;
+}
 
-const mockInvoices = [
-  { id: 1, invoice_no: 'INV-2025-001', amount: 499.99, status: 'paid', date: '2025-01-15', description: 'Enterprise Plan - Monthly' },
-  { id: 2, invoice_no: 'INV-2024-012', amount: 499.99, status: 'paid', date: '2024-12-15', description: 'Enterprise Plan - Monthly' },
-  { id: 3, invoice_no: 'INV-2024-011', amount: 50.00, status: 'paid', date: '2024-11-20', description: 'SMS Credit Top-up' },
-  { id: 4, invoice_no: 'INV-2024-010', amount: 499.99, status: 'paid', date: '2024-11-15', description: 'Enterprise Plan - Monthly' },
-];
+interface Subscription {
+  id: number;
+  plan?: string;
+  status?: string;
+  start_date?: string;
+  end_date?: string;
+  amount?: number;
+  [key: string]: unknown;
+}
+
+interface Plan {
+  id: number;
+  name?: string;
+  price?: number;
+  billing_cycle?: string;
+  features?: Record<string, unknown>;
+  status?: string;
+  [key: string]: unknown;
+}
 
 export function BillingView() {
   const { customerUser } = useCustomer();
   const [topUpDialogOpen, setTopUpDialogOpen] = useState(false);
 
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchBillingData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [invRes, subRes, planRes] = await Promise.allSettled([
+        fetch('/api/invoices'),
+        fetch('/api/subscriptions'),
+        fetch('/api/plans'),
+      ]);
+
+      if (invRes.status === 'fulfilled') {
+        const json = await invRes.value.json();
+        if (json.success) setInvoices(json.data || []);
+      }
+      if (subRes.status === 'fulfilled') {
+        const json = await subRes.value.json();
+        if (json.success) setSubscriptions(json.data || []);
+      }
+      if (planRes.status === 'fulfilled') {
+        const json = await planRes.value.json();
+        if (json.success) setPlans(json.data || []);
+      }
+    } catch {
+      setError('Failed to load billing data');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBillingData();
+  }, [fetchBillingData]);
+
+  // Derive current plan from active subscription
+  const activeSubscription = subscriptions.find(
+    (s) => s.status === 'active'
+  );
+  const currentPlanName = activeSubscription?.plan || customerUser?.plan || 'Starter';
+  const currentPlan = plans.find(
+    (p) => p.name?.toLowerCase() === currentPlanName.toLowerCase()
+  );
+  const renewalDate = activeSubscription?.end_date || 'N/A';
+
+  const planFeatures = currentPlan?.features
+    ? Object.keys(currentPlan.features).map((k) =>
+        `${k.replace(/_/g, ' ')}: ${String(currentPlan.features![k])}`
+      )
+    : [];
+
   const statusConfig: Record<string, string> = {
     paid: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
     unpaid: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
     pending: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
+    active: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+    expired: 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400',
+    cancelled: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-[#D72444]" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <p className="text-sm text-red-500">{error}</p>
+        <Button variant="outline" onClick={fetchBillingData}>
+          <RefreshCw className="h-4 w-4 mr-2" /> Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -49,8 +145,8 @@ export function BillingView() {
                   <Zap className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">{currentPlan.name} Plan</h3>
-                  <p className="text-sm text-gray-500">Renews on {currentPlan.renewalDate}</p>
+                  <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">{currentPlanName} Plan</h3>
+                  <p className="text-sm text-gray-500">Renews on {renewalDate}</p>
                 </div>
                 <Badge className="bg-green-100 text-green-700 text-xs">Active</Badge>
               </div>
@@ -58,32 +154,40 @@ export function BillingView() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
                 <div>
                   <p className="text-xs text-gray-500">Monthly Price</p>
-                  <p className="text-lg font-bold text-gray-800 dark:text-gray-100">{currentPlan.price}</p>
+                  <p className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                    ${currentPlan?.price?.toFixed(2) || activeSubscription?.amount?.toFixed(2) || '49.99'}/mo
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">SMS Included</p>
-                  <p className="text-lg font-bold text-gray-800 dark:text-gray-100">{currentPlan.smsIncluded}</p>
+                  <p className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                    {String(currentPlan?.features?.sms || '5,000')}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Contacts Limit</p>
-                  <p className="text-lg font-bold text-gray-800 dark:text-gray-100">{currentPlan.contactsLimit}</p>
+                  <p className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                    {String(currentPlan?.features?.contacts || '1,000')}
+                  </p>
                 </div>
               </div>
 
-              <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Plan Features</p>
-                <div className="flex flex-wrap gap-2">
-                  {currentPlan.features.map((feature) => (
-                    <span
-                      key={feature}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg text-xs font-medium"
-                    >
-                      <Check className="h-3 w-3" />
-                      {feature}
-                    </span>
-                  ))}
+              {planFeatures.length > 0 && (
+                <div>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Plan Features</p>
+                  <div className="flex flex-wrap gap-2">
+                    {planFeatures.map((feature) => (
+                      <span
+                        key={feature}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg text-xs font-medium"
+                      >
+                        <Check className="h-3 w-3" />
+                        {feature}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             <div className="flex lg:flex-col gap-2 lg:w-48">
@@ -109,7 +213,7 @@ export function BillingView() {
               <div>
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">SMS Balance</p>
                 <p className="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-1">
-                  {customerUser?.sms_balance?.toLocaleString() || '45,000'}
+                  {customerUser?.sms_balance?.toLocaleString() || '0'}
                 </p>
               </div>
               <div className="w-10 h-10 rounded-xl bg-[#D72444]/10 flex items-center justify-center text-[#D72444]">
@@ -122,8 +226,10 @@ export function BillingView() {
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">SMS Sent (This Month)</p>
-                <p className="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-1">12,850</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Active Subscriptions</p>
+                <p className="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-1">
+                  {subscriptions.filter((s) => s.status === 'active').length}
+                </p>
               </div>
               <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
                 <DollarSign className="h-5 w-5" />
@@ -135,8 +241,10 @@ export function BillingView() {
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Spent</p>
-                <p className="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-1">$154.20</p>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Total Invoices</p>
+                <p className="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-1">
+                  {invoices.length}
+                </p>
               </div>
               <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center text-green-600">
                 <CalendarDays className="h-5 w-5" />
@@ -190,34 +298,50 @@ export function BillingView() {
                 </tr>
               </thead>
               <tbody>
-                {mockInvoices.map((invoice) => (
-                  <tr key={invoice.id} className="border-b border-gray-50 dark:border-gray-800/50 hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
-                    <td className="px-5 py-3">
-                      <span className="text-sm font-medium text-gray-800 dark:text-gray-200 font-mono">{invoice.invoice_no}</span>
-                    </td>
-                    <td className="px-5 py-3 hidden sm:table-cell">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">{invoice.description}</span>
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">${invoice.amount.toFixed(2)}</span>
-                    </td>
-                    <td className="px-5 py-3 hidden md:table-cell">
-                      <span className="text-xs text-gray-400">{invoice.date}</span>
-                    </td>
-                    <td className="px-5 py-3">
-                      <Badge className={`text-[10px] ${statusConfig[invoice.status] || ''}`}>
-                        {invoice.status}
-                      </Badge>
+                {invoices.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center py-12 text-sm text-gray-400">
+                      No invoices found
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  invoices.map((invoice) => {
+                    const invNo = invoice.invoice_no || invoice.uid || `INV-${invoice.id}`;
+                    const invDate = invoice.date || (invoice.created_at ? new Date(invoice.created_at).toLocaleDateString() : '—');
+                    const invDesc = invoice.description || invoice.type || '—';
+                    const invStatus = invoice.status || 'pending';
+                    return (
+                      <tr key={invoice.id} className="border-b border-gray-50 dark:border-gray-800/50 hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+                        <td className="px-5 py-3">
+                          <span className="text-sm font-medium text-gray-800 dark:text-gray-200 font-mono">{invNo}</span>
+                        </td>
+                        <td className="px-5 py-3 hidden sm:table-cell">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">{invDesc}</span>
+                        </td>
+                        <td className="px-5 py-3">
+                          <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                            ${Number(invoice.amount || 0).toFixed(2)}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3 hidden md:table-cell">
+                          <span className="text-xs text-gray-400">{invDate}</span>
+                        </td>
+                        <td className="px-5 py-3">
+                          <Badge className={`text-[10px] ${statusConfig[invStatus] || statusConfig.pending || ''}`}>
+                            {invStatus}
+                          </Badge>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
         </CardContent>
       </Card>
 
-      {/* Top Up Dialog (simplified) */}
+      {/* Top Up Dialog */}
       <div className={`fixed inset-0 bg-black/30 z-50 flex items-center justify-center transition-opacity ${topUpDialogOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-md mx-4 p-6">
           <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">Top Up SMS Balance</h3>

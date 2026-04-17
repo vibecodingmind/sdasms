@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Search, Download, Edit2, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Plus, Search, Download, Edit2, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,18 +20,30 @@ export function AdministratorsView() {
   const [perPage, setPerPage] = useState(10);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [allChecked, setAllChecked] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/administrators');
+      const json = await res.json();
+      if (json.data?.length) {
+        setAdmins(json.data);
+      } else {
+        setAdmins([]);
+      }
+    } catch {
+      setError('Failed to load administrators');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    fetch('/api/administrators').then(r => r.json()).then(r => {
-      if (r.data?.length) { setAdmins(r.data); }
-      else {
-        import('@/lib/mock-data').then(m => setAdmins([
-          { id: 1, first_name: 'Sub', last_name: 'ADMIN', email: 'admin@sdasms.com', role: 'Sub admin', status: 'inactive', created_at: '12th Sep 2025' },
-          { id: 2, first_name: 'Godlisten', last_name: 'Admin', email: 'godlisten@sdasms.com', role: 'Administrator', status: 'active', created_at: '1st Jan 2025' },
-        ]));
-      }
-    }).catch(() => {});
-  }, []);
+    fetchData();
+  }, [fetchData]);
 
   const filtered = useMemo(() => {
     if (!search) return admins;
@@ -47,6 +59,27 @@ export function AdministratorsView() {
 
   const toggleStatus = (id: number) => setAdmins(prev => prev.map(a => a.id === id ? { ...a, status: a.status === 'active' ? 'inactive' : 'active' } : a));
   const deleteAdmin = (id: number) => setAdmins(prev => prev.filter(a => a.id !== id));
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <p className="text-sm text-gray-500">Loading administrators...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <AlertCircle className="h-6 w-6 text-red-400" />
+        <p className="text-sm text-gray-500">{error}</p>
+        <Button variant="outline" size="sm" onClick={fetchData} className="gap-2">
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

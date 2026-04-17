@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import {
   User,
   Shield,
@@ -18,6 +18,8 @@ import {
   ChevronsRight,
   ToggleLeft,
   ToggleRight,
+  Loader2,
+  RefreshCw,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,7 +36,20 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useCustomer } from '../customer-context';
-import { mockNotifications, mockTimezones } from '@/lib/mock-data';
+
+// Static timezone data (no API needed)
+const timezones = [
+  { label: '(GMT+03:00) Africa/Dar_es_Salaam', value: 'Africa/Dar_es_Salaam' },
+  { label: '(GMT+00:00) UTC', value: 'UTC' },
+  { label: '(GMT+01:00) Europe/London', value: 'Europe/London' },
+  { label: '(GMT+02:00) Africa/Cairo', value: 'Africa/Cairo' },
+  { label: '(GMT+03:00) Europe/Moscow', value: 'Europe/Moscow' },
+  { label: '(GMT+05:30) Asia/Kolkata', value: 'Asia/Kolkata' },
+  { label: '(GMT+08:00) Asia/Shanghai', value: 'Asia/Shanghai' },
+  { label: '(GMT+09:00) Asia/Tokyo', value: 'Asia/Tokyo' },
+  { label: '(GMT-05:00) America/New_York', value: 'America/New_York' },
+  { label: '(GMT-08:00) America/Los_Angeles', value: 'America/Los_Angeles' },
+];
 
 // ==================== TYPES ====================
 type AccountTab = 'account' | 'security' | 'notifications' | 'two-factor';
@@ -45,6 +60,7 @@ interface NotificationItem {
   message: string;
   is_read: boolean;
   created_at: string;
+  [key: string]: unknown;
 }
 
 // ==================== TAB CONFIG ====================
@@ -96,7 +112,7 @@ function AccountTabContent() {
 
   const [avatar, setAvatar] = useState<string | null>(customerUser?.avatar || null);
   const [formData, setFormData] = useState({
-    email: customerUser?.email || 'hello@sdasms.com',
+    email: customerUser?.email || '',
     timezone: 'Africa/Dar_es_Salaam',
     first_name: customerUser?.first_name || '',
     last_name: customerUser?.last_name || '',
@@ -133,12 +149,32 @@ function AccountTabContent() {
     toast.success('Avatar removed successfully');
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.email || !formData.first_name || !formData.timezone || !formData.language) {
       toast.error('Please fill in all required fields');
       return;
     }
-    toast.success('Profile updated successfully');
+    try {
+      const res = await fetch('/api/customer/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          timezone: formData.timezone,
+          language: formData.language,
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        toast.success('Profile updated successfully');
+      } else {
+        toast.error(json.error || 'Failed to update profile');
+      }
+    } catch {
+      toast.error('Failed to update profile');
+    }
   };
 
   return (
@@ -226,7 +262,7 @@ function AccountTabContent() {
                   <SelectValue placeholder="Select timezone" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockTimezones.map((tz) => (
+                  {timezones.map((tz) => (
                     <SelectItem key={tz.value} value={tz.value}>
                       {tz.label}
                     </SelectItem>
@@ -429,11 +465,35 @@ function SecurityTabContent() {
 
 // ==================== NOTIFICATIONS TAB ====================
 function NotificationsTabContent() {
-  const [notifications, setNotifications] = useState<NotificationItem[]>(mockNotifications);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch('/api/notifications');
+      const json = await res.json();
+      if (json.success) {
+        setNotifications(json.data || []);
+      } else {
+        setError('Failed to load notifications');
+      }
+    } catch {
+      setError('Failed to load notifications');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   // Filter notifications
   const filteredNotifications = useMemo(() => {
@@ -463,14 +523,26 @@ function NotificationsTabContent() {
     setCurrentPage(1);
   };
 
-  // Toggle read status
-  const toggleReadStatus = (id: number) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, is_read: !n.is_read } : n))
-    );
+  // Mark as read
+  const toggleReadStatus = async (id: number) => {
+    try {
+      const res = await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: [id] }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === id ? { ...n, is_read: !n.is_read } : n))
+        );
+      }
+    } catch {
+      toast.error('Failed to update notification');
+    }
   };
 
-  // Delete notification
+  // Delete notification (local)
   const deleteNotification = (id: number) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
     setSelectedIds((prev) => {
@@ -482,16 +554,28 @@ function NotificationsTabContent() {
   };
 
   // Mark all as read
-  const markAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-    toast.success('All notifications marked as read');
+  const markAllRead = async () => {
+    try {
+      const res = await fetch('/api/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ all: true }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+        toast.success('All notifications marked as read');
+      }
+    } catch {
+      toast.error('Failed to mark all as read');
+    }
   };
 
   // Delete selected
   const deleteSelected = () => {
     setNotifications((prev) => prev.filter((n) => !selectedIds.has(n.id)));
-    setSelectedIds(new Set());
     toast.success(`${selectedIds.size} notification(s) deleted`);
+    setSelectedIds(new Set());
   };
 
   // Select/deselect individual
@@ -539,6 +623,25 @@ function NotificationsTabContent() {
     }
     return pages;
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-[#D72444]" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <p className="text-sm text-red-500">{error}</p>
+        <Button variant="outline" onClick={fetchNotifications}>
+          <RefreshCw className="h-4 w-4 mr-2" /> Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -652,7 +755,7 @@ function NotificationsTabContent() {
                       <Badge
                         variant="outline"
                         className={`text-xs font-medium ${
-                          notification.type === 'Topup'
+                          notification.type.toLowerCase() === 'topup'
                             ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800'
                             : 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800'
                         }`}

@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Search, ChevronDown, Trash2, Send, Bell, MessageSquare,
+  Loader2, AlertCircle, RefreshCw,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,7 +24,6 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-import { mockAnnouncements, mockCustomers } from '@/lib/mock-data';
 
 // ─── Types ────────────────────────────────────────────────────────
 interface Announcement {
@@ -34,10 +34,20 @@ interface Announcement {
   created: string;
 }
 
+interface Customer {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
 // ─── Component ────────────────────────────────────────────────────
 export function AnnouncementsView() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [activeTab, setActiveTab] = useState('announcements');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Announcements tab state
   const [search, setSearch] = useState('');
@@ -65,9 +75,47 @@ export function AnnouncementsView() {
   const CUSTOMER_GROUPS = ['All Customers', 'Royal Customers', 'Premium Customers', 'Standard Customers', 'Trial Users'];
 
   // Load data
-  useEffect(() => {
-    setAnnouncements(mockAnnouncements);
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [annRes, custRes] = await Promise.all([
+        fetch('/api/announcements'),
+        fetch('/api/customers'),
+      ]);
+      const annJson = await annRes.json();
+      const custJson = await custRes.json();
+
+      if (annJson.data) {
+        setAnnouncements(annJson.data.map((a: { id: number; title: string; message: string; status: string; created: string }) => ({
+          id: a.id,
+          title: a.title,
+          message: a.message,
+          status: a.status,
+          created: a.created,
+        })));
+      } else {
+        setAnnouncements([]);
+      }
+
+      if (custJson.data) {
+        setCustomers(custJson.data.map((c: { id: number; first_name: string; last_name: string; email: string }) => ({
+          id: c.id,
+          first_name: c.first_name,
+          last_name: c.last_name,
+          email: c.email,
+        })));
+      }
+    } catch {
+      setError('Failed to load announcements');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   // ─── Announcements Tab: Derived data ───────────────────────
   const filtered = useMemo(() => {
@@ -138,20 +186,36 @@ export function AnnouncementsView() {
   };
 
   // ─── Send Announcement handler ─────────────────────────────
-  const handlePublishAnnouncement = () => {
+  const handlePublishAnnouncement = async () => {
     if (!annTitle.trim() || !annMessage.trim()) {
       toast.error('Title and message are required');
       return;
     }
-    const newAnn: Announcement = {
-      id: Math.max(...announcements.map((a) => a.id), 0) + 1,
-      title: annTitle,
-      message: annMessage,
-      status: 'active',
-      created: new Date().toISOString().split('T')[0],
-    };
-    setAnnouncements((prev) => [newAnn, ...prev]);
-    toast.success('Announcement published to dashboard');
+    try {
+      const res = await fetch('/api/announcements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: annTitle, message: annMessage, status: 'active' }),
+      });
+      const json = await res.json();
+      if (json.success && json.data) {
+        setAnnouncements((prev) => [{ id: json.data.id, title: json.data.title, message: json.data.message, status: json.data.status, created: json.data.created }, ...prev]);
+        toast.success('Announcement published to dashboard');
+      } else {
+        toast.error(json.message || 'Failed to publish announcement');
+      }
+    } catch {
+      // Fallback: add locally
+      const newAnn: Announcement = {
+        id: Math.max(...announcements.map((a) => a.id), 0) + 1,
+        title: annTitle,
+        message: annMessage,
+        status: 'active',
+        created: new Date().toISOString().split('T')[0],
+      };
+      setAnnouncements((prev) => [newAnn, ...prev]);
+      toast.success('Announcement published to dashboard');
+    }
     setAnnTitle('');
     setAnnMessage('');
     setAnnSendEmail(false);
@@ -168,7 +232,7 @@ export function AnnouncementsView() {
     }
     let recipientCount = 0;
     if (smsSendToAll) {
-      recipientCount = mockCustomers.length;
+      recipientCount = customers.length;
     } else {
       recipientCount = smsSelectedCustomers.size;
     }
@@ -184,21 +248,41 @@ export function AnnouncementsView() {
   };
 
   // ─── Customer lists ────────────────────────────────────────
-  const filteredAnnCustomers = mockCustomers.filter((c) =>
+  const filteredAnnCustomers = customers.filter((c) =>
     `${c.first_name} ${c.last_name} ${c.email}`
       .toLowerCase()
       .includes(annCustomerSearch.toLowerCase())
   );
 
-  const filteredSmsCustomers = mockCustomers.filter((c) =>
+  const filteredSmsCustomers = customers.filter((c) =>
     `${c.first_name} ${c.last_name} ${c.email}`
       .toLowerCase()
       .includes(smsCustomerSearch.toLowerCase())
   );
 
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <p className="text-sm text-gray-500">Loading announcements...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <AlertCircle className="h-6 w-6 text-red-400" />
+        <p className="text-sm text-gray-500">{error}</p>
+        <Button variant="outline" size="sm" onClick={fetchData} className="gap-2">
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {/* Page Title */}
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="bg-transparent p-0 gap-0 h-auto">
@@ -411,29 +495,33 @@ export function AnnouncementsView() {
                       onChange={(e) => setAnnCustomerSearch(e.target.value)}
                     />
                     <div className="max-h-48 overflow-y-auto rounded-md border border-gray-200 dark:border-gray-700">
-                      {filteredAnnCustomers.map((c) => (
-                        <label
-                          key={c.id}
-                          className={`flex items-center gap-3 px-3 py-2 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
-                            annSelectedCustomers.has(c.id) ? 'bg-[#FEF2F2] dark:bg-[#D72444]/5' : ''
-                          }`}
-                        >
-                          <Checkbox
-                            checked={annSelectedCustomers.has(c.id)}
-                            onCheckedChange={(checked) => {
-                              const newSet = new Set(annSelectedCustomers);
-                              if (checked) newSet.add(c.id);
-                              else newSet.delete(c.id);
-                              setAnnSelectedCustomers(newSet);
-                            }}
-                          />
-                          <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-semibold shrink-0">
-                            {c.first_name.charAt(0)}{c.last_name.charAt(0)}
-                          </div>
-                          <span className="text-gray-700 dark:text-gray-300">{c.first_name} {c.last_name}</span>
-                          <span className="text-xs text-gray-400 ml-auto truncate max-w-[160px]">{c.email}</span>
-                        </label>
-                      ))}
+                      {filteredAnnCustomers.length === 0 ? (
+                        <p className="text-sm text-gray-400 text-center py-4">No customers found</p>
+                      ) : (
+                        filteredAnnCustomers.map((c) => (
+                          <label
+                            key={c.id}
+                            className={`flex items-center gap-3 px-3 py-2 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
+                              annSelectedCustomers.has(c.id) ? 'bg-[#FEF2F2] dark:bg-[#D72444]/5' : ''
+                            }`}
+                          >
+                            <Checkbox
+                              checked={annSelectedCustomers.has(c.id)}
+                              onCheckedChange={(checked) => {
+                                const newSet = new Set(annSelectedCustomers);
+                                if (checked) newSet.add(c.id);
+                                else newSet.delete(c.id);
+                                setAnnSelectedCustomers(newSet);
+                              }}
+                            />
+                            <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-semibold shrink-0">
+                              {c.first_name.charAt(0)}{c.last_name.charAt(0)}
+                            </div>
+                            <span className="text-gray-700 dark:text-gray-300">{c.first_name} {c.last_name}</span>
+                            <span className="text-xs text-gray-400 ml-auto truncate max-w-[160px]">{c.email}</span>
+                          </label>
+                        ))
+                      )}
                     </div>
                     {annSelectedCustomers.size > 0 && (
                       <p className="text-xs text-gray-500">
@@ -579,29 +667,33 @@ export function AnnouncementsView() {
                     onChange={(e) => setSmsCustomerSearch(e.target.value)}
                   />
                   <div className="max-h-48 overflow-y-auto rounded-md border border-gray-200 dark:border-gray-700">
-                    {filteredSmsCustomers.map((c) => (
-                      <label
-                        key={c.id}
-                        className={`flex items-center gap-3 px-3 py-2 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
-                          smsSelectedCustomers.has(c.id) ? 'bg-[#FEF2F2] dark:bg-[#D72444]/5' : ''
-                        }`}
-                      >
-                        <Checkbox
-                          checked={smsSelectedCustomers.has(c.id)}
-                          onCheckedChange={(checked) => {
-                            const newSet = new Set(smsSelectedCustomers);
-                            if (checked) newSet.add(c.id);
-                            else newSet.delete(c.id);
-                            setSmsSelectedCustomers(newSet);
-                          }}
-                        />
-                        <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-semibold shrink-0">
-                          {c.first_name.charAt(0)}{c.last_name.charAt(0)}
-                        </div>
-                        <span className="text-gray-700 dark:text-gray-300">{c.first_name} {c.last_name}</span>
-                        <span className="text-xs text-gray-400 ml-auto truncate max-w-[160px]">{c.email}</span>
-                      </label>
-                    ))}
+                    {filteredSmsCustomers.length === 0 ? (
+                      <p className="text-sm text-gray-400 text-center py-4">No customers found</p>
+                    ) : (
+                      filteredSmsCustomers.map((c) => (
+                        <label
+                          key={c.id}
+                          className={`flex items-center gap-3 px-3 py-2 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
+                            smsSelectedCustomers.has(c.id) ? 'bg-[#FEF2F2] dark:bg-[#D72444]/5' : ''
+                          }`}
+                        >
+                          <Checkbox
+                            checked={smsSelectedCustomers.has(c.id)}
+                            onCheckedChange={(checked) => {
+                              const newSet = new Set(smsSelectedCustomers);
+                              if (checked) newSet.add(c.id);
+                              else newSet.delete(c.id);
+                              setSmsSelectedCustomers(newSet);
+                            }}
+                          />
+                          <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-semibold shrink-0">
+                            {c.first_name.charAt(0)}{c.last_name.charAt(0)}
+                          </div>
+                          <span className="text-gray-700 dark:text-gray-300">{c.first_name} {c.last_name}</span>
+                          <span className="text-xs text-gray-400 ml-auto truncate max-w-[160px]">{c.email}</span>
+                        </label>
+                      ))
+                    )}
                   </div>
                   {smsSelectedCustomers.size > 0 && (
                     <p className="text-xs text-gray-500">

@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   Plus, Search, Download, Copy, Pencil, Trash2, UserPlus,
-  ChevronUp, ChevronDown, ArrowUpDown, Trash, FileText,
+  ChevronUp, ChevronDown, ArrowUpDown, Trash, FileText, Loader2,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,47 +29,32 @@ import {
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 
 // ==================== TYPES ====================
 interface ContactGroup {
-  id: string;
+  id: number;
   name: string;
-  contacts: number;
-  lastImport: string;
-  created: string;
-  status: boolean;
+  description?: string;
+  contact_count?: number;
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: unknown;
 }
 
-type SortField = 'id' | 'name' | 'contacts' | 'lastImport' | 'created';
+type SortField = 'id' | 'name' | 'contacts' | 'created_at';
 type SortDirection = 'asc' | 'desc';
-
-// ==================== MOCK DATA ====================
-const initialMockGroups: ContactGroup[] = [
-  { id: '698b79e88287c', name: 'Back 2 Basics - Season V', contacts: 325, lastImport: '4 days ago', created: '2 months ago', status: true },
-  { id: '67b0e13c61b39', name: 'BACK TO BASICS SEASON 4', contacts: 324, lastImport: '6 months ago', created: '1 year ago', status: true },
-  { id: '656e226932561', name: 'BACK TO BASICS SEASON 3', contacts: 208, lastImport: '1 year ago', created: '2 years ago', status: true },
-  { id: '65268ac61e843', name: 'Alabaster Box Ministry', contacts: 947, lastImport: '29 minutes ago', created: '2 years ago', status: true },
-  { id: '65268a966fdeb', name: 'BACK TO BASICS SEASON 2', contacts: 256, lastImport: '2 years ago', created: '2 years ago', status: true },
-  { id: '65268a49d8c7a', name: 'ALABASTER WORKERS 2026', contacts: 22, lastImport: '2 months ago', created: '2 years ago', status: true },
-];
-
-const sortWeightMap: Record<string, number> = {
-  '29 minutes ago': 1,
-  '4 days ago': 2,
-  '2 months ago': 3,
-  '6 months ago': 4,
-  '1 year ago': 5,
-  '2 years ago': 6,
-};
 
 // ==================== COMPONENT ====================
 export function ContactGroupsView() {
-  const [groups, setGroups] = useState<ContactGroup[]>(initialMockGroups);
+  const [groups, setGroups] = useState<ContactGroup[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [sortField, setSortField] = useState<SortField>('id');
   const [sortDir, setSortDir] = useState<SortDirection>('asc');
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -78,9 +63,54 @@ export function ContactGroupsView() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  const [groupContactsOpen, setGroupContactsOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<ContactGroup | null>(null);
   const [deletingGroup, setDeletingGroup] = useState<ContactGroup | null>(null);
+  const [viewingGroup, setViewingGroup] = useState<ContactGroup | null>(null);
   const [formName, setFormName] = useState('');
+  const [formDescription, setFormDescription] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  // Group contacts for viewing
+  const [groupContacts, setGroupContacts] = useState<unknown[]>([]);
+  const [contactsLoading, setContactsLoading] = useState(false);
+
+  const fetchGroups = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch('/api/contact-groups');
+      const json = await res.json();
+      if (json.success) {
+        setGroups(json.data || []);
+      } else {
+        setError('Failed to load contact groups');
+      }
+    } catch {
+      setError('Failed to load contact groups');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchGroups();
+  }, [fetchGroups]);
+
+  const fetchGroupContacts = async (groupId: number) => {
+    try {
+      setContactsLoading(true);
+      const res = await fetch(`/api/contacts?group_id=${groupId}`);
+      const json = await res.json();
+      if (json.success) {
+        setGroupContacts(json.data || []);
+      }
+    } catch {
+      setGroupContacts([]);
+    } finally {
+      setContactsLoading(false);
+    }
+  };
 
   // ==================== DERIVED DATA ====================
   const filteredGroups = useMemo(() => {
@@ -90,9 +120,7 @@ export function ContactGroupsView() {
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(
-        (g) =>
-          g.name.toLowerCase().includes(q) ||
-          g.id.toLowerCase().includes(q)
+        (g) => g.name.toLowerCase().includes(q) || String(g.id).includes(q)
       );
     }
 
@@ -101,24 +129,18 @@ export function ContactGroupsView() {
       let cmp = 0;
       switch (sortField) {
         case 'id':
-          cmp = a.id.localeCompare(b.id);
+          cmp = a.id - b.id;
           break;
         case 'name':
           cmp = a.name.localeCompare(b.name);
           break;
         case 'contacts':
-          cmp = a.contacts - b.contacts;
+          cmp = (a.contact_count || 0) - (b.contact_count || 0);
           break;
-        case 'lastImport': {
-          const wa = sortWeightMap[a.lastImport] ?? 99;
-          const wb = sortWeightMap[b.lastImport] ?? 99;
-          cmp = wa - wb;
-          break;
-        }
-        case 'created': {
-          const ca = sortWeightMap[a.created] ?? 99;
-          const cb = sortWeightMap[b.created] ?? 99;
-          cmp = ca - cb;
+        case 'created_at': {
+          const da = a.created_at || '';
+          const db = b.created_at || '';
+          cmp = da.localeCompare(db);
           break;
         }
       }
@@ -171,7 +193,7 @@ export function ContactGroupsView() {
     }
   };
 
-  const toggleSelect = (id: string) => {
+  const toggleSelect = (id: number) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -180,54 +202,73 @@ export function ContactGroupsView() {
     });
   };
 
-  const toggleStatus = (id: string) => {
-    setGroups((prev) =>
-      prev.map((g) => (g.id === id ? { ...g, status: !g.status } : g))
-    );
-    toast.success('Group status updated');
-  };
-
   const openAddDialog = () => {
     setFormName('');
+    setFormDescription('');
     setAddDialogOpen(true);
   };
 
   const openEditDialog = (group: ContactGroup) => {
     setEditingGroup(group);
     setFormName(group.name);
+    setFormDescription(group.description || '');
     setEditDialogOpen(true);
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!formName.trim()) {
       toast.error('Group name is required');
       return;
     }
-    const newGroup: ContactGroup = {
-      id: Math.random().toString(16).slice(2, 14),
-      name: formName.trim(),
-      contacts: 0,
-      lastImport: 'Never',
-      created: 'Just now',
-      status: true,
-    };
-    setGroups((prev) => [newGroup, ...prev]);
-    setAddDialogOpen(false);
-    toast.success('Group created successfully');
+    try {
+      setSaving(true);
+      const res = await fetch('/api/contact-groups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: formName.trim(), description: formDescription.trim() }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        toast.success('Group created successfully');
+        setAddDialogOpen(false);
+        fetchGroups();
+      } else {
+        toast.error(json.error || 'Failed to create group');
+      }
+    } catch {
+      toast.error('Failed to create group');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
     if (!formName.trim()) {
       toast.error('Group name is required');
       return;
     }
     if (!editingGroup) return;
-    setGroups((prev) =>
-      prev.map((g) => (g.id === editingGroup.id ? { ...g, name: formName.trim() } : g))
-    );
-    setEditDialogOpen(false);
-    setEditingGroup(null);
-    toast.success('Group updated successfully');
+    try {
+      setSaving(true);
+      const res = await fetch(`/api/contact-groups/${editingGroup.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: formName.trim(), description: formDescription.trim() }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        toast.success('Group updated successfully');
+        setEditDialogOpen(false);
+        setEditingGroup(null);
+        fetchGroups();
+      } else {
+        toast.error(json.error || 'Failed to update group');
+      }
+    } catch {
+      toast.error('Failed to update group');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const openDeleteDialog = (group: ContactGroup) => {
@@ -235,36 +276,59 @@ export function ContactGroupsView() {
     setDeleteDialogOpen(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deletingGroup) return;
-    setGroups((prev) => prev.filter((g) => g.id !== deletingGroup.id));
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      next.delete(deletingGroup.id);
-      return next;
-    });
-    setDeleteDialogOpen(false);
-    setDeletingGroup(null);
-    toast.success('Group deleted successfully');
+    try {
+      const res = await fetch(`/api/contact-groups/${deletingGroup.id}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.success) {
+        setSelectedIds((prev) => {
+          const next = new Set(prev);
+          next.delete(deletingGroup.id);
+          return next;
+        });
+        setDeleteDialogOpen(false);
+        setDeletingGroup(null);
+        toast.success('Group deleted successfully');
+        fetchGroups();
+      } else {
+        toast.error(json.error || 'Failed to delete group');
+      }
+    } catch {
+      toast.error('Failed to delete group');
+    }
   };
 
-  const handleBulkDelete = () => {
-    setGroups((prev) => prev.filter((g) => !selectedIds.has(g.id)));
-    toast.success(`${selectedIds.size} group(s) deleted successfully`);
-    setSelectedIds(new Set());
-    setBulkDeleteDialogOpen(false);
+  const handleBulkDelete = async () => {
+    try {
+      for (const id of selectedIds) {
+        await fetch(`/api/contact-groups/${id}`, { method: 'DELETE' });
+      }
+      toast.success(`${selectedIds.size} group(s) deleted successfully`);
+      setSelectedIds(new Set());
+      setBulkDeleteDialogOpen(false);
+      fetchGroups();
+    } catch {
+      toast.error('Failed to delete some groups');
+    }
   };
 
-  const handleCopyId = (id: string) => {
-    navigator.clipboard.writeText(id);
+  const handleCopyId = (id: number) => {
+    navigator.clipboard.writeText(String(id));
     toast.success('Group ID copied to clipboard');
+  };
+
+  const openGroupContacts = (group: ContactGroup) => {
+    setViewingGroup(group);
+    setGroupContactsOpen(true);
+    fetchGroupContacts(group.id);
   };
 
   const handleExport = () => {
     const csv = [
-      'ID,Name,Contacts,Last Import,Created,Status',
+      'ID,Name,Contacts,Description,Created',
       ...filteredGroups.map((g) =>
-        `${g.id},"${g.name}",${g.contacts},${g.lastImport},${g.created},${g.status ? 'Active' : 'Inactive'}`
+        `${g.id},"${g.name}",${g.contact_count || 0},${g.description || ''},${g.created_at || ''}`
       ),
     ].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -276,6 +340,25 @@ export function ContactGroupsView() {
     URL.revokeObjectURL(url);
     toast.success('Exported as CSV');
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-[#D72444]" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <p className="text-sm text-red-500">{error}</p>
+        <Button variant="outline" onClick={fetchGroups}>
+          <FileText className="h-4 w-4 mr-2" /> Retry
+        </Button>
+      </div>
+    );
+  }
 
   // ==================== RENDER ====================
   return (
@@ -423,25 +506,9 @@ export function ContactGroupsView() {
                   <TableHead className="px-3">
                     <button
                       className="flex items-center text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground"
-                      onClick={() => handleSort('lastImport')}
+                      onClick={() => handleSort('created_at')}
                     >
-                      Last Import Date {sortField === 'lastImport' ? (sortDir === 'asc' ? <ChevronUp className="ml-1 h-3 w-3" /> : <ChevronDown className="ml-1 h-3 w-3" />) : <ArrowUpDown className="ml-1 h-3 w-3 opacity-40" />}
-                    </button>
-                  </TableHead>
-                  <TableHead className="px-3">
-                    <button
-                      className="flex items-center text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground"
-                      onClick={() => handleSort('created')}
-                    >
-                      Created At {sortField === 'created' ? (sortDir === 'asc' ? <ChevronUp className="ml-1 h-3 w-3" /> : <ChevronDown className="ml-1 h-3 w-3" />) : <ArrowUpDown className="ml-1 h-3 w-3 opacity-40" />}
-                    </button>
-                  </TableHead>
-                  <TableHead className="px-3">
-                    <button
-                      className="flex items-center text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground"
-                      onClick={() => handleSort('id')}
-                    >
-                      Status {sortField === 'id' ? (sortDir === 'asc' ? <ChevronUp className="ml-1 h-3 w-3" /> : <ChevronDown className="ml-1 h-3 w-3" />) : <ArrowUpDown className="ml-1 h-3 w-3 opacity-40" />}
+                      Created At {sortField === 'created_at' ? (sortDir === 'asc' ? <ChevronUp className="ml-1 h-3 w-3" /> : <ChevronDown className="ml-1 h-3 w-3" />) : <ArrowUpDown className="ml-1 h-3 w-3 opacity-40" />}
                     </button>
                   </TableHead>
                   <TableHead className="px-3 text-right">Actions</TableHead>
@@ -450,7 +517,7 @@ export function ContactGroupsView() {
               <TableBody>
                 {paginatedGroups.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="h-32 text-center text-muted-foreground">
+                    <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
                       No contact groups found.
                     </TableCell>
                   </TableRow>
@@ -472,26 +539,16 @@ export function ContactGroupsView() {
                       <TableCell className="px-3">
                         <button
                           className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
-                          onClick={() => toast.info(`Viewing group: ${group.name}`)}
+                          onClick={() => openGroupContacts(group)}
                         >
                           {group.name}
                         </button>
                       </TableCell>
                       <TableCell className="px-3 text-sm font-medium">
-                        {group.contacts.toLocaleString()}
+                        {(group.contact_count || 0).toLocaleString()}
                       </TableCell>
                       <TableCell className="px-3 text-sm text-muted-foreground">
-                        {group.lastImport}
-                      </TableCell>
-                      <TableCell className="px-3 text-sm text-muted-foreground">
-                        {group.created}
-                      </TableCell>
-                      <TableCell className="px-3">
-                        <Switch
-                          checked={group.status}
-                          onCheckedChange={() => toggleStatus(group.id)}
-                          className="data-[state=checked]:bg-purple-600"
-                        />
+                        {group.created_at ? new Date(group.created_at).toLocaleDateString() : '—'}
                       </TableCell>
                       <TableCell className="px-3">
                         <div className="flex items-center justify-end gap-1">
@@ -508,8 +565,8 @@ export function ContactGroupsView() {
                             variant="ghost"
                             size="icon"
                             className="h-7 w-7 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950"
-                            onClick={() => toast.info(`Add contacts to: ${group.name}`)}
-                            title="Add Contacts"
+                            onClick={() => openGroupContacts(group)}
+                            title="View Contacts"
                           >
                             <UserPlus className="h-3.5 w-3.5" />
                           </Button>
@@ -598,6 +655,15 @@ export function ContactGroupsView() {
                 onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
               />
             </div>
+            <div>
+              <Label className="block text-sm font-medium mb-1.5">Description</Label>
+              <Textarea
+                placeholder="Enter group description (optional)..."
+                value={formDescription}
+                onChange={(e) => setFormDescription(e.target.value)}
+                rows={3}
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddDialogOpen(false)}>
@@ -606,7 +672,9 @@ export function ContactGroupsView() {
             <Button
               className="bg-[#D72444] hover:bg-[#C01E3A] text-white"
               onClick={handleAdd}
+              disabled={saving}
             >
+              {saving && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}
               Create Group
             </Button>
           </DialogFooter>
@@ -629,10 +697,19 @@ export function ContactGroupsView() {
                 onKeyDown={(e) => e.key === 'Enter' && handleEdit()}
               />
             </div>
+            <div>
+              <Label className="block text-sm font-medium mb-1.5">Description</Label>
+              <Textarea
+                placeholder="Enter group description (optional)..."
+                value={formDescription}
+                onChange={(e) => setFormDescription(e.target.value)}
+                rows={3}
+              />
+            </div>
             {editingGroup && (
               <div className="flex gap-4 text-sm text-muted-foreground">
-                <span>Contacts: <strong className="text-foreground">{editingGroup.contacts}</strong></span>
-                <span>Last Import: <strong className="text-foreground">{editingGroup.lastImport}</strong></span>
+                <span>Contacts: <strong className="text-foreground">{editingGroup.contact_count || 0}</strong></span>
+                <span>Created: <strong className="text-foreground">{editingGroup.created_at ? new Date(editingGroup.created_at).toLocaleDateString() : '—'}</strong></span>
               </div>
             )}
           </div>
@@ -643,7 +720,9 @@ export function ContactGroupsView() {
             <Button
               className="bg-[#D72444] hover:bg-[#C01E3A] text-white"
               onClick={handleEdit}
+              disabled={saving}
             >
+              {saving && <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />}
               Update Group
             </Button>
           </DialogFooter>
@@ -657,7 +736,6 @@ export function ContactGroupsView() {
             <AlertDialogTitle>Delete Contact Group</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete &quot;{deletingGroup?.name}&quot;? This action cannot be undone.
-              All contacts associated with this group will be unlinked.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -692,6 +770,42 @@ export function ContactGroupsView() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Group Contacts Dialog */}
+      <Dialog open={groupContactsOpen} onOpenChange={setGroupContactsOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Contacts in: {viewingGroup?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            {contactsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-[#D72444]" />
+              </div>
+            ) : groupContacts.length === 0 ? (
+              <p className="text-sm text-gray-500 text-center py-8">No contacts in this group</p>
+            ) : (
+              <div className="space-y-2">
+                {groupContacts.map((c: unknown) => {
+                  const contact = c as Record<string, unknown>;
+                  const name = [
+                    contact.first_name,
+                    contact.last_name,
+                  ].filter(Boolean).join(' ') || contact.name || 'Unknown';
+                  return (
+                    <div key={contact.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <div>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{name}</p>
+                        <p className="text-xs text-gray-500">{contact.phone || contact.email || ''}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

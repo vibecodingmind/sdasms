@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Search, Download, Edit2, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Plus, Search, Download, Edit2, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,10 +20,30 @@ export function AdminRolesView() {
   const [perPage, setPerPage] = useState(10);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [allChecked, setAllChecked] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/admin-roles');
+      const json = await res.json();
+      if (json.data) {
+        setRoles(json.data.map((r: Role) => ({ ...r, status: 'active' })));
+      } else {
+        setRoles([]);
+      }
+    } catch {
+      setError('Failed to load roles');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    import('@/lib/mock-data').then(m => setRoles(m.mockRoles.map(r => ({ ...r, status: 'active' }))));
-  }, []);
+    fetchData();
+  }, [fetchData]);
 
   const filtered = useMemo(() => {
     if (!search) return roles;
@@ -39,6 +59,27 @@ export function AdminRolesView() {
 
   const toggleStatus = (id: number) => setRoles(prev => prev.map(r => r.id === id ? { ...r, status: r.status === 'active' ? 'inactive' : 'active' } : r));
   const deleteRole = (id: number) => setRoles(prev => prev.filter(r => r.id !== id));
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <p className="text-sm text-gray-500">Loading roles...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <AlertCircle className="h-6 w-6 text-red-400" />
+        <p className="text-sm text-gray-500">{error}</p>
+        <Button variant="outline" size="sm" onClick={fetchData} className="gap-2">
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Search, Plus, ChevronDown, Info, List, CalendarDays,
+  Loader2, AlertCircle, RefreshCw,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,7 +24,6 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-import { mockSubscriptions, mockCustomers } from '@/lib/mock-data';
 
 // ─── Types ────────────────────────────────────────────────────────
 interface Subscription {
@@ -38,6 +38,13 @@ interface Subscription {
   amount: number;
 }
 
+interface Customer {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
 const PLANS = [
   { value: 'starter', label: 'Starter', price: 49.99, cycle: 'monthly', days: 30 },
   { value: 'business', label: 'Business', price: 199.99, cycle: 'monthly', days: 30 },
@@ -47,11 +54,14 @@ const PLANS = [
 // ─── Component ────────────────────────────────────────────────────
 export function SubscriptionView() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const perPage = 10;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Dialog
   const [formDialogOpen, setFormDialogOpen] = useState(false);
@@ -61,27 +71,56 @@ export function SubscriptionView() {
   const [formEndDate, setFormEndDate] = useState('');
 
   // Load data
-  useEffect(() => {
-    const data: Subscription[] = mockSubscriptions.map((s) => {
-      const customer = mockCustomers.find(
-        (c) => `${c.first_name} ${c.last_name}` === s.customer
-      );
-      return {
-        id: s.id,
-        customer_name: s.customer,
-        customer_email: customer?.email || '',
-        customer_avatar: customer
-          ? `${customer.first_name.charAt(0)}${customer.last_name.charAt(0)}`
-          : '??',
-        plan: s.plan,
-        start_date: s.start_date,
-        end_date: s.end_date,
-        status: s.status,
-        amount: s.amount,
-      };
-    });
-    setSubscriptions(data);
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [subRes, custRes] = await Promise.all([
+        fetch('/api/subscriptions'),
+        fetch('/api/customers'),
+      ]);
+      const subJson = await subRes.json();
+      const custJson = await custRes.json();
+
+      if (custJson.data) {
+        setCustomers(custJson.data.map((c: { id: number; first_name: string; last_name: string; email: string }) => ({
+          id: c.id,
+          first_name: c.first_name,
+          last_name: c.last_name,
+          email: c.email,
+        })));
+      }
+
+      if (subJson.data) {
+        const data: Subscription[] = subJson.data.map((s: Record<string, unknown>) => {
+          const user = s.user as { firstName: string; lastName: string; email: string } | undefined;
+          const plan = s.plan as { name: string; price: number; billingCycle: string } | undefined;
+          return {
+            id: s.id as number,
+            customer_name: user ? `${user.firstName} ${user.lastName}` : 'Unknown',
+            customer_email: user?.email || '',
+            customer_avatar: user ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}` : '??',
+            plan: plan?.name || 'Unknown',
+            start_date: s.createdAt ? new Date(s.createdAt as string).toISOString().split('T')[0] : '',
+            end_date: s.currentPeriodEndsAt ? new Date(s.currentPeriodEndsAt as string).toISOString().split('T')[0] : '',
+            status: (s.status as string) || 'active',
+            amount: plan?.price || 0,
+          };
+        });
+        setSubscriptions(data);
+      } else {
+        setSubscriptions([]);
+      }
+    } catch {
+      setError('Failed to load subscriptions');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   // ─── Derived data ──────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -179,7 +218,7 @@ export function SubscriptionView() {
       toast.error('Please fill in all required fields');
       return;
     }
-    const customer = mockCustomers.find((c) => c.id === Number(formCustomerId));
+    const customer = customers.find((c) => c.id === Number(formCustomerId));
     const plan = PLANS.find((p) => p.value === formPlan);
 
     const newSub: Subscription = {
@@ -227,15 +266,35 @@ export function SubscriptionView() {
 
   // ─── Customer search filter for dropdown ───────────────────
   const [customerSearch, setCustomerSearch] = useState('');
-  const filteredCustomers = mockCustomers.filter((c) =>
+  const filteredCustomers = customers.filter((c) =>
     `${c.first_name} ${c.last_name} ${c.email}`
       .toLowerCase()
       .includes(customerSearch.toLowerCase())
   );
 
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <p className="text-sm text-gray-500">Loading subscriptions...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <AlertCircle className="h-6 w-6 text-red-400" />
+        <p className="text-sm text-gray-500">{error}</p>
+        <Button variant="outline" size="sm" onClick={fetchData} className="gap-2">
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {/* Page Title */}
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="border-0 shadow-sm">
@@ -475,24 +534,28 @@ export function SubscriptionView() {
                   onChange={(e) => setCustomerSearch(e.target.value)}
                 />
                 <div className="max-h-40 overflow-y-auto rounded-md border border-gray-200 dark:border-gray-700">
-                  {filteredCustomers.map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 transition-colors ${
-                        formCustomerId === String(c.id)
-                          ? 'bg-[#FEF2F2] dark:bg-[#D72444]/10 text-[#D72444]'
-                          : 'text-gray-700 dark:text-gray-300'
-                      }`}
-                      onClick={() => setFormCustomerId(String(c.id))}
-                    >
-                      <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-semibold shrink-0">
-                        {c.first_name.charAt(0)}{c.last_name.charAt(0)}
-                      </div>
-                      <span className="truncate">{c.first_name} {c.last_name}</span>
-                      <span className="text-xs text-gray-400 truncate ml-auto">{c.email}</span>
-                    </button>
-                  ))}
+                  {filteredCustomers.length === 0 ? (
+                    <p className="text-sm text-gray-400 text-center py-4">No customers found</p>
+                  ) : (
+                    filteredCustomers.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-2 transition-colors ${
+                          formCustomerId === String(c.id)
+                            ? 'bg-[#FEF2F2] dark:bg-[#D72444]/10 text-[#D72444]'
+                            : 'text-gray-700 dark:text-gray-300'
+                        }`}
+                        onClick={() => setFormCustomerId(String(c.id))}
+                      >
+                        <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-semibold shrink-0">
+                          {c.first_name.charAt(0)}{c.last_name.charAt(0)}
+                        </div>
+                        <span className="truncate">{c.first_name} {c.last_name}</span>
+                        <span className="text-xs text-gray-400 truncate ml-auto">{c.email}</span>
+                      </button>
+                    ))
+                  )}
                 </div>
               </div>
             </div>

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Search, Download, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Plus, Search, Download, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,10 +18,30 @@ export function BlockedSenderIdView() {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/blocked-sender-ids');
+      const json = await res.json();
+      if (json.data) {
+        setBlocked(json.data);
+      } else {
+        setBlocked([]);
+      }
+    } catch {
+      setError('Failed to load blocked sender IDs');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    import('@/lib/mock-data').then(m => setBlocked(m.mockBlockedSenderIds));
-  }, []);
+    fetchData();
+  }, [fetchData]);
 
   const filtered = useMemo(() => {
     if (!search) return blocked;
@@ -36,6 +56,27 @@ export function BlockedSenderIdView() {
   const endIdx = Math.min(page * perPage, total);
 
   const deleteEntry = (id: number) => setBlocked(prev => prev.filter(b => b.id !== id));
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <p className="text-sm text-gray-500">Loading blocked sender IDs...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <AlertCircle className="h-6 w-6 text-red-400" />
+        <p className="text-sm text-gray-500">{error}</p>
+        <Button variant="outline" size="sm" onClick={fetchData} className="gap-2">
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

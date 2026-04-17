@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Pencil, Trash2, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Plus, Pencil, Trash2, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,23 +31,30 @@ export function SmsTemplatesView() {
   const [currentPage, setCurrentPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/sms/templates');
+      const json = await res.json();
+      if (json.data && json.data.length > 0) {
+        setTemplates(json.data);
+      } else {
+        setTemplates([]);
+      }
+    } catch {
+      setError('Failed to load SMS templates');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    // Try fetching from API first, fall back to mock data
-    fetch('/api/sms/templates')
-      .then((r) => r.json())
-      .then((r) => {
-        if (r.data && r.data.length > 0) {
-          setTemplates(r.data);
-        } else {
-          // Use mock data
-          import('@/lib/mock-data').then((m) => setTemplates(m.mockSmsTemplates));
-        }
-      })
-      .catch(() => {
-        import('@/lib/mock-data').then((m) => setTemplates(m.mockSmsTemplates));
-      });
-  }, []);
+    fetchData();
+  }, [fetchData]);
 
   const filtered = useMemo(() => {
     if (!search) return templates;
@@ -74,6 +81,27 @@ export function SmsTemplatesView() {
   const deleteTemplate = (id: number) => {
     setTemplates((prev) => prev.filter((t) => t.id !== id));
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <p className="text-sm text-gray-500">Loading SMS templates...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <AlertCircle className="h-6 w-6 text-red-400" />
+        <p className="text-sm text-gray-500">{error}</p>
+        <Button variant="outline" size="sm" onClick={fetchData} className="gap-2">
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

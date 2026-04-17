@@ -1,15 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Edit, Mail } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Edit, Mail, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { mockEmailTemplates } from '@/lib/mock-data';
+
+interface EmailTemplate {
+  id: number;
+  uid?: string;
+  name: string;
+  subject: string;
+  type: string;
+  body: string;
+  status?: string;
+  created_at?: string;
+}
 
 const typeColors: Record<string, string> = {
   customer: 'bg-blue-100 text-blue-700',
@@ -19,7 +28,53 @@ const typeColors: Record<string, string> = {
 };
 
 export function EmailTemplatesView() {
-  const [selected, setSelected] = useState<typeof mockEmailTemplates[0] | null>(null);
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
+  const [selected, setSelected] = useState<EmailTemplate | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/email-templates');
+      const json = await res.json();
+      if (json.data) {
+        setTemplates(json.data);
+      } else {
+        setTemplates([]);
+      }
+    } catch {
+      setError('Failed to load email templates');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <p className="text-sm text-gray-500">Loading email templates...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <AlertCircle className="h-6 w-6 text-red-400" />
+        <p className="text-sm text-gray-500">{error}</p>
+        <Button variant="outline" size="sm" onClick={fetchData} className="gap-2">
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -35,25 +90,33 @@ export function EmailTemplatesView() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockEmailTemplates.map((t) => (
-                <TableRow key={t.id} className="hover:bg-gray-50/50">
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-[#D72444]" />
-                      <span className="text-sm font-medium text-gray-800">{t.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm text-gray-500">{t.subject}</TableCell>
-                  <TableCell>
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${typeColors[t.type] || 'bg-gray-100 text-gray-600'}`}>{t.type}</span>
-                  </TableCell>
-                  <TableCell>
-                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setSelected(t)}>
-                      <Edit className="h-3 w-3 mr-1" /> Edit
-                    </Button>
+              {templates.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-12 text-gray-400">
+                    No email templates found
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                templates.map((t) => (
+                  <TableRow key={t.id} className="hover:bg-gray-50/50">
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-[#D72444]" />
+                        <span className="text-sm font-medium text-gray-800">{t.name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-500">{t.subject}</TableCell>
+                    <TableCell>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${typeColors[t.type] || 'bg-gray-100 text-gray-600'}`}>{t.type}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setSelected(t)}>
+                        <Edit className="h-3 w-3 mr-1" /> Edit
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>

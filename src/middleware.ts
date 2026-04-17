@@ -25,6 +25,13 @@ const PROTECTED_ROUTES = [
   '/api/currencies',
   '/api/languages',
   '/api/plans',
+  '/api/contacts',
+  '/api/contact-groups',
+  '/api/notifications',
+  '/api/email-templates',
+  '/api/payment-gateways',
+  '/api/campaigns',
+  '/api/user/sms-templates',
 ];
 
 // Routes that require admin role
@@ -42,6 +49,8 @@ const ADMIN_ONLY_ROUTES = [
   '/api/countries',
   '/api/currencies',
   '/api/languages',
+  '/api/email-templates',
+  '/api/payment-gateways',
 ];
 
 // Routes accessible by any authenticated user (admin or customer)
@@ -54,7 +63,12 @@ const CUSTOMER_ACCESSIBLE_ROUTES = [
   '/api/sms/sender-names',
   '/api/sender-ids',
   '/api/support/tickets',
-  '/api/plans', // customers can view plans
+  '/api/plans',
+  '/api/contacts',
+  '/api/contact-groups',
+  '/api/notifications',
+  '/api/campaigns',
+  '/api/user/sms-templates',
 ];
 
 // Public routes (no auth needed)
@@ -146,7 +160,7 @@ export function middleware(request: NextRequest) {
 
   if (isCustomerRoute && !session.is_admin) {
     // Customer-specific POST routes
-    const customerPostRoutes = ['/api/sms/send', '/api/sms/templates', '/api/support/tickets', '/api/customer/profile'];
+    const customerPostRoutes = ['/api/sms/send', '/api/sms/templates', '/api/support/tickets', '/api/customer/profile', '/api/contacts', '/api/contact-groups', '/api/campaigns', '/api/user/sms-templates'];
     const canPost = customerPostRoutes.some(route => pathname.startsWith(route));
 
     if (method === 'POST' && !canPost) {
@@ -156,16 +170,20 @@ export function middleware(request: NextRequest) {
       );
     }
 
-    // Customers can only PUT their own profile
-    if (method === 'PUT' && pathname !== '/api/customer/profile') {
+    // Customers can PUT on their own resources
+    const customerPutRoutes = ['/api/customer/profile', '/api/contacts', '/api/contact-groups', '/api/user/sms-templates', '/api/campaigns'];
+    const canPut = customerPutRoutes.some(route => pathname.startsWith(route));
+    if (method === 'PUT' && !canPut) {
       return NextResponse.json(
         { success: false, message: 'Access denied' },
         { status: 403 }
       );
     }
 
-    // Customers cannot DELETE
-    if (method === 'DELETE') {
+    // Customers can DELETE their own resources
+    const customerDeleteRoutes = ['/api/contacts', '/api/contact-groups', '/api/user/sms-templates', '/api/campaigns'];
+    const canDelete = customerDeleteRoutes.some(route => pathname.startsWith(route));
+    if (method === 'DELETE' && !canDelete) {
       return NextResponse.json(
         { success: false, message: 'Access denied' },
         { status: 403 }

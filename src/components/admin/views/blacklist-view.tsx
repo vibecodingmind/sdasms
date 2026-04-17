@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Search, Download, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Plus, Search, Download, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,13 +19,30 @@ export function BlacklistView() {
   const [perPage, setPerPage] = useState(10);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [allChecked, setAllChecked] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/blacklists');
+      const json = await res.json();
+      if (json.data?.length) {
+        setEntries(json.data);
+      } else {
+        setEntries([]);
+      }
+    } catch {
+      setError('Failed to load blacklist');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    fetch('/api/blacklists').then(r => r.json()).then(r => {
-      if (r.data?.length) { setEntries(r.data); }
-      else { import('@/lib/mock-data').then(m => setEntries(m.mockBlacklists)); }
-    }).catch(() => { import('@/lib/mock-data').then(m => setEntries(m.mockBlacklists)); });
-  }, []);
+    fetchData();
+  }, [fetchData]);
 
   const filtered = useMemo(() => {
     if (!search) return entries;
@@ -40,6 +57,27 @@ export function BlacklistView() {
   const endIdx = Math.min(page * perPage, total);
 
   const deleteEntry = (id: number) => setEntries(prev => prev.filter(e => e.id !== id));
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <p className="text-sm text-gray-500">Loading blacklist...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <AlertCircle className="h-6 w-6 text-red-400" />
+        <p className="text-sm text-gray-500">{error}</p>
+        <Button variant="outline" size="sm" onClick={fetchData} className="gap-2">
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

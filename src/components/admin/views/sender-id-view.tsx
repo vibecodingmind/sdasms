@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Search, Download, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Plus, Search, Download, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Loader2, AlertCircle, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,21 +34,30 @@ export function SenderIdView() {
   const [perPage, setPerPage] = useState(10);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [blockDropdown, setBlockDropdown] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/sender-ids');
+      const json = await res.json();
+      if (json.data && json.data.length > 0) {
+        setSenderIds(json.data);
+      } else {
+        setSenderIds([]);
+      }
+    } catch {
+      setError('Failed to load sender IDs');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    fetch('/api/sender-ids')
-      .then((r) => r.json())
-      .then((r) => {
-        if (r.data && r.data.length > 0) {
-          setSenderIds(r.data);
-        } else {
-          import('@/lib/mock-data').then((m) => setSenderIds(m.mockSenderIds));
-        }
-      })
-      .catch(() => {
-        import('@/lib/mock-data').then((m) => setSenderIds(m.mockSenderIds));
-      });
-  }, []);
+    fetchData();
+  }, [fetchData]);
 
   const filtered = useMemo(() => {
     if (!search) return senderIds;
@@ -69,6 +78,27 @@ export function SenderIdView() {
   const formatPrice = (price: number) => {
     return `Sh${price.toLocaleString()}`;
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <p className="text-sm text-gray-500">Loading sender IDs...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-3">
+        <AlertCircle className="h-6 w-6 text-red-400" />
+        <p className="text-sm text-gray-500">{error}</p>
+        <Button variant="outline" size="sm" onClick={fetchData} className="gap-2">
+          <RefreshCw className="h-3.5 w-3.5" /> Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -296,3 +326,4 @@ export function SenderIdView() {
     </div>
   );
 }
+
