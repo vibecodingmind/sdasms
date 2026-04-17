@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Save, Eye, EyeOff, Loader2, CheckCircle2, XCircle, Wifi, WifiOff,
   Settings, Mail, Shield, Users, Bell, Radio, FileText, Clock, KeyRound,
@@ -201,7 +201,10 @@ export function AllSettingsView() {
     });
     return initial;
   });
-  const [selectAll, setSelectAll] = useState(false);
+  const selectAll = useMemo(() => {
+    const allKeys = permissionSections.flatMap(s => s.permissions.map(p => p.key));
+    return allKeys.every(k => permissions[k]);
+  }, [permissions]);
 
   // ---- Notifications State ----
   const [notifSmsGateway, setNotifSmsGateway] = useState('StarLink5G');
@@ -244,14 +247,8 @@ export function AllSettingsView() {
   const [saved, setSaved] = useState(false);
 
   // Handle select all permissions
-  useEffect(() => {
-    const allKeys = permissionSections.flatMap(s => s.permissions.map(p => p.key));
-    const allChecked = allKeys.every(k => permissions[k]);
-    setSelectAll(allChecked);
-  }, [permissions]);
 
   const handleSelectAll = (checked: boolean) => {
-    setSelectAll(checked);
     const updated = { ...permissions };
     permissionSections.forEach(section => {
       section.permissions.forEach(p => {

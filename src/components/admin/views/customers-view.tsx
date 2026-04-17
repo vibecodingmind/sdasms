@@ -115,24 +115,6 @@ export function CustomersView() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load data
-  useEffect(() => {
-    fetch('/api/customers')
-      .then((r) => r.json())
-      .then((r) => {
-        if (r.data && r.data.length > 0) {
-          setCustomers(r.data);
-        } else {
-          // fallback: use mock data structure — generate 201 entries for stats
-          const base = generateMockCustomers();
-          setCustomers(base);
-        }
-      })
-      .catch(() => {
-        setCustomers(generateMockCustomers());
-      });
-  }, []);
-
   // ─── Mock data generator for stats ─────────────────────────
   const generateMockCustomers = (): Customer[] => {
     const names = [
@@ -175,6 +157,24 @@ export function CustomersView() {
     }
     return result;
   };
+
+  // Load data
+  useEffect(() => {
+    fetch('/api/customers')
+      .then((r) => r.json())
+      .then((r) => {
+        if (r.data && r.data.length > 0) {
+          setCustomers(r.data);
+        } else {
+          // fallback: use mock data structure — generate 201 entries for stats
+          const base = generateMockCustomers();
+          setCustomers(base);
+        }
+      })
+      .catch(() => {
+        setCustomers(generateMockCustomers());
+      });
+  }, []);
 
   // ─── Derived data ──────────────────────────────────────────
   const filtered = useMemo(() => {

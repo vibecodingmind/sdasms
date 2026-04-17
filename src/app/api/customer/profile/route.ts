@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import bcrypt from 'bcryptjs';
 
 // GET: Return current user's profile from session
 export async function GET(request: NextRequest) {
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PUT: Update current user's profile fields
+// PUT: Update current user's profile fields or change password
 export async function PUT(request: NextRequest) {
   try {
     const sessionCookie = request.cookies.get('sdasms_session');
@@ -101,7 +102,55 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json();
 
-    // Build update data — only allow specific fields
+    // ── Password Change ──
+    if (body.current_password && body.new_password) {
+      if (!body.current_password || !body.new_password) {
+        return NextResponse.json(
+          { success: false, message: 'Current password and new password are required' },
+          { status: 400 }
+        );
+      }
+
+      if (body.new_password.length < 8) {
+        return NextResponse.json(
+          { success: false, message: 'New password must be at least 8 characters' },
+          { status: 400 }
+        );
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { password: true },
+      });
+
+      if (!user) {
+        return NextResponse.json(
+          { success: false, message: 'User not found' },
+          { status: 404 }
+        );
+      }
+
+      const isPasswordValid = await bcrypt.compare(body.current_password, user.password);
+      if (!isPasswordValid) {
+        return NextResponse.json(
+          { success: false, message: 'Current password is incorrect' },
+          { status: 400 }
+        );
+      }
+
+      const hashedPassword = await bcrypt.hash(body.new_password, 12);
+      await prisma.user.update({
+        where: { id: userId },
+        data: { password: hashedPassword },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Password changed successfully',
+      });
+    }
+
+    // ── Profile Update ──
     const updateData: Record<string, string> = {};
     if (body.first_name !== undefined) updateData.firstName = body.first_name;
     if (body.last_name !== undefined) updateData.lastName = body.last_name;

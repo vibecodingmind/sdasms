@@ -28,3 +28,52 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { name, code, direction, status, isDefault, is_default } = body;
+
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      return NextResponse.json(
+        { success: false, message: 'Language name is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!code || typeof code !== 'string' || code.trim().length === 0) {
+      return NextResponse.json(
+        { success: false, message: 'Language code is required' },
+        { status: 400 }
+      );
+    }
+
+    const language = await prisma.language.create({
+      data: {
+        name: name.trim(),
+        code: code.trim(),
+        direction: direction || 'LTR',
+        status: status || 'active',
+        isDefault: isDefault ?? is_default ?? false,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        id: language.id,
+        name: language.name,
+        code: language.code,
+        direction: language.direction,
+        status: language.status,
+        isDefault: language.isDefault,
+      },
+    });
+  } catch (error) {
+    console.error('Error creating language:', error);
+    return NextResponse.json(
+      { success: false, message: 'Failed to create language' },
+      { status: 500 }
+    );
+  }
+}

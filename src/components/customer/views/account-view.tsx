@@ -346,7 +346,7 @@ function SecurityTabContent() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     if (!passwordForm.current || !passwordForm.new_password || !passwordForm.confirm) {
       toast.error('All fields are required');
       return;
@@ -361,11 +361,27 @@ function SecurityTabContent() {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      toast.success('Password changed successfully');
-      setPasswordForm({ current: '', new_password: '', confirm: '' });
+    try {
+      const res = await fetch('/api/customer/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          current_password: passwordForm.current,
+          new_password: passwordForm.new_password,
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        toast.success('Password changed successfully');
+        setPasswordForm({ current: '', new_password: '', confirm: '' });
+      } else {
+        toast.error(json.message || 'Failed to change password');
+      }
+    } catch {
+      toast.error('Failed to change password');
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   return (

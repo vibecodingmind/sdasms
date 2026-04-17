@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Search, Download, Eye, Edit2, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,25 +27,21 @@ const StatusBadge = ({ status }: { status: string }) => {
 };
 
 export function InvoicesView() {
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([
+    { id: 752, invoice_no: '#752', customer: 'MEJASTAR MEDICAL LIMITED', customer_email: 'mejastarmedicallimited@gmail.com', amount: 0, status: 'Pending', date: '15th Apr 26, 1:17 PM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 1429 Sms Unit' },
+    { id: 751, invoice_no: '#751', customer: 'ZAKAYO JOHN SHUSHU', customer_email: 'zakayoshushu@gmail.com', amount: 0, status: 'Pending', date: '15th Apr 26, 11:18 AM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 1933 Sms Unit' },
+    { id: 750, invoice_no: '#750', customer: 'SAVIN MEDIA', customer_email: 'savpaulo@gmail.com', amount: 0, status: 'Pending', date: '9th Apr 26, 8:48 PM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 133 Sms Unit' },
+    { id: 749, invoice_no: '#749', customer: 'AMANI MWAIPAJA', customer_email: 'mwaipaja02@gmail.com', amount: 0, status: 'Pending', date: '8th Apr 26, 9:04 PM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 200 Sms Unit' },
+    { id: 748, invoice_no: '#748', customer: 'Mazinde Union', customer_email: 'mazineunion@gmail.com', amount: 0, status: 'Pending', date: '2nd Apr 26, 11:45 AM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 3571 Sms Unit' },
+    { id: 747, invoice_no: '#747', customer: 'Ikiuzi High School', customer_email: 'ikiuzihigh@gmail.com', amount: 0, status: 'Pending', date: '1st Apr 26, 2:41 PM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 2143 Sms Unit' },
+    { id: 746, invoice_no: '#746', customer: 'Ikizu High School', customer_email: 'ikiuzihigh@gmail.com', amount: 0, status: 'Pending', date: '1st Apr 26, 2:27 PM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 1786 Sms Unit' },
+    { id: 745, invoice_no: '#745', customer: 'Redan Daycare Centre', customer_email: 'redandaycarecentre@gmail.com', amount: 0, status: 'Pending', date: '1st Apr 26, 2:25 PM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 500 Sms Unit' },
+    { id: 744, invoice_no: '#744', customer: 'Young CEO Africa', customer_email: 'youngceoafrica@gmail.com', amount: 0, status: 'Pending', date: '25th Mar 26, 7:20 PM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 800 Sms Unit' },
+    { id: 743, invoice_no: '#743', customer: 'Alabaster Box Ministry', customer_email: 'alabasterbox@gmail.com', amount: 0, status: 'Pending', date: '25th Mar 26, 2:20 PM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 1200 Sms Unit' },
+  ]);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
-
-  useEffect(() => {
-    setInvoices([
-      { id: 752, invoice_no: '#752', customer: 'MEJASTAR MEDICAL LIMITED', customer_email: 'mejastarmedicallimited@gmail.com', amount: 0, status: 'Pending', date: '15th Apr 26, 1:17 PM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 1429 Sms Unit' },
-      { id: 751, invoice_no: '#751', customer: 'ZAKAYO JOHN SHUSHU', customer_email: 'zakayoshushu@gmail.com', amount: 0, status: 'Pending', date: '15th Apr 26, 11:18 AM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 1933 Sms Unit' },
-      { id: 750, invoice_no: '#750', customer: 'SAVIN MEDIA', customer_email: 'savpaulo@gmail.com', amount: 0, status: 'Pending', date: '9th Apr 26, 8:48 PM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 133 Sms Unit' },
-      { id: 749, invoice_no: '#749', customer: 'AMANI MWAIPAJA', customer_email: 'mwaipaja02@gmail.com', amount: 0, status: 'Pending', date: '8th Apr 26, 9:04 PM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 200 Sms Unit' },
-      { id: 748, invoice_no: '#748', customer: 'Mazinde Union', customer_email: 'mazineunion@gmail.com', amount: 0, status: 'Pending', date: '2nd Apr 26, 11:45 AM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 3571 Sms Unit' },
-      { id: 747, invoice_no: '#747', customer: 'Ikiuzi High School', customer_email: 'ikiuzihigh@gmail.com', amount: 0, status: 'Pending', date: '1st Apr 26, 2:41 PM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 2143 Sms Unit' },
-      { id: 746, invoice_no: '#746', customer: 'Ikizu High School', customer_email: 'ikiuzihigh@gmail.com', amount: 0, status: 'Pending', date: '1st Apr 26, 2:27 PM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 1786 Sms Unit' },
-      { id: 745, invoice_no: '#745', customer: 'Redan Daycare Centre', customer_email: 'redandaycarecentre@gmail.com', amount: 0, status: 'Pending', date: '1st Apr 26, 2:25 PM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 500 Sms Unit' },
-      { id: 744, invoice_no: '#744', customer: 'Young CEO Africa', customer_email: 'youngceoafrica@gmail.com', amount: 0, status: 'Pending', date: '25th Mar 26, 7:20 PM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 800 Sms Unit' },
-      { id: 743, invoice_no: '#743', customer: 'Alabaster Box Ministry', customer_email: 'alabasterbox@gmail.com', amount: 0, status: 'Pending', date: '25th Mar 26, 2:20 PM', type: 'SUBSCRIPTION', details: 'Top up SMS unit: 1200 Sms Unit' },
-    ]);
-  }, []);
 
   const filtered = useMemo(() => {
     if (!search) return invoices;

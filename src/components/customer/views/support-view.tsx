@@ -218,20 +218,55 @@ export function SupportView() {
     }
   };
 
-  const handleSendReply = () => {
-    if (!replyText.trim()) return;
-    toast.success('Reply sent successfully');
-    setReplyText('');
+  const handleSendReply = async () => {
+    if (!replyText.trim() || !selectedTicket) return;
+
+    try {
+      const res = await fetch('/api/support/tickets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticket_id: selectedTicket.id,
+          message: replyText.trim(),
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        toast.success('Reply sent successfully');
+        setReplyText('');
+        fetchTickets();
+      } else {
+        toast.error(json.error || 'Failed to send reply');
+      }
+    } catch {
+      toast.error('Failed to send reply');
+    }
   };
 
-  const handleCloseTicket = () => {
+  const handleCloseTicket = async () => {
     if (!selectedTicket) return;
-    setTickets((prev) =>
-      prev.map((t) => (t.id === selectedTicket.id ? { ...t, status: 'closed' as const } : t))
-    );
-    setSelectedTicket((prev) => prev ? { ...prev, status: 'closed' as const } : null);
-    toast.success('Ticket closed');
-    setDetailOpen(false);
+
+    try {
+      const res = await fetch('/api/support/tickets', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticket_id: selectedTicket.id,
+          status: 'closed',
+        }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        toast.success('Ticket closed');
+        setDetailOpen(false);
+        setSelectedTicket(null);
+        fetchTickets();
+      } else {
+        toast.error(json.error || 'Failed to close ticket');
+      }
+    } catch {
+      toast.error('Failed to close ticket');
+    }
   };
 
   if (loading) {

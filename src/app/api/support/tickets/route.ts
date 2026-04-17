@@ -58,20 +58,10 @@ export async function GET() {
   }
 }
 
-// POST: Create a new ticket with first message
+// POST: Create a new ticket with first message OR add a reply to an existing ticket
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { subject, message, priority, category } = body;
-
-    if (!subject || !message) {
-      return NextResponse.json(
-        { success: false, error: 'Subject and message are required' },
-        { status: 400 }
-      );
-    }
-
-    // Read userId from session cookie
     const sessionCookie = request.cookies.get('sdasms_session');
     let userId: number | undefined;
 
@@ -84,6 +74,62 @@ export async function POST(request: NextRequest) {
       } catch {
         // Ignore cookie parse errors
       }
+    }
+
+    // If ticket_id is provided, this is a reply to an existing ticket
+    if (body.ticket_id) {
+      if (!body.message) {
+        return NextResponse.json(
+          { success: false, error: 'Message is required' },
+          { status: 400 }
+        );
+      }
+
+      const ticket = await prisma.ticket.findUnique({
+        where: { id: body.ticket_id },
+        include: { user: { select: { firstName: true, lastName: true } } },
+      });
+
+      if (!ticket) {
+        return NextResponse.json(
+          { success: false, error: 'Ticket not found' },
+          { status: 404 }
+        );
+      }
+
+      const senderName = ticket.user
+        ? `${ticket.user.firstName} ${ticket.user.lastName}`
+        : 'Unknown User';
+
+      const msg = await prisma.ticketMessage.create({
+        data: {
+          uid: `tkt-msg-${ticket.id}-${Date.now()}`,
+          ticketId: ticket.id,
+          sender: senderName,
+          message: body.message,
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          id: msg.id,
+          uid: msg.uid,
+          sender: msg.sender,
+          message: msg.message,
+          created_at: msg.createdAt.toISOString(),
+        },
+      });
+    }
+
+    // Otherwise, create a new ticket
+    const { subject, message, priority, category } = body;
+
+    if (!subject || !message) {
+      return NextResponse.json(
+        { success: false, error: 'Subject and message are required' },
+        { status: 400 }
+      );
     }
 
     // Look up user to get name/email for the ticket
@@ -171,9 +217,52 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    console.error('Failed to create ticket:', error);
+    console.error('Failed to create ticket/reply:', error);
     return NextResponse.json(
       { success: false, error: 'Invalid request body' },
+      { status: 400 }
+    );
+  }
+}
+
+// PUT: Update ticket status (e.g., close a ticket)
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { ticket_id, status } = body;
+
+    if (!ticket_id || !status) {
+      return NextResponse.json(
+        { success: false, error: 'Ticket ID and status are required' },
+        { status: 400 }
+      );
+    }
+
+    const validStatuses = ['open', 'in_progress', 'pending', 'resolved', 'closed'];
+    if (!validStatuses.includes(status)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid status' },
+        { status: 400 }
+      );
+    }
+
+    const updated = await prisma.ticket.update({
+      where: { id: ticket_id },
+      data: { status },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Ticket updated successfully',
+      data: {
+        id: updated.id,
+        status: updated.status,
+      },
+    });
+  } catch (error) {
+    console.error('Failed to update ticket:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to update ticket' },
       { status: 400 }
     );
   }

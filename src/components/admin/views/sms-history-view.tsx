@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Search, Download, Eye, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ChevronUp, ChevronDown, Filter } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,20 +28,16 @@ const StatusBadge = ({ status }: { status: string }) => {
 };
 
 export function SmsHistoryView() {
-  const [records, setRecords] = useState<SmsRecord[]>([]);
+  const [records, setRecords] = useState<SmsRecord[]>([
+    { id: 1, customer: 'Redan Daycare Centre', customer_email: 'redandaycarecentre@gmail.com', date: '15th Apr 26, 4:19 PM', direction: 'OUTGOING', type: 'PLAIN', from: 'TAARIFA', to: '255783716563', sms_count: 1, cost: 0, sending_server: 'StarLink5G', status: 'Insufficient balance', message: 'Karibu Redan Daycare Centre...' },
+    { id: 2, customer: 'MEJASTAR MEDICAL LIMITED', customer_email: 'mejastarmedicallimited@gmail.com', date: '15th Apr 26, 4:06 PM', direction: 'OUTGOING', type: 'PLAIN', from: 'MEDICALEQIP', to: '255754895335, 255784484822, 255692487053, 255659741703', sms_count: 4, cost: 0, sending_server: 'StarLink5G', status: 'delivered', message: 'Dear customer, your appointment has been confirmed...' },
+    { id: 3, customer: 'SAVIN MEDIA', customer_email: 'savpaulo@gmail.com', date: '15th Apr 26, 3:45 PM', direction: 'OUTGOING', type: 'PLAIN', from: 'SAVINMEDIA', to: '255683000111', sms_count: 1, cost: 15, sending_server: 'StarLink5G', status: 'delivered', message: 'Tangazo: Pata bidhaa za bei nafuu...' },
+    { id: 4, customer: 'Mazinde Union', customer_email: 'mazineunion@gmail.com', date: '15th Apr 26, 10:42 AM', direction: 'OUTGOING', type: 'PLAIN', from: 'TAARIFA', to: '255789000222, 255677000333, 255784000444', sms_count: 3, cost: 45, sending_server: 'StarLink5G', status: 'delivered', message: 'TAARIFA KWA WANAUMOJA april 2026...' },
+  ]);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [expandedId, setExpandedId] = useState<number | null>(null);
-
-  useEffect(() => {
-    setRecords([
-      { id: 1, customer: 'Redan Daycare Centre', customer_email: 'redandaycarecentre@gmail.com', date: '15th Apr 26, 4:19 PM', direction: 'OUTGOING', type: 'PLAIN', from: 'TAARIFA', to: '255783716563', sms_count: 1, cost: 0, sending_server: 'StarLink5G', status: 'Insufficient balance', message: 'Karibu Redan Daycare Centre...' },
-      { id: 2, customer: 'MEJASTAR MEDICAL LIMITED', customer_email: 'mejastarmedicallimited@gmail.com', date: '15th Apr 26, 4:06 PM', direction: 'OUTGOING', type: 'PLAIN', from: 'MEDICALEQIP', to: '255754895335, 255784484822, 255692487053, 255659741703', sms_count: 4, cost: 0, sending_server: 'StarLink5G', status: 'delivered', message: 'Dear customer, your appointment has been confirmed...' },
-      { id: 3, customer: 'SAVIN MEDIA', customer_email: 'savpaulo@gmail.com', date: '15th Apr 26, 3:45 PM', direction: 'OUTGOING', type: 'PLAIN', from: 'SAVINMEDIA', to: '255683000111', sms_count: 1, cost: 15, sending_server: 'StarLink5G', status: 'delivered', message: 'Tangazo: Pata bidhaa za bei nafuu...' },
-      { id: 4, customer: 'Mazinde Union', customer_email: 'mazineunion@gmail.com', date: '15th Apr 26, 10:42 AM', direction: 'OUTGOING', type: 'PLAIN', from: 'TAARIFA', to: '255789000222, 255677000333, 255784000444', sms_count: 3, cost: 45, sending_server: 'StarLink5G', status: 'delivered', message: 'TAARIFA KWA WANAUMOJA april 2026...' },
-    ]);
-  }, []);
 
   const filtered = useMemo(() => {
     if (!search) return records;

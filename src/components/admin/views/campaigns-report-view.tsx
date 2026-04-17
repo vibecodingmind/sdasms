@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Search, Download, Trash2, BarChart3, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,26 +30,22 @@ const StatusBadge = ({ status }: { status: string }) => {
 };
 
 export function CampaignsReportView() {
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([
+    { id: 1, name: 'Test', customer: 'Redan Daycare Centre', customer_email: 'redandaycarecentre@gmail.com', contacts: 2, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'DONE', created_at: '2 hours ago', delivered_at: '15th Apr 26, 4:15 PM', delivered: 2, failed: 0 },
+    { id: 2, name: 'MEJASTAR MEDICAL NEW', customer: 'MEJASTAR MEDICAL LIMITED', customer_email: 'mejastarmedicallimited@gmail.com', contacts: 1000, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'DONE', created_at: '3 hours ago', delivered_at: '15th Apr 26, 3:33 PM', delivered: 998, failed: 2 },
+    { id: 3, name: 'TAARIFA KWA WANAUMOJA april 2026', customer: 'Mazinde Union', customer_email: 'mazineunion@gmail.com', contacts: 468, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'DONE', created_at: '8 hours ago', delivered_at: '15th Apr 26, 10:42 AM', delivered: 465, failed: 3 },
+    { id: 4, name: 'Encouragement', customer: 'Alabaster Box Ministry', customer_email: 'alabasterbox@gmail.com', contacts: 1266, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'DONE', created_at: '9 hours ago', delivered_at: '15th Apr 26, 9:23 AM', delivered: 1260, failed: 6 },
+    { id: 5, name: 'Test', customer: 'SAVIN MEDIA', customer_email: 'savpaulo@gmail.com', contacts: 4, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'DONE', created_at: '1 day ago', delivered_at: '14th Apr 26, 5:55 PM', delivered: 4, failed: 0 },
+    { id: 6, name: 'MATUKIO YA WAGONJWA NA MSIBA APRIL 2026', customer: 'MEJASTAR MEDICAL LIMITED', customer_email: 'mejastarmedicallimited@gmail.com', contacts: 468, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'SCHEDULED', created_at: '14th Apr 26, 3:19 PM' },
+    { id: 7, name: 'reminder', customer: 'Mazinde Union', customer_email: 'mazineunion@gmail.com', contacts: 4, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'SCHEDULED', created_at: '14th Apr 26, 11:18 AM' },
+    { id: 8, name: 'KIKAO', customer: 'Alabaster Box Ministry', customer_email: 'alabasterbox@gmail.com', contacts: 3, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'SCHEDULED', created_at: '13th Apr 26, 11:20 PM' },
+    { id: 9, name: 'Test', customer: 'SAVIN MEDIA', customer_email: 'savpaulo@gmail.com', contacts: 3, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'SCHEDULED', created_at: '13th Apr 26, 11:16 PM' },
+    { id: 10, name: 'MEJASTAR MEDICAL NEW', customer: 'MEJASTAR MEDICAL LIMITED', customer_email: 'mejastarmedicallimited@gmail.com', contacts: 1010, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'SCHEDULED', created_at: '13th Apr 26, 10:30 AM' },
+  ]);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [allChecked, setAllChecked] = useState(false);
-
-  useEffect(() => {
-    setCampaigns([
-      { id: 1, name: 'Test', customer: 'Redan Daycare Centre', customer_email: 'redandaycarecentre@gmail.com', contacts: 2, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'DONE', created_at: '2 hours ago', delivered_at: '15th Apr 26, 4:15 PM', delivered: 2, failed: 0 },
-      { id: 2, name: 'MEJASTAR MEDICAL NEW', customer: 'MEJASTAR MEDICAL LIMITED', customer_email: 'mejastarmedicallimited@gmail.com', contacts: 1000, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'DONE', created_at: '3 hours ago', delivered_at: '15th Apr 26, 3:33 PM', delivered: 998, failed: 2 },
-      { id: 3, name: 'TAARIFA KWA WANAUMOJA april 2026', customer: 'Mazinde Union', customer_email: 'mazineunion@gmail.com', contacts: 468, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'DONE', created_at: '8 hours ago', delivered_at: '15th Apr 26, 10:42 AM', delivered: 465, failed: 3 },
-      { id: 4, name: 'Encouragement', customer: 'Alabaster Box Ministry', customer_email: 'alabasterbox@gmail.com', contacts: 1266, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'DONE', created_at: '9 hours ago', delivered_at: '15th Apr 26, 9:23 AM', delivered: 1260, failed: 6 },
-      { id: 5, name: 'Test', customer: 'SAVIN MEDIA', customer_email: 'savpaulo@gmail.com', contacts: 4, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'DONE', created_at: '1 day ago', delivered_at: '14th Apr 26, 5:55 PM', delivered: 4, failed: 0 },
-      { id: 6, name: 'MATUKIO YA WAGONJWA NA MSIBA APRIL 2026', customer: 'MEJASTAR MEDICAL LIMITED', customer_email: 'mejastarmedicallimited@gmail.com', contacts: 468, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'SCHEDULED', created_at: '14th Apr 26, 3:19 PM' },
-      { id: 7, name: 'reminder', customer: 'Mazinde Union', customer_email: 'mazineunion@gmail.com', contacts: 4, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'SCHEDULED', created_at: '14th Apr 26, 11:18 AM' },
-      { id: 8, name: 'KIKAO', customer: 'Alabaster Box Ministry', customer_email: 'alabasterbox@gmail.com', contacts: 3, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'SCHEDULED', created_at: '13th Apr 26, 11:20 PM' },
-      { id: 9, name: 'Test', customer: 'SAVIN MEDIA', customer_email: 'savpaulo@gmail.com', contacts: 3, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'SCHEDULED', created_at: '13th Apr 26, 11:16 PM' },
-      { id: 10, name: 'MEJASTAR MEDICAL NEW', customer: 'MEJASTAR MEDICAL LIMITED', customer_email: 'mejastarmedicallimited@gmail.com', contacts: 1010, sms_type: 'PLAIN', campaign_type: 'NORMAL', status: 'SCHEDULED', created_at: '13th Apr 26, 10:30 AM' },
-    ]);
-  }, []);
 
   const filtered = useMemo(() => {
     if (!search) return campaigns;

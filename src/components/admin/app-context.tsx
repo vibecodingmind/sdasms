@@ -179,25 +179,16 @@ const emailRoleMap: Record<string, UserRole> = {
 };
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<AdminUser | null>(null);
+  const initialSession = loadSession();
+  const [isAuthenticated, setIsAuthenticated] = useState(initialSession !== null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<AdminUser | null>(initialSession);
   const [currentView, setCurrentView] = useState<ViewId>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['Customer', 'Sending']);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [impersonatedCustomer, setImpersonatedCustomer] = useState<CustomerUser | null>(null);
-
-  // Restore session on mount
-  useEffect(() => {
-    const saved = loadSession();
-    if (saved) {
-      setUser(saved);
-      setIsAuthenticated(true);
-    }
-    setIsLoading(false);
-  }, []);
 
   // Apply dark class to html element on theme change
   useEffect(() => {
