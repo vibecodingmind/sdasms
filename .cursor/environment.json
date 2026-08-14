@@ -1,0 +1,10 @@
+{
+  "name": "sdasms",
+  "install": "bash .cursor/install.sh",
+  "terminals": [
+    {
+      "name": "next-dev",
+      "command": "npm run dev"
+    }
+  ]
+}
